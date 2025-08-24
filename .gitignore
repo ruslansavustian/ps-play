@@ -17,6 +17,16 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# Backend environment files
+backend/env.local
+backend/env.local.sqlite
+backend/.env
+backend/.env.local
+
+# Frontend environment files
+frontend/.env.local
+frontend/env.local
+
 # Runtime data
 pids
 *.pid
