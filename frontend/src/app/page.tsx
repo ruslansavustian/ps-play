@@ -4,8 +4,8 @@ import { useApp } from "@/contexts/AppProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Account, GamePlatform, AccountStatus } from "@/types";
-import { AccountTable } from "./components/tables/account-table";
+import { Account } from "@/types";
+import { AccountTable } from "../components/tables/account-table";
 
 // Header Component
 const Header = () => {
@@ -16,43 +16,28 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <h1 className="text-xl font-bold text-gray-900">Gaming Accounts</h1>
+            <h1 className="text-xl font-bold text-gray-900">
+              Игровые аккаунты
+            </h1>
           </div>
           <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
-              <>
-                <span className="text-sm text-gray-700">
-                  Welcome, {currentUser?.name}
-                </span>
-                <Link
-                  href="/dashboard"
-                  className="text-sm text-indigo-600 hover:text-indigo-500"
-                >
-                  Dashboard
-                </Link>
-                <button
-                  onClick={logout}
-                  className="text-sm text-red-600 hover:text-red-500"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="text-sm text-indigo-600 hover:text-indigo-500"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/register"
-                  className="text-sm bg-indigo-600 text-white px-3 py-1 rounded-md hover:bg-indigo-700"
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
+            <>
+              <span className="text-sm text-gray-700">
+                Добро пожаловать, {currentUser?.name}
+              </span>
+              <Link
+                href="/dashboard"
+                className="text-sm text-indigo-600 hover:text-indigo-500"
+              >
+                Панель управления
+              </Link>
+              <button
+                onClick={logout}
+                className="text-sm text-red-600 hover:text-red-500"
+              >
+                Выйти
+              </button>
+            </>
           </div>
         </div>
       </div>
@@ -153,17 +138,17 @@ export default function Home() {
   // }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <div className="min-h-screen  container mx-auto">
+      {/* <Header /> */}
       <main>
         <div className="py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-extrabold text-gray-900">
-                Gaming Accounts Marketplace
+                Игровые аккаунты
               </h2>
               <p className="mt-2 text-gray-600">
-                Browse and purchase verified gaming accounts
+                Просмотр и покупка проверенных игровых аккаунтов
               </p>
             </div>
           </div>

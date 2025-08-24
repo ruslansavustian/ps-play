@@ -3,27 +3,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-
-export enum GamePlatform {
-  PLAYSTATION = 'playstation',
-  XBOX = 'xbox',
-  STEAM = 'steam',
-  EPIC_GAMES = 'epic_games',
-  NINTENDO = 'nintendo',
-  BATTLE_NET = 'battle_net',
-  ORIGIN = 'origin',
-  UBISOFT = 'ubisoft',
-}
-
-export enum AccountStatus {
-  AVAILABLE = 'available',
-  SOLD = 'sold',
-  RESERVED = 'reserved',
-  PENDING = 'pending',
-}
+import { Game } from '../game/game.entity';
 
 @Entity('accounts')
 export class Account {
@@ -31,56 +15,28 @@ export class Account {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty({ description: 'Gaming platform', enum: GamePlatform })
-  @Column({
-    type: 'enum',
-    enum: GamePlatform,
+  @ApiProperty({
+    description: 'Game associated with this account',
+    type: () => Game,
   })
-  platform: GamePlatform;
+  @ManyToOne(() => Game, { eager: true })
+  @JoinColumn({ name: 'gameId' })
+  games: Game;
 
   @ApiProperty({
-    description: 'Account username or email',
+    description: 'Gaming platform',
     type: String,
-    maxLength: 100,
   })
   @Column({ length: 100 })
-  username: string;
+  platform: string;
 
-  @ApiProperty({
-    description: 'Account level or rank',
-    type: String,
-    maxLength: 50,
-  })
-  @Column({ length: 50, nullable: true })
-  level: string;
-
-  @ApiProperty({ description: 'Games owned or achievements', type: String })
-  @Column({ type: 'text', nullable: true })
-  gamesLibrary: string;
-
-  @ApiProperty({ description: 'Account price in USD', type: Number })
+  @ApiProperty({ description: 'Price for PS platform', type: Number })
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  price: number;
+  pricePS: number;
 
-  @ApiProperty({ description: 'Account status', enum: AccountStatus })
-  @Column({
-    type: 'enum',
-    enum: AccountStatus,
-    default: AccountStatus.AVAILABLE,
-  })
-  status: AccountStatus;
-
-  @ApiProperty({ description: 'Additional account description', type: String })
-  @Column({ type: 'text', nullable: true })
-  description: string;
-
-  @ApiProperty({ description: 'Account verification status', type: Boolean })
-  @Column({ default: false })
-  isVerified: boolean;
-
-  @ApiProperty({ description: 'Region or server', type: String, maxLength: 50 })
-  @Column({ length: 50, nullable: true })
-  region: string;
+  @ApiProperty({ description: 'Price for PS4 platform', type: Number })
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  pricePS4: number;
 
   @ApiProperty({
     description: 'Creation timestamp',
@@ -88,13 +44,5 @@ export class Account {
     format: 'date-time',
   })
   @CreateDateColumn()
-  createdAt: Date;
-
-  @ApiProperty({
-    description: 'Last update timestamp',
-    type: String,
-    format: 'date-time',
-  })
-  @UpdateDateColumn()
-  updatedAt: Date;
+  created: Date;
 }

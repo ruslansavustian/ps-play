@@ -56,13 +56,7 @@ export class AccountController {
     description: 'List of gaming accounts retrieved successfully',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  findAll(
-    @Query('platform') platform?: string,
-    @Query('available') available?: string,
-  ) {
-    if (available === 'true') {
-      return this.accountService.findAvailable();
-    }
+  findAll(@Query('platform') platform?: string) {
     if (platform) {
       return this.accountService.findByPlatform(platform);
     }

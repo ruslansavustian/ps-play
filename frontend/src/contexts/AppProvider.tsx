@@ -18,7 +18,9 @@ import {
   AuthResponse,
   CreateAccountDto,
   Account,
+  Game,
 } from "@/types";
+import { FormState } from "@/utils/form";
 
 const AppContext = createContext<ReturnType<typeof useProvideApp> | undefined>(
   undefined
@@ -27,11 +29,13 @@ const AppContext = createContext<ReturnType<typeof useProvideApp> | undefined>(
 const useProvideApp = () => {
   const router = useRouter();
 
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [accounts, setAccounts] = useState<Account[]>();
   const [accountsLoading, setAccountsLoading] = useState<boolean>(false);
+
+  const [games, setGames] = useState<Game[]>();
 
   const isAuthenticated = useMemo(() => {
     return !!currentUser && !!localStorage.getItem("token");
@@ -54,23 +58,24 @@ const useProvideApp = () => {
   }, []);
 
   const login = useCallback(
-    async (credentials: LoginDto) => {
-      console.log("Attempting login for:", credentials.email);
+    async (credentials: FormState) => {
+      setLoading(true);
+      console.log("Attempting login for:", credentials);
       try {
         const response = await request.post("/auth/login", credentials);
-        console.log("Login response:", response.status);
+
         const { access_token, user } = response.data;
 
         localStorage.setItem("token", access_token);
         request.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${access_token}`;
-
         setCurrentUser(user);
-        router.push("/dashboard");
       } catch (error) {
         console.error("Login failed:", error);
         throw error;
+      } finally {
+        setLoading(false);
       }
     },
     [router]
@@ -133,6 +138,45 @@ const useProvideApp = () => {
     }
   }, []);
 
+  const createGame = useCallback(async (data: { name: string }) => {
+    try {
+      const result = await request.post("/games", data);
+      const newGame = result.data;
+      setGames((prev) => [...(prev || []), newGame]);
+      return newGame;
+    } catch (error: any) {
+      console.error("Failed to create game:", error);
+      throw error;
+    }
+  }, []);
+
+  const updateGame = useCallback(
+    async (id: number, data: Partial<{ name: string }>) => {
+      try {
+        const result = await request.patch(`/games/${id}`, data);
+        const updatedGame = result.data;
+        setGames((prev) =>
+          prev?.map((game) => (game.id === id ? updatedGame : game))
+        );
+        return updatedGame;
+      } catch (error: any) {
+        console.error("Failed to update game:", error);
+        throw error;
+      }
+    },
+    []
+  );
+
+  const deleteGame = useCallback(async (id: number) => {
+    try {
+      await request.delete(`/games/${id}`);
+      setGames((prev) => prev?.filter((game) => game.id !== id));
+    } catch (error: any) {
+      console.error("Failed to delete game:", error);
+      throw error;
+    }
+  }, []);
+
   // const updateAccount = useCallback(
   //   async (id: number, data: Partial<CreateAccountDto>) => {
   //     try {
@@ -159,6 +203,19 @@ const useProvideApp = () => {
     } catch (error: any) {
       console.error("Failed to delete candidate:", error);
       throw error;
+    }
+  }, []);
+
+  const fetchGames = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await request.get("/games");
+      const fetchedGames = result.data;
+      setGames(fetchedGames);
+    } catch (error: any) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -191,6 +248,12 @@ const useProvideApp = () => {
     fetchAccounts,
     createAccount,
     deleteAccount,
+    setCurrentUser,
+    fetchGames,
+    games,
+    createGame,
+    updateGame,
+    deleteGame,
   };
 };
 

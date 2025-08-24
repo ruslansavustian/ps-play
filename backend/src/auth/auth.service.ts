@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
@@ -67,6 +68,59 @@ export class AuthService {
       access_token,
       user: result,
     };
+  }
+
+  async validateBasicAuth(authHeader: string) {
+    if (!authHeader || !authHeader.startsWith('Basic ')) {
+      throw new BadRequestException('Invalid authorization header');
+    }
+
+    try {
+      // Extract credentials from Basic Auth header
+      const base64Credentials = authHeader.replace('Basic ', '');
+      const credentials = Buffer.from(base64Credentials, 'base64').toString(
+        'utf-8',
+      );
+      const [email, password] = credentials.split(':');
+
+      if (!email || !password) {
+        throw new UnauthorizedException('Invalid credentials format');
+      }
+
+      // Find user by email
+      const user = await this.userService.findByEmail(email);
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      // Validate password
+      const isPasswordValid = await this.userService.validatePassword(
+        password,
+        user.password,
+      );
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      // Generate JWT token
+      const payload = { username: user.email, sub: user.id };
+      const access_token = this.jwtService.sign(payload);
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password: _, ...result } = user;
+      return {
+        access_token,
+        user: result,
+      };
+    } catch (error) {
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      throw new UnauthorizedException('Invalid credentials');
+    }
   }
 
   async getProfile(userId: number) {
