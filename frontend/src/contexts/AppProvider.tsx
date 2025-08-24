@@ -30,7 +30,7 @@ const useProvideApp = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>();
   const [accountsLoading, setAccountsLoading] = useState<boolean>(false);
 
   const isAuthenticated = useMemo(() => {
@@ -125,7 +125,7 @@ const useProvideApp = () => {
     try {
       const result = await request.post("/accounts", data);
       const newAccount = result.data;
-      setAccounts((prev) => [...prev, newAccount]);
+      setAccounts((prev) => [...(prev || []), newAccount]);
       return newAccount;
     } catch (error: any) {
       console.error("Failed to create account:", error);
@@ -155,7 +155,7 @@ const useProvideApp = () => {
   const deleteAccount = useCallback(async (id: number) => {
     try {
       await request.delete(`/accounts/${id}`);
-      setAccounts((prev) => prev.filter((account) => account.id !== id));
+      setAccounts((prev) => prev?.filter((account) => account.id !== id));
     } catch (error: any) {
       console.error("Failed to delete candidate:", error);
       throw error;
