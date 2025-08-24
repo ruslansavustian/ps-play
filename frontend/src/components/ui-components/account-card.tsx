@@ -21,7 +21,7 @@ export const AccountCard = ({ account }: { account: Account }) => {
         <div className="flex items-center space-x-2">
           <span className="text-xl">{account.platform}</span>
           <h4 className="text-lg font-semibold text-gray-900">
-            {account.games}
+            {account.games.name}
           </h4>
           {/* {account.isVerified && (
             <span className="text-green-500 text-sm">✓ Verified</span>
