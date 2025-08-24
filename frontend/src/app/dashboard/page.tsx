@@ -3,21 +3,19 @@
 import { useApp } from "@/contexts/AppProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CreateAccountModal } from "../components/modals/create-account-modal";
 import { MyButton } from "../components/ui-components/my-button";
-import { Candidate } from "@/types";
-import { CandidateCard } from "../components/ui-components/candidate-card";
-import { CreateCandidateModal } from "../components/modals/create-candidate-modal";
+import { AccountCard } from "../components/ui-components/account-card";
 
 export default function DashboardPage() {
   const {
     currentUser,
     logout,
     loading,
-    candidates,
-    candidatesLoading,
-    createCandidate,
-    updateCandidate,
-    deleteCandidate,
+    accounts,
+    accountsLoading,
+    createAccount,
+    deleteAccount,
   } = useApp();
   const router = useRouter();
   const [isCreateCandidateModalOpen, setIsCreateCandidateModalOpen] =
@@ -44,7 +42,7 @@ export default function DashboardPage() {
   };
   return (
     <div className="min-h-screen bg-gray-50 px-[10%]">
-      <CreateCandidateModal
+      <CreateAccountModal
         isOpen={isCreateCandidateModalOpen}
         onClose={() => setIsCreateCandidateModalOpen(false)}
       />
@@ -87,13 +85,13 @@ export default function DashboardPage() {
 
               {/* Candidates Grid */}
               <div className="flex flex-col gap-4">
-                {candidatesLoading ? (
+                {accountsLoading ? (
                   <div className="col-span-full text-center py-8">
                     <div className="text-gray-500">Loading candidates...</div>
                   </div>
-                ) : candidates.length > 0 ? (
-                  candidates.map((candidate) => (
-                    <CandidateCard key={candidate.id} candidate={candidate} />
+                ) : accounts.length > 0 ? (
+                  accounts.map((account) => (
+                    <AccountCard key={account.id} account={account} />
                   ))
                 ) : (
                   /* Empty state when no candidates */

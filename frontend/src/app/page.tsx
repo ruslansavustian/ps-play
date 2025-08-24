@@ -142,18 +142,18 @@ const AccountCard = ({ account }: { account: Account }) => {
 
 // Accounts List Component
 const AccountsList = () => {
-  const { candidates, candidatesLoading, fetchCandidates } = useApp();
+  const { accounts, accountsLoading, fetchAccounts } = useApp();
   const [filter, setFilter] = useState<AccountStatus | "all">("all");
 
   useEffect(() => {
-    fetchCandidates();
-  }, [fetchCandidates]);
+    fetchAccounts();
+  }, [fetchAccounts]);
 
-  const filteredAccounts = candidates.filter(
+  const filteredAccounts = accounts.filter(
     (account) => filter === "all" || account.status === filter
   );
 
-  if (candidatesLoading) {
+  if (accountsLoading) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -173,11 +173,11 @@ const AccountsList = () => {
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           }`}
         >
-          All ({candidates.length})
+          All ({accounts.length})
         </button>
         {Object.values(AccountStatus).map((status) => {
-          const count = candidates.filter(
-            (acc) => acc.status === status
+          const count = accounts.filter(
+            (account) => account.status === status
           ).length;
           return (
             <button

@@ -106,9 +106,7 @@ export const CreateAccountModal = ({
               isRequired
             >
               {platformOptions.map((option) => (
-                <SelectItem key={option.key} value={option.key}>
-                  {option.label}
-                </SelectItem>
+                <SelectItem key={option.key}>{option.label}</SelectItem>
               ))}
             </Select>
 
@@ -163,9 +161,7 @@ export const CreateAccountModal = ({
                 }}
               >
                 {statusOptions.map((option) => (
-                  <SelectItem key={option.key} value={option.key}>
-                    {option.label}
-                  </SelectItem>
+                  <SelectItem key={option.key}>{option.label}</SelectItem>
                 ))}
               </Select>
             </div>
