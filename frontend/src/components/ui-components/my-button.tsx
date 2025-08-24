@@ -5,9 +5,10 @@ interface MyButtonProps {
   title: string;
   onClick?: () => void;
   link?: string;
+  type?: "button" | "submit" | "reset";
 }
 
-export const MyButton = ({ title, onClick, link }: MyButtonProps) => {
+export const MyButton = ({ title, onClick, link, type }: MyButtonProps) => {
   if (link) {
     return (
       <Link href={link}>
@@ -19,6 +20,7 @@ export const MyButton = ({ title, onClick, link }: MyButtonProps) => {
   }
   return (
     <button
+      type={type}
       onClick={onClick}
       className="bg-black text-white p-2 rounded-md text-md hover:cursor-pointer hover:opacity-80 hover:scale-105 transition-all duration-300"
     >

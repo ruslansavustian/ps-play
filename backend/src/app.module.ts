@@ -8,6 +8,8 @@ import { UserModule } from './user/user.module';
 import { User } from './user/user.entity';
 import { Account } from './account/account.entity';
 import { AccountModule } from './account/account.module';
+import { Game } from './game/game.entity';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -19,7 +21,7 @@ import { AccountModule } from './account/account.module';
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
         url: config.get<string>('DATABASE_URL'),
-        entities: [User, Account],
+        entities: [User, Account, Game],
         synchronize: true,
         ssl:
           process.env.NODE_ENV === 'production'
@@ -30,6 +32,7 @@ import { AccountModule } from './account/account.module';
     AuthModule,
     UserModule,
     AccountModule,
+    GameModule,
   ],
   controllers: [AppController],
   providers: [AppService],

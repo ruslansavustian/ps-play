@@ -24,49 +24,31 @@ export interface AuthResponse {
 }
 
 // Gaming Account types
-export enum GamePlatform {
-  PLAYSTATION = "playstation",
-  XBOX = "xbox",
-  STEAM = "steam",
-  EPIC_GAMES = "epic_games",
-  NINTENDO = "nintendo",
-  BATTLE_NET = "battle_net",
-  ORIGIN = "origin",
-  UBISOFT = "ubisoft",
-}
-
-export enum AccountStatus {
-  AVAILABLE = "available",
-  SOLD = "sold",
-  RESERVED = "reserved",
-  PENDING = "pending",
-}
-
 export interface Account {
   id?: number;
-  platform: GamePlatform;
-  username: string;
-  level?: string;
-  gamesLibrary?: string;
-  price: number;
-  status: AccountStatus;
-  description?: string;
-  isVerified: boolean;
-  region?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  games: Game;
+  platform: string;
+  pricePS: number;
+  pricePS4: number;
+  created?: string;
 }
 
 export interface CreateAccountDto {
-  platform: GamePlatform;
-  username: string;
-  level?: string;
-  gamesLibrary?: string;
-  price: number;
-  status?: AccountStatus;
-  description?: string;
-  isVerified?: boolean;
-  region?: string;
+  games: number;
+  platform: string;
+  pricePS: number;
+  pricePS4: number;
+}
+
+// Game types
+export interface Game {
+  id?: number;
+  name: string;
+  created?: string;
+}
+
+export interface CreateGameDto {
+  name: string;
 }
 
 // App State types
@@ -81,6 +63,11 @@ export interface AccountsState {
   accountsLoading: boolean;
 }
 
-export interface AppState extends AuthState, AccountsState {
+export interface GamesState {
+  games: Game[];
+  gamesLoading: boolean;
+}
+
+export interface AppState extends AuthState, AccountsState, GamesState {
   // Future: можно добавить другие состояния (projects, settings, etc.)
 }
