@@ -20,7 +20,7 @@ export const AccountTableCard = ({ account }: { account: Account }) => {
             <span className="text-2xl">🎮</span>
             <div>
               <h3 className="text-lg font-bold text-gray-900">
-                {account.games}
+                {account.games.name}
               </h3>
               <p className="text-sm text-gray-600">{account.platform}</p>
             </div>
@@ -54,7 +54,7 @@ export const AccountTableCard = ({ account }: { account: Account }) => {
           <div>
             <span className="text-sm text-gray-500">Игры:</span>
             <p className="text-sm text-gray-700 mt-1 line-clamp-2">
-              {account.games}
+              {account.games.name}
             </p>
           </div>
         )}
