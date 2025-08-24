@@ -30,8 +30,8 @@ const useProvideApp = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [candidates, setCandidates] = useState<Account[]>([]);
-  const [candidatesLoading, setCandidatesLoading] = useState<boolean>(false);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [accountsLoading, setAccountsLoading] = useState<boolean>(false);
 
   const isAuthenticated = useMemo(() => {
     return !!currentUser && !!localStorage.getItem("token");
@@ -103,59 +103,59 @@ const useProvideApp = () => {
     localStorage.removeItem("token");
     request.defaults.headers.common["Authorization"] = "";
     setCurrentUser(null);
-    setCandidates([]);
+    setAccounts([]);
     router.push("/login");
   }, [router]);
 
   // Load candidates
-  const fetchCandidates = useCallback(async () => {
+  const fetchAccounts = useCallback(async () => {
     try {
-      setCandidatesLoading(true);
-      const result = await request.get("/candidates");
-      const fetchedCandidates = result.data;
-      setCandidates(fetchedCandidates);
+      setAccountsLoading(true);
+      const result = await request.get("/accounts");
+      const fetchedAccounts = result.data;
+      setAccounts(fetchedAccounts);
     } catch (error: any) {
       console.log("error", error);
     } finally {
-      setCandidatesLoading(false);
+      setAccountsLoading(false);
     }
   }, []);
 
-  const createCandidate = useCallback(async (data: CreateAccountDto) => {
+  const createAccount = useCallback(async (data: CreateAccountDto) => {
     try {
-      const result = await request.post("/candidates", data);
-      const newCandidate = result.data;
-      setCandidates((prev) => [...prev, newCandidate]);
-      return newCandidate;
+      const result = await request.post("/accounts", data);
+      const newAccount = result.data;
+      setAccounts((prev) => [...prev, newAccount]);
+      return newAccount;
     } catch (error: any) {
-      console.error("Failed to create candidate:", error);
+      console.error("Failed to create account:", error);
       throw error;
     }
   }, []);
 
-  const updateCandidate = useCallback(
-    async (id: number, data: Partial<CreateAccountDto>) => {
-      try {
-        const result = await request.put(`/candidates/${id}`, data);
-        const updatedCandidate = result.data;
-        setCandidates((prev) =>
-          prev.map((candidate) =>
-            candidate.id === id ? updatedCandidate : candidate
-          )
-        );
-        return updatedCandidate;
-      } catch (error: any) {
-        console.error("Failed to update candidate:", error);
-        throw error;
-      }
-    },
-    []
-  );
+  // const updateAccount = useCallback(
+  //   async (id: number, data: Partial<CreateAccountDto>) => {
+  //     try {
+  //       const result = await request.put(`/candidates/${id}`, data);
+  //       const updatedCandidate = result.data;
+  //       setAccounts((prev) =>
+  //         prev.map((account) =>
+  //           account.id === id ? updateAccount : account
+  //         )
+  //       );
+  //       return updatedCandidate;
+  //     } catch (error: any) {
+  //       console.error("Failed to update candidate:", error);
+  //       throw error;
+  //     }
+  //   },
+  //   []
+  // );
 
-  const deleteCandidate = useCallback(async (id: number) => {
+  const deleteAccount = useCallback(async (id: number) => {
     try {
-      await request.delete(`/candidates/${id}`);
-      setCandidates((prev) => prev.filter((candidate) => candidate.id !== id));
+      await request.delete(`/accounts/${id}`);
+      setAccounts((prev) => prev.filter((account) => account.id !== id));
     } catch (error: any) {
       console.error("Failed to delete candidate:", error);
       throw error;
@@ -182,16 +182,15 @@ const useProvideApp = () => {
     currentUser,
     isAuthenticated,
     loading,
-    candidates,
-    candidatesLoading,
+    accounts,
+    accountsLoading,
     login,
     register,
     logout,
     fetchCurrentUser,
-    fetchCandidates,
-    createCandidate,
-    updateCandidate,
-    deleteCandidate,
+    fetchAccounts,
+    createAccount,
+    deleteAccount,
   };
 };
 
