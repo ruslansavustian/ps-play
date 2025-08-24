@@ -1,0 +1,252 @@
+"use client";
+
+import { useApp } from "@/contexts/AppProvider";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Account, GamePlatform, AccountStatus } from "@/types";
+
+// Header Component
+const Header = () => {
+  const { currentUser, logout, isAuthenticated } = useApp();
+
+  return (
+    <header className="bg-white shadow-sm border-b">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <h1 className="text-xl font-bold text-gray-900">Gaming Accounts</h1>
+          </div>
+          <div className="flex items-center space-x-4">
+            {isAuthenticated ? (
+              <>
+                <span className="text-sm text-gray-700">
+                  Welcome, {currentUser?.name}
+                </span>
+                <Link
+                  href="/dashboard"
+                  className="text-sm text-indigo-600 hover:text-indigo-500"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={logout}
+                  className="text-sm text-red-600 hover:text-red-500"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm text-indigo-600 hover:text-indigo-500"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  className="text-sm bg-indigo-600 text-white px-3 py-1 rounded-md hover:bg-indigo-700"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+// Account Card Component
+const AccountCard = ({ account }: { account: Account }) => {
+  const getPlatformIcon = (platform: GamePlatform) => {
+    const icons = {
+      [GamePlatform.PLAYSTATION]: "🎮",
+      [GamePlatform.XBOX]: "🎯",
+      [GamePlatform.STEAM]: "🚂",
+      [GamePlatform.EPIC_GAMES]: "🚀",
+      [GamePlatform.NINTENDO]: "🎌",
+      [GamePlatform.BATTLE_NET]: "⚔️",
+      [GamePlatform.ORIGIN]: "🌟",
+      [GamePlatform.UBISOFT]: "🎪",
+    };
+    return icons[platform] || "🎮";
+  };
+
+  const getStatusColor = (status: AccountStatus) => {
+    const colors = {
+      [AccountStatus.AVAILABLE]: "bg-green-100 text-green-800",
+      [AccountStatus.SOLD]: "bg-red-100 text-red-800",
+      [AccountStatus.RESERVED]: "bg-yellow-100 text-yellow-800",
+      [AccountStatus.PENDING]: "bg-blue-100 text-blue-800",
+    };
+    return colors[status] || "bg-gray-100 text-gray-800";
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center space-x-3">
+          <span className="text-2xl">{getPlatformIcon(account.platform)}</span>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {account.username}
+            </h3>
+            <p className="text-sm text-gray-600 capitalize">
+              {account.platform.replace("_", " ")}
+            </p>
+          </div>
+        </div>
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+            account.status
+          )}`}
+        >
+          {account.status}
+        </span>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {account.level && (
+          <p className="text-sm text-gray-600">
+            <span className="font-medium">Level:</span> {account.level}
+          </p>
+        )}
+        {account.region && (
+          <p className="text-sm text-gray-600">
+            <span className="font-medium">Region:</span> {account.region}
+          </p>
+        )}
+        {account.description && (
+          <p className="text-sm text-gray-600 line-clamp-2">
+            {account.description}
+          </p>
+        )}
+      </div>
+
+      <div className="mt-4 flex items-center justify-between">
+        <span className="text-2xl font-bold text-green-600">
+          ${account.price}
+        </span>
+        {account.isVerified && (
+          <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+            ✓ Verified
+          </span>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Accounts List Component
+const AccountsList = () => {
+  const { candidates, candidatesLoading, fetchCandidates } = useApp();
+  const [filter, setFilter] = useState<AccountStatus | "all">("all");
+
+  useEffect(() => {
+    fetchCandidates();
+  }, [fetchCandidates]);
+
+  const filteredAccounts = candidates.filter(
+    (account) => filter === "all" || account.status === filter
+  );
+
+  if (candidatesLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Filter Buttons */}
+      <div className="mb-6 flex flex-wrap gap-2">
+        <button
+          onClick={() => setFilter("all")}
+          className={`px-4 py-2 rounded-md text-sm font-medium ${
+            filter === "all"
+              ? "bg-indigo-600 text-white"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          All ({candidates.length})
+        </button>
+        {Object.values(AccountStatus).map((status) => {
+          const count = candidates.filter(
+            (acc) => acc.status === status
+          ).length;
+          return (
+            <button
+              key={status}
+              onClick={() => setFilter(status)}
+              className={`px-4 py-2 rounded-md text-sm font-medium ${
+                filter === status
+                  ? "bg-indigo-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {status} ({count})
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Accounts Grid */}
+      {filteredAccounts.length === 0 ? (
+        <div className="text-center py-12">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No accounts found
+          </h3>
+          <p className="text-gray-600">
+            {filter === "all"
+              ? "No gaming accounts are available yet."
+              : `No accounts with status "${filter}" found.`}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredAccounts.map((account) => (
+            <AccountCard key={account.id} account={account} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default function Home() {
+  const { loading } = useApp();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <main>
+        <div className="py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-extrabold text-gray-900">
+                Gaming Accounts Marketplace
+              </h2>
+              <p className="mt-2 text-gray-600">
+                Browse and purchase verified gaming accounts
+              </p>
+            </div>
+          </div>
+        </div>
+        <AccountsList />
+      </main>
+    </div>
+  );
+}
