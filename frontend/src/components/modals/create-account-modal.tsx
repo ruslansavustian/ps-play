@@ -8,6 +8,7 @@ import {
   Button,
   Input,
   Textarea,
+  Switch,
 } from "@heroui/react";
 import { Account, Game, CreateAccountDto } from "@/types";
 import { useApp } from "@/contexts/AppProvider";
@@ -26,9 +27,13 @@ export const CreateAccountModal = ({
 
   const [formData, setFormData] = useState<Account>({
     games: {} as Game,
-    platform: "",
-    pricePS: 0,
+    platformPS4: false,
+    platformPS5: false,
+    pricePS5: 0,
     pricePS4: 0,
+    P1: false,
+    P2: false,
+    P3: false,
   });
 
   const { games } = useApp();
@@ -42,17 +47,25 @@ export const CreateAccountModal = ({
     // Convert the full game object to just the ID for the API
     const accountData: CreateAccountDto = {
       games: formData.games.id || 0,
-      platform: formData.platform,
-      pricePS: formData.pricePS,
-      pricePS4: formData.pricePS4,
+      platformPS4: formData.platformPS4,
+      platformPS5: formData.platformPS5,
+      pricePS5: Number(formData.pricePS5),
+      pricePS4: Number(formData.pricePS4),
+      P1: formData.P1,
+      P2: formData.P2,
+      P3: formData.P3,
     };
     await createAccount(accountData);
     // Reset form
     setFormData({
       games: {} as Game,
-      platform: "",
-      pricePS: 0,
+      platformPS4: false,
+      platformPS5: false,
+      pricePS5: 0,
       pricePS4: 0,
+      P1: false,
+      P2: false,
+      P3: false,
     });
     onClose?.();
   }, [formData, createAccount, onClose]);
@@ -62,6 +75,7 @@ export const CreateAccountModal = ({
     setFormData({
       ...formData,
       [name]: type === "number" ? parseFloat(value) || 0 : value,
+      [name]: type === "boolean" ? value === "true" : value,
     });
   };
 
@@ -83,8 +97,9 @@ export const CreateAccountModal = ({
     return (
       formData.games &&
       formData.games.id &&
-      formData.platform &&
-      (formData.pricePS > 0 || formData.pricePS4 > 0)
+      formData.platformPS4 &&
+      formData.platformPS5 &&
+      (formData.pricePS5 > 0 || formData.pricePS4 > 0)
     );
   };
 
@@ -115,25 +130,47 @@ export const CreateAccountModal = ({
             />
 
             {/* Platform */}
-            <Input
-              label="Платформа"
-              placeholder="например, PlayStation, Xbox, PC"
-              name="platform"
-              value={formData.platform}
-              onChange={handleInputChange}
-              isRequired
-            />
+            <div className="flex gap-4">
+              <div>
+                <p>PS4</p>
+              </div>
+              <Switch
+                name="platformPS4"
+                isSelected={formData.platformPS4}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    platformPS4: value,
+                  })
+                }
+              />
+            </div>
+            <div className="flex gap-4">
+              <div>
+                <p>PS5</p>
+              </div>
+              <Switch
+                name="platformPS5"
+                isSelected={formData.platformPS5}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    platformPS5: value,
+                  })
+                }
+              />
+            </div>
 
             {/* Prices */}
             <div className="flex gap-4">
               <Input
                 label="Цена PS (USD)"
                 placeholder="0.00"
-                name="pricePS"
+                name="pricePS5"
                 type="number"
                 min="0"
                 step="0.01"
-                value={formData.pricePS.toString()}
+                value={formData.pricePS5.toString()}
                 onChange={handleInputChange}
                 startContent={<span className="text-gray-500">$</span>}
               />

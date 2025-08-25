@@ -24,8 +24,7 @@ export default function DashboardPage() {
     fetchGames,
   } = useApp();
   const router = useRouter();
-  const [isCreateAccountModalOpen, setIsCreateAccountModalOpen] =
-    useState(false);
+
   const [isCreateGameModalOpen, setIsCreateGameModalOpen] = useState(false);
   useEffect(() => {
     if (!loading && !currentUser) {
@@ -60,18 +59,12 @@ export default function DashboardPage() {
   if (!currentUser) {
     return null;
   }
-  const handleAddAccount = () => {
-    setIsCreateAccountModalOpen(true);
-  };
+
   const handleAddGame = () => {
     setIsCreateGameModalOpen(true);
   };
   return (
     <div className="min-h-screen bg-gray-50 px-[10%]">
-      <CreateAccountModal
-        isOpen={isCreateAccountModalOpen}
-        onClose={() => setIsCreateAccountModalOpen(false)}
-      />
       <CreateGameModal
         isOpen={isCreateGameModalOpen}
         onClose={() => setIsCreateGameModalOpen(false)}
@@ -101,7 +94,7 @@ export default function DashboardPage() {
           <Tab key="accounts" title="Аккаунты">
             <Card>
               <CardBody>
-                <AccountSection handleAddAccount={handleAddAccount} />
+                <AccountSection />
               </CardBody>
             </Card>
           </Tab>
