@@ -23,7 +23,7 @@ export const CreateAccountModal = ({
   isOpen,
   onClose,
 }: CreateAccountModalProps) => {
-  const { createAccount } = useApp();
+  const { createAccount, fetchAccounts } = useApp();
 
   const [formData, setFormData] = useState<Account>({
     games: {} as Game,
@@ -67,6 +67,7 @@ export const CreateAccountModal = ({
       P2: false,
       P3: false,
     });
+    fetchAccounts();
     onClose?.();
   }, [formData, createAccount, onClose]);
 

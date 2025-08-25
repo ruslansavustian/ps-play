@@ -48,7 +48,7 @@ export class CreateAccountDto {
   })
   @IsBoolean()
   @IsNotEmpty()
-  p1: boolean;
+  P1?: boolean;
 
   @ApiProperty({
     description: 'P2 status',
@@ -56,7 +56,7 @@ export class CreateAccountDto {
   })
   @IsBoolean()
   @IsNotEmpty()
-  p2: boolean;
+  P2?: boolean;
 
   @ApiProperty({
     description: 'P3 status',
@@ -64,5 +64,5 @@ export class CreateAccountDto {
   })
   @IsBoolean()
   @IsNotEmpty()
-  p3: boolean;
+  P3?: boolean;
 }
