@@ -19,7 +19,9 @@ import {
 } from '@nestjs/swagger';
 import { AccountService } from './account.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Public } from 'src/auth/public.decorator';
 import { CreateAccountDto } from './dto/create-account.dto';
+import { UpdateAccountDto } from './dto/update-account.dto';
 
 @ApiTags('Gaming Accounts')
 @ApiBearerAuth()
@@ -56,9 +58,39 @@ export class AccountController {
     description: 'List of gaming accounts retrieved successfully',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  findAll(@Query('platform') platform?: string) {
-    if (platform) {
-      return this.accountService.findByPlatform(platform);
+  findAll(
+    @Query('platformPS4') platformPS4?: boolean,
+    @Query('platformPS5') platformPS5?: boolean,
+  ) {
+    if (platformPS4 || platformPS5) {
+      return this.accountService.findByPlatform(platformPS4, platformPS5);
+    }
+    return this.accountService.findAll();
+  }
+
+  @Get('public')
+  @Public()
+  @ApiOperation({ summary: 'Get all gaming accounts (public endpoint)' })
+  @ApiQuery({
+    name: 'platform',
+    required: false,
+    description: 'Filter by platform',
+  })
+  @ApiQuery({
+    name: 'available',
+    required: false,
+    description: 'Show only available accounts',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of gaming accounts retrieved successfully',
+  })
+  findPublic(
+    @Query('platformPS4') platformPS4?: boolean,
+    @Query('platformPS5') platformPS5?: boolean,
+  ) {
+    if (platformPS4 || platformPS5) {
+      return this.accountService.findByPlatform(platformPS4, platformPS5);
     }
     return this.accountService.findAll();
   }
@@ -83,7 +115,7 @@ export class AccountController {
   @ApiResponse({ status: 400, description: 'Validation error' })
   @ApiResponse({ status: 404, description: 'Gaming account not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  update(@Param('id') id: string, @Body() updateAccountDto: CreateAccountDto) {
+  update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
     return this.accountService.update(+id, updateAccountDto);
   }
 

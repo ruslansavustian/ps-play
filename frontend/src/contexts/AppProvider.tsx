@@ -34,7 +34,7 @@ const useProvideApp = () => {
 
   const [accounts, setAccounts] = useState<Account[]>();
   const [accountsLoading, setAccountsLoading] = useState<boolean>(false);
-
+  const [publicAccounts, setPublicAccounts] = useState<Account[]>();
   const [games, setGames] = useState<Game[]>();
 
   const isAuthenticated = useMemo(() => {
@@ -177,24 +177,22 @@ const useProvideApp = () => {
     }
   }, []);
 
-  // const updateAccount = useCallback(
-  //   async (id: number, data: Partial<CreateAccountDto>) => {
-  //     try {
-  //       const result = await request.put(`/candidates/${id}`, data);
-  //       const updatedCandidate = result.data;
-  //       setAccounts((prev) =>
-  //         prev.map((account) =>
-  //           account.id === id ? updateAccount : account
-  //         )
-  //       );
-  //       return updatedCandidate;
-  //     } catch (error: any) {
-  //       console.error("Failed to update candidate:", error);
-  //       throw error;
-  //     }
-  //   },
-  //   []
-  // );
+  const updateAccount = useCallback(
+    async (id: number, data: Partial<CreateAccountDto>) => {
+      try {
+        const result = await request.put(`/accounts/${id}`, data);
+        const updatedAccount = result.data;
+        setAccounts((prev) =>
+          prev?.map((account) => (account.id === id ? updatedAccount : account))
+        );
+        return updatedAccount;
+      } catch (error: any) {
+        console.error("Failed to update account:", error);
+        throw error;
+      }
+    },
+    []
+  );
 
   const deleteAccount = useCallback(async (id: number) => {
     try {
@@ -216,6 +214,16 @@ const useProvideApp = () => {
       console.log("error", error);
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const fetchPublicAccounts = useCallback(async () => {
+    try {
+      const result = await request.get("/accounts/public");
+      const fetchedAccounts = result.data;
+      setPublicAccounts(fetchedAccounts);
+    } catch (error: any) {
+      console.log("error", error);
     }
   }, []);
 
@@ -254,6 +262,9 @@ const useProvideApp = () => {
     createGame,
     updateGame,
     deleteGame,
+    updateAccount,
+    fetchPublicAccounts,
+    publicAccounts,
   };
 };
 

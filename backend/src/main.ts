@@ -1,29 +1,23 @@
+import './polyfills';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { webcrypto } from 'crypto';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-
-if (typeof globalThis.crypto === 'undefined') {
-  Object.defineProperty(globalThis, 'crypto', {
-    value: webcrypto,
-    configurable: true,
-    enumerable: true,
-    writable: true,
-  });
-}
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const { AppModule } = require('./app.module');
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+
   const config = new DocumentBuilder()
     .setTitle('Portfolio API')
     .setDescription('Portfolio application API documentation')
     .setVersion('1.0')
-    .addBearerAuth() // For JWT authentication
+    .addBearerAuth()
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api/docs', app, document);
+
   app.enableCors({
     origin: [
       'http://localhost:3001',
@@ -38,7 +32,6 @@ async function bootstrap() {
     optionsSuccessStatus: 204,
   });
 
-  // Global validation pipe for DTOs
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

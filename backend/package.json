@@ -7,6 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
+    "prestart": "node ../scripts/check-node-version.js",
+    "prestart:dev": "node ../scripts/check-node-version.js",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -72,8 +74,8 @@
     "rimraf": "^3.0.2"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   },
   "jest": {
     "moduleFileExtensions": [

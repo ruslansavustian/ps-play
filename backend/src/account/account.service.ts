@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Account } from './account.entity';
 import { CreateAccountDto } from './dto/create-account.dto';
+import { UpdateAccountDto } from './dto/update-account.dto';
 import { Game } from '../game/game.entity';
 
 @Injectable()
@@ -15,9 +16,13 @@ export class AccountService {
   async create(createAccountDto: CreateAccountDto): Promise<Account> {
     const account = this.accountRepository.create({
       games: { id: createAccountDto.games } as Game,
-      platform: createAccountDto.platform,
-      pricePS: createAccountDto.pricePS,
+      platformPS4: createAccountDto.platformPS4,
+      platformPS5: createAccountDto.platformPS5,
+      pricePS5: createAccountDto.pricePS5,
       pricePS4: createAccountDto.pricePS4,
+      P1: createAccountDto.p1 || false,
+      P2: createAccountDto.p2 || false,
+      P3: createAccountDto.p3 || false,
     });
     return await this.accountRepository.save(account);
   }
@@ -34,16 +39,19 @@ export class AccountService {
 
   async update(
     id: number,
-    updateData: Partial<CreateAccountDto>,
+    updateData: UpdateAccountDto,
   ): Promise<Account | null> {
     const updatePayload: Partial<Account> = {};
 
     // Only copy properties that exist in Account entity
-    if (updateData.platform !== undefined) {
-      updatePayload.platform = updateData.platform;
+    if (updateData.platformPS4 !== undefined) {
+      updatePayload.platformPS4 = updateData.platformPS4;
     }
-    if (updateData.pricePS !== undefined) {
-      updatePayload.pricePS = updateData.pricePS;
+    if (updateData.platformPS5 !== undefined) {
+      updatePayload.platformPS5 = updateData.platformPS5;
+    }
+    if (updateData.pricePS5 !== undefined) {
+      updatePayload.pricePS5 = updateData.pricePS5;
     }
     if (updateData.pricePS4 !== undefined) {
       updatePayload.pricePS4 = updateData.pricePS4;
@@ -54,6 +62,17 @@ export class AccountService {
       updatePayload.games = { id: updateData.games } as Game;
     }
 
+    // Handle P1, P2, P3 properties
+    if (updateData.P1 !== undefined) {
+      updatePayload.P1 = updateData.P1;
+    }
+    if (updateData.P2 !== undefined) {
+      updatePayload.P2 = updateData.P2;
+    }
+    if (updateData.P3 !== undefined) {
+      updatePayload.P3 = updateData.P3;
+    }
+
     await this.accountRepository.update(id, updatePayload);
     return this.findOne(id);
   }
@@ -62,9 +81,12 @@ export class AccountService {
     await this.accountRepository.delete(id);
   }
 
-  async findByPlatform(platform: string): Promise<Account[]> {
+  async findByPlatform(
+    platformPS4: boolean,
+    platformPS5: boolean,
+  ): Promise<Account[]> {
     return await this.accountRepository.find({
-      where: { platform },
+      where: { platformPS4, platformPS5 },
       order: { created: 'DESC' },
     });
   }

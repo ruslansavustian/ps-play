@@ -27,16 +27,24 @@ export interface AuthResponse {
 export interface Account {
   id?: number;
   games: Game;
-  platform: string;
-  pricePS: number;
+  pricePS5: number;
+  platformPS4: boolean;
+  platformPS5: boolean;
   pricePS4: number;
+  P1: boolean;
+  P2: boolean;
+  P3: boolean;
   created?: string;
 }
 
 export interface CreateAccountDto {
   games: number;
-  platform: string;
-  pricePS: number;
+  platformPS4: boolean;
+  platformPS5: boolean;
+  P1: boolean;
+  P2: boolean;
+  P3: boolean;
+  pricePS5: number;
   pricePS4: number;
 }
 

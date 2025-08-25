@@ -8,7 +8,9 @@ export const AccountCard = ({ account }: { account: Account }) => {
   const handleDelete = (id: number) => {
     if (
       window.confirm(
-        `Удалить аккаунт ${account.platform.toUpperCase()} "${account.games}"?`
+        `Удалить аккаунт ${account.platformPS4 ? "PS4" : "PS5"} "${
+          account.games
+        }"?`
       )
     ) {
       deleteAccount(id);
@@ -19,7 +21,7 @@ export const AccountCard = ({ account }: { account: Account }) => {
     <div className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
-          <span className="text-xl">{account.platform}</span>
+          <span className="text-xl">{account.platformPS4 ? "PS4" : "PS5"}</span>
           <h4 className="text-lg font-semibold text-gray-900">
             {account.games.name}
           </h4>
