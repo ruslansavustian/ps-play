@@ -20,9 +20,9 @@ export class AccountService {
       platformPS5: createAccountDto.platformPS5,
       pricePS5: createAccountDto.pricePS5,
       pricePS4: createAccountDto.pricePS4,
-      P1: createAccountDto.p1 || false,
-      P2: createAccountDto.p2 || false,
-      P3: createAccountDto.p3 || false,
+      P1: createAccountDto.P1 || false,
+      P2: createAccountDto.P2 || false,
+      P3: createAccountDto.P3 || false,
     });
     return await this.accountRepository.save(account);
   }
