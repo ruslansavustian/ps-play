@@ -19,6 +19,8 @@ import {
   CreateAccountDto,
   Account,
   Game,
+  CreateOrderDto,
+  Order,
 } from "@/types";
 import { FormState } from "@/utils/form";
 import { generateSalt, hashPassword } from "@/utils/security";
@@ -39,6 +41,7 @@ const useProvideApp = () => {
   const [publicAccounts, setPublicAccounts] = useState<Account[]>();
   const [games, setGames] = useState<Game[]>();
 
+  const [orders, setOrders] = useState<Order[]>();
   const isAuthenticated = useMemo(() => {
     return !!currentUser && !!localStorage.getItem("token");
   }, [currentUser]);
@@ -260,6 +263,61 @@ const useProvideApp = () => {
     }
   }, []);
 
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await request.get("/orders");
+      const fetchedOrders = result.data;
+      setOrders(fetchedOrders);
+    } catch (error: any) {
+      console.log("error", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const createOrder = useCallback(async (data: CreateOrderDto) => {
+    setLoading(true);
+    try {
+      const result = await request.post("/orders", data);
+      const newOrder = result.data;
+      setOrders((prev) => [...(prev || []), newOrder]);
+      return newOrder;
+    } catch (error: any) {
+      console.error("Failed to create order:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const deleteOrder = useCallback(async (id: number) => {
+    try {
+      await request.delete(`/orders/${id}`);
+      setOrders((prev) => prev?.filter((order) => order.id !== id));
+    } catch (error: any) {
+      console.error("Failed to delete order:", error);
+      throw error;
+    }
+  }, []);
+
+  const updateOrder = useCallback(
+    async (id: number, data: Partial<CreateOrderDto>) => {
+      try {
+        const result = await request.put(`/orders/${id}`, data);
+        const updatedOrder = result.data;
+        setOrders((prev) =>
+          prev?.map((order) => (order.id === id ? updatedOrder : order))
+        );
+        return updatedOrder;
+      } catch (error: any) {
+        console.error("Failed to update order:", error);
+        throw error;
+      }
+    },
+    []
+  );
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token && !currentUser) {
@@ -291,6 +349,11 @@ const useProvideApp = () => {
     updateAccount,
     fetchPublicAccounts,
     publicAccounts,
+    fetchOrders,
+    orders,
+    createOrder,
+    deleteOrder,
+    updateOrder,
   };
 };
 

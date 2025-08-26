@@ -80,6 +80,29 @@ export interface GamesState {
   gamesLoading: boolean;
 }
 
+export interface CreateOrderDto {
+  customerName?: string;
+  phone: string;
+  gameName: string;
+  platform: string;
+  notes?: string;
+}
+
+export interface Order {
+  id: number;
+  createdAt?: string;
+  customerName?: string;
+  phone?: string;
+  gameName?: string;
+  platform?: string;
+  notes?: string;
+}
+
+export interface OrdersState {
+  orders: Order[];
+  ordersLoading: boolean;
+}
+
 export interface AppState extends AuthState, AccountsState, GamesState {
   // Future: можно добавить другие состояния (projects, settings, etc.)
 }
