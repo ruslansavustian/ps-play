@@ -3,15 +3,13 @@
 import { useApp } from "@/contexts/AppProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CreateAccountModal } from "../../components/modals/create-account-modal";
 import { CreateGameModal } from "../../components/modals/create-game.modal";
-import { MyButton } from "../../components/ui-components/my-button";
-import { AccountCard } from "../../components/ui-components/account-card";
 import { AccountSection } from "@/components/dashboard/account-section";
 import { GameSection } from "@/components/dashboard/game-section";
 import { Card, CardBody, Tab, Tabs } from "@heroui/react";
 import { withAuthCheck } from "@/hoc/withAuthCheck";
 import { Loader } from "@/components/ui-components/loader";
+import { OrderSection } from "@/components/dashboard/order-section";
 
 function DashboardPage() {
   const {
@@ -24,10 +22,10 @@ function DashboardPage() {
     fetchAccounts,
     games,
     fetchGames,
+    orders,
+    fetchOrders,
   } = useApp();
   const router = useRouter();
-
-  const [isCreateGameModalOpen, setIsCreateGameModalOpen] = useState(false);
 
   useEffect(() => {
     if (!accounts) {
@@ -39,21 +37,18 @@ function DashboardPage() {
       fetchGames();
     }
   }, [fetchGames, games]);
+  useEffect(() => {
+    if (!orders) {
+      fetchOrders();
+    }
+  }, [fetchOrders, orders]);
 
   if (!currentUser) {
     return <Loader />;
   }
 
-  const handleAddGame = () => {
-    setIsCreateGameModalOpen(true);
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 px-[10%]">
-      <CreateGameModal
-        isOpen={isCreateGameModalOpen}
-        onClose={() => setIsCreateGameModalOpen(false)}
-      />
       <nav className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -76,6 +71,13 @@ function DashboardPage() {
       </nav>
       <div className="mt-4">
         <Tabs aria-label="Options">
+          <Tab key="orders" title="Заказы">
+            <Card>
+              <CardBody>
+                <OrderSection />
+              </CardBody>
+            </Card>
+          </Tab>
           <Tab key="accounts" title="Аккаунты">
             <Card>
               <CardBody>
@@ -86,7 +88,7 @@ function DashboardPage() {
           <Tab key="games" title="Игры">
             <Card>
               <CardBody>
-                <GameSection handleAddGame={handleAddGame} />
+                <GameSection />
               </CardBody>
             </Card>
           </Tab>
