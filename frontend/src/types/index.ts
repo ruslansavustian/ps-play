@@ -6,16 +6,20 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
-
+export interface SessionResponse {
+  uuid: string;
+  expiresAt: string;
+}
 export interface LoginDto {
+  uuid: string;
   email: string;
-  password: string;
+  hashedPassword: string;
 }
 
 export interface RegisterDto {
   name: string;
   email: string;
-  password: string;
+  hashedPassword: string;
 }
 
 export interface AuthResponse {

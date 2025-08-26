@@ -21,6 +21,8 @@ import {
   Game,
 } from "@/types";
 import { FormState } from "@/utils/form";
+import { generateSalt, hashPassword } from "@/utils/security";
+import { paths } from "@/utils/paths";
 
 const AppContext = createContext<ReturnType<typeof useProvideApp> | undefined>(
   undefined
@@ -42,6 +44,7 @@ const useProvideApp = () => {
   }, [currentUser]);
 
   const fetchCurrentUser = useCallback(async () => {
+    setLoading(true);
     try {
       setLoading(true);
       const result = await request.get("/auth/profile");
@@ -60,9 +63,21 @@ const useProvideApp = () => {
   const login = useCallback(
     async (credentials: FormState) => {
       setLoading(true);
-      console.log("Attempting login for:", credentials);
+
       try {
-        const response = await request.post("/auth/login", credentials);
+        if (!credentials.password || !credentials.email) {
+          throw new Error("Invalid or empty credentials");
+        }
+        const sessionResponse = await request.post("/auth/init-session");
+        const { uuid } = sessionResponse.data;
+        const salt = generateSalt();
+        const hashedPassword = hashPassword(credentials.password);
+        const response = await request.post("/auth/login", {
+          uuid,
+          email: credentials.email,
+          hashedPassword,
+          salt,
+        });
 
         const { access_token, user } = response.data;
 
@@ -84,7 +99,11 @@ const useProvideApp = () => {
   const register = useCallback(
     async (userData: RegisterDto) => {
       try {
-        const response = await request.post("/auth/register", userData);
+        const response = await request.post("/auth/register", {
+          name: userData.name,
+          email: userData.email,
+          hashedPassword: userData.hashedPassword,
+        });
         const { access_token, user } = response.data;
 
         // Store token
@@ -104,16 +123,16 @@ const useProvideApp = () => {
   );
 
   // Logout function
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     localStorage.removeItem("token");
     request.defaults.headers.common["Authorization"] = "";
-    setCurrentUser(null);
-    setAccounts([]);
-    router.push("/login");
+    setCurrentUser(undefined);
+
+    router.push(paths.login);
   }, [router]);
 
-  // Load candidates
   const fetchAccounts = useCallback(async () => {
+    setAccountsLoading(true);
     try {
       setAccountsLoading(true);
       const result = await request.get("/accounts");
@@ -127,6 +146,7 @@ const useProvideApp = () => {
   }, []);
 
   const createAccount = useCallback(async (data: CreateAccountDto) => {
+    setLoading(true);
     try {
       const result = await request.post("/accounts", data);
       const newAccount = result.data;
@@ -135,10 +155,13 @@ const useProvideApp = () => {
     } catch (error: any) {
       console.error("Failed to create account:", error);
       throw error;
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   const createGame = useCallback(async (data: { name: string }) => {
+    setLoading(true);
     try {
       const result = await request.post("/games", data);
       const newGame = result.data;
@@ -147,6 +170,8 @@ const useProvideApp = () => {
     } catch (error: any) {
       console.error("Failed to create game:", error);
       throw error;
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -168,12 +193,15 @@ const useProvideApp = () => {
   );
 
   const deleteGame = useCallback(async (id: number) => {
+    setLoading(true);
     try {
       await request.delete(`/games/${id}`);
       setGames((prev) => prev?.filter((game) => game.id !== id));
     } catch (error: any) {
       console.error("Failed to delete game:", error);
       throw error;
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -195,12 +223,14 @@ const useProvideApp = () => {
   );
 
   const deleteAccount = useCallback(async (id: number) => {
+    setLoading(true);
     try {
       await request.delete(`/accounts/${id}`);
       setAccounts((prev) => prev?.filter((account) => account.id !== id));
     } catch (error: any) {
       console.error("Failed to delete candidate:", error);
       throw error;
+    } finally {
     }
   }, []);
 
@@ -218,30 +248,26 @@ const useProvideApp = () => {
   }, []);
 
   const fetchPublicAccounts = useCallback(async () => {
+    setLoading(true);
     try {
       const result = await request.get("/accounts/public");
       const fetchedAccounts = result.data;
       setPublicAccounts(fetchedAccounts);
     } catch (error: any) {
       console.log("error", error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (token) {
-  //     fetchCurrentUser();
-  //   } else {
-  //     setLoading(false);
-  //     router.push("/login");
-  //   }
-  // }, [fetchCurrentUser, router]);
-
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     fetchCandidates();
-  //   }
-  // }, [isAuthenticated, fetchCandidates]);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token && !currentUser) {
+      fetchCurrentUser();
+    } else if (!token) {
+      setLoading(false);
+    }
+  }, [fetchCurrentUser]);
 
   return {
     currentUser,

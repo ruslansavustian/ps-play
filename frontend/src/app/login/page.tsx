@@ -4,46 +4,62 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-import { FormState, useFormState } from "@/utils/form";
+import { FormState, loginSchema, useFormState } from "@/utils/form";
 
 import { useApp } from "@/contexts/AppProvider";
 import { MyButton } from "../../components/ui-components/my-button";
 import { ErrorContainer } from "../../components/ui-components/error-container";
 import request from "@/lib/request";
+import { generateSalt, hashPassword } from "@/utils/security";
+import { Input } from "@heroui/react";
+import z from "zod";
+import { paths } from "@/utils/paths";
 
 export default function LoginPage() {
   const [error, setError] = useState("");
   const { login, currentUser, setCurrentUser } = useApp();
   const router = useRouter();
 
-  const { formData, handleChange, resetForm, isFormValid, inputStatus } =
-    useFormState({
+  const { formData, handleChange, errors, isFormValid } = useFormState(
+    {
       email: "",
       password: "",
-    });
+    },
+    loginSchema
+  );
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await request.post("/auth/login", formData);
+      const sessionResponse = await request.post("/auth/init-session");
+      const { uuid } = sessionResponse.data;
+
+      const credentials = btoa(`${formData.email}:${formData.password}`);
+
+      const response = await request.post(
+        "/auth/login",
+        { uuid },
+        {
+          headers: {
+            Authorization: `Basic ${credentials}`,
+          },
+        }
+      );
 
       const { access_token, user } = response.data;
-
       localStorage.setItem("token", access_token);
       request.defaults.headers.common[
         "Authorization"
       ] = `Bearer ${access_token}`;
       setCurrentUser(user);
-      // await login(formData);
-      // router.push("/dashboard");
     } catch (err: any) {
       setError(err.response?.data?.message || "Login failed");
     }
   };
-  console.log(currentUser);
+
   useEffect(() => {
     if (currentUser) {
-      router.push("/dashboard");
+      router.push(paths.dashboard);
     }
   }, [currentUser, router]);
 
@@ -61,32 +77,37 @@ export default function LoginPage() {
           </div>
 
           <form className="flex flex-col gap-2" onSubmit={onSubmit}>
-            <input
+            <Input
+              label="Почта"
               type="email"
               autoComplete="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+              className=""
+              validationBehavior="aria"
+              isInvalid={!!errors.email}
               placeholder="Email адрес"
+              errorMessage={errors.email}
             />
 
-            <div>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                autoComplete="current-password"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
-                placeholder="Пароль"
-              />
-            </div>
+            <Input
+              label="Пароль"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              autoComplete="current-password"
+              className=""
+              isInvalid={!!errors.password}
+              errorMessage={errors.password}
+              placeholder="Пароль"
+            />
 
             {error && <ErrorContainer message={error} />}
 
             <div className="flex justify-center">
-              <MyButton title={"Войти"} type="submit" />
+              <MyButton title={"Войти"} type="submit" disabled={!isFormValid} />
             </div>
           </form>
         </div>

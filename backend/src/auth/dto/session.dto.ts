@@ -1,9 +1,9 @@
-import { IsNotEmpty, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsUUID } from 'class-validator';
 
-export class LoginDto {
+export class SessionDto {
   @ApiProperty({
-    description: 'Session UUID from init-session endpoint',
+    description: 'The session ID',
     type: String,
     format: 'uuid',
   })
