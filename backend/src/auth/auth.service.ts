@@ -8,6 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { v4 as uuidv4 } from 'uuid';
+import * as CryptoJS from 'crypto-js';
 
 @Injectable()
 export class AuthService {
@@ -16,67 +18,66 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(registerDto: RegisterDto) {
-    const { name, email, password } = registerDto;
+  private activeSessions = new Map<string, { expiresAt: Date }>();
+  initSession() {
+    const uuid = uuidv4();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
-    // Check if user already exists
+    this.activeSessions.set(uuid, { expiresAt });
+
+    return {
+      uuid,
+      expiresAt: expiresAt.toISOString(),
+    };
+  }
+  async register(registerDto: RegisterDto) {
+    const { name, email, hashedPassword } = registerDto;
+
     const existingUser = await this.userService.findByEmail(email);
     if (existingUser) {
       throw new ConflictException('User with this email already exists');
     }
 
-    // Create new user
-    const user = await this.userService.create(name, email, password);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...result } = user;
-
-    // Generate JWT token
-    const payload = { username: user.email, sub: user.id };
-    const access_token = this.jwtService.sign(payload);
-
-    return {
-      access_token,
-      user: result,
-    };
-  }
-
-  async login(loginDto: LoginDto) {
-    const { email, password } = loginDto;
-
-    // Find user by email
-    const user = await this.userService.findByEmail(email);
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    // Validate password
-    const isPasswordValid = await this.userService.validatePassword(
-      password,
-      user.password,
+    const user = await this.userService.createWithSalt(
+      name,
+      email,
+      hashedPassword,
     );
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...result } = user;
 
-    // Generate JWT token
     const payload = { username: user.email, sub: user.id };
     const access_token = this.jwtService.sign(payload);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...result } = user;
     return {
       access_token,
       user: result,
     };
   }
+  private verifyHashedPassword = (
+    hashedPassword: string,
+    storedPassword: string,
+  ): boolean => {
+    // Простое сравнение хешей
+    return hashedPassword === storedPassword;
+  };
+  async loginWithBasicAuth(loginDto: LoginDto, authHeader: string) {
+    const { uuid } = loginDto;
 
-  async validateBasicAuth(authHeader: string) {
+    // Validate session UUID
+    const session = this.activeSessions.get(uuid);
+    if (!session || session.expiresAt < new Date()) {
+      throw new UnauthorizedException('Invalid or expired session');
+    }
+    this.activeSessions.delete(uuid);
+
+    // Parse Basic Auth header
     if (!authHeader || !authHeader.startsWith('Basic ')) {
-      throw new BadRequestException('Invalid authorization header');
+      throw new UnauthorizedException('Invalid authorization header');
     }
 
     try {
-      // Extract credentials from Basic Auth header
+      // Decode Base64 credentials
       const base64Credentials = authHeader.replace('Basic ', '');
       const credentials = Buffer.from(base64Credentials, 'base64').toString(
         'utf-8',
@@ -93,7 +94,52 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
-      // Validate password
+      const hashedPassword = CryptoJS.SHA256(password).toString();
+      const isPasswordValid = hashedPassword === user.password;
+
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      // Generate JWT token
+      const payload = { username: user.email, sub: user.id };
+      const access_token = this.jwtService.sign(payload);
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password: _, ...result } = user;
+      return {
+        access_token,
+        user: result,
+      };
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new UnauthorizedException('Invalid credentials');
+    }
+  }
+
+  async validateBasicAuth(authHeader: string) {
+    if (!authHeader || !authHeader.startsWith('Basic ')) {
+      throw new BadRequestException('Invalid authorization header');
+    }
+
+    try {
+      const base64Credentials = authHeader.replace('Basic ', '');
+      const credentials = Buffer.from(base64Credentials, 'base64').toString(
+        'utf-8',
+      );
+      const [email, password] = credentials.split(':');
+
+      if (!email || !password) {
+        throw new UnauthorizedException('Invalid credentials format');
+      }
+
+      const user = await this.userService.findByEmail(email);
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
       const isPasswordValid = await this.userService.validatePassword(
         password,
         user.password,
@@ -126,7 +172,6 @@ export class AuthService {
   async getProfile(userId: number) {
     const user = await this.userService.findById(userId);
     if (!user) {
-      console.log('User not found');
       throw new UnauthorizedException('User not found');
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

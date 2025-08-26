@@ -36,6 +36,14 @@ export class User {
   password: string;
 
   @ApiProperty({
+    description: 'Salt used for hashing',
+    type: String,
+    nullable: true,
+  })
+  @Column({ nullable: true })
+  salt: string | null;
+
+  @ApiProperty({
     description: 'Creation timestamp',
     type: String,
     format: 'date-time',

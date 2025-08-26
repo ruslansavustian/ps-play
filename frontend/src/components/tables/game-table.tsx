@@ -33,12 +33,6 @@ export const GameTable = () => {
     onClose: onEditClose,
   } = useDisclosure();
 
-  useEffect(() => {
-    if (!games) {
-      fetchGames();
-    }
-  }, [fetchGames, games]);
-
   const handleRowClick = useCallback(
     (game: Game) => {
       setSelectedGame(game);
@@ -152,7 +146,7 @@ export const GameTable = () => {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <Button
+                    {/* <Button
                       size="sm"
                       variant="flat"
                       color="primary"
@@ -160,7 +154,7 @@ export const GameTable = () => {
                     >
                       <EditIcon />
                       Редактировать
-                    </Button>
+                    </Button> */}
                     <Button
                       size="sm"
                       variant="flat"

@@ -19,14 +19,12 @@ export class RegisterDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
-
   @ApiProperty({
-    description: 'User password',
+    description: 'Hashed password from client',
     type: String,
-    minLength: 6,
   })
   @IsString()
   @IsNotEmpty()
-  @MinLength(6)
-  password: string;
+  @MinLength(64)
+  hashedPassword: string;
 }

@@ -29,14 +29,9 @@ export const AccountTable = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  useEffect(() => {
-    if (!accounts) {
-      fetchAccounts();
-    }
-  }, [fetchAccounts, accounts]);
-
   const handleRowClick = useCallback(
     (account: Account) => {
+      console.log("account", account);
       setSelectedAccount(account);
       onOpen();
     },
@@ -100,66 +95,61 @@ export const AccountTable = () => {
               </div>
             }
           >
-            {(accounts || []).map(
-              (account) => (
-                console.log(account),
-                (
-                  <TableRow
-                    key={account.id}
-                    className="cursor-pointer hover:bg-gray-50 transition-colors"
-                    onClick={() => handleRowClick(account)}
-                  >
-                    <TableCell>
-                      <div className="max-w-xs">
-                        <div className="font-medium text-gray-900 truncate">
-                          {account.id}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Chip size="sm" variant="flat" color="primary">
-                        {account.games.name}
-                      </Chip>
-                    </TableCell>
-                    <TableCell>
-                      <Checkbox isSelected={account.platformPS4} />
-                    </TableCell>
-                    <TableCell>
-                      <Checkbox isSelected={account.platformPS5} />
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-bold text-green-600">
-                        ${account.pricePS5}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-bold text-green-600">
-                        ${account.pricePS4}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Checkbox isSelected={account.P1} />
-                    </TableCell>
-                    <TableCell>
-                      <Checkbox isSelected={account.P2} />
-                    </TableCell>
-                    <TableCell>
-                      <Checkbox isSelected={account.P3} />
-                    </TableCell>
+            {(accounts || []).map((account) => (
+              <TableRow
+                key={account.id}
+                className="cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => handleRowClick(account)}
+              >
+                <TableCell>
+                  <div className="max-w-xs">
+                    <div className="font-medium text-gray-900 truncate">
+                      {account.id}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Chip size="sm" variant="flat" color="primary">
+                    {account.games.name}
+                  </Chip>
+                </TableCell>
+                <TableCell>
+                  <Checkbox isSelected={account.platformPS4} />
+                </TableCell>
+                <TableCell>
+                  <Checkbox isSelected={account.platformPS5} />
+                </TableCell>
+                <TableCell>
+                  <span className="font-bold text-green-600">
+                    ${account.pricePS5}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className="font-bold text-green-600">
+                    ${account.pricePS4}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <Checkbox isSelected={account.P1} />
+                </TableCell>
+                <TableCell>
+                  <Checkbox isSelected={account.P2} />
+                </TableCell>
+                <TableCell>
+                  <Checkbox isSelected={account.P3} />
+                </TableCell>
 
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        color="danger"
-                        onPress={() => setDeleteModal(true)}
-                      >
-                        Удалить
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                )
-              )
-            )}
+                <TableCell>
+                  <Button
+                    size="sm"
+                    color="danger"
+                    onPress={() => setDeleteModal(true)}
+                  >
+                    Удалить
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </div>

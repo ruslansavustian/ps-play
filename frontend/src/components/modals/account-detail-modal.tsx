@@ -26,6 +26,7 @@ export const AccountDetailModal = ({
   setSelectedAccount,
 }: AccountDetailModalProps) => {
   const [deleteModal, setDeleteModal] = useState(false);
+  const [formData, setFormData] = useState<Account | undefined>();
   const { deleteAccount, updateAccount } = useApp();
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
@@ -51,6 +52,21 @@ export const AccountDetailModal = ({
     [deleteAccount]
   );
 
+  const handleUpdate = useCallback(async () => {
+    await updateAccount(selectedAccount.id!, {
+      games: selectedAccount.games.id,
+      platformPS4: selectedAccount.platformPS4,
+      platformPS5: selectedAccount.platformPS5,
+      pricePS4: Number(selectedAccount.pricePS4),
+      pricePS5: Number(selectedAccount.pricePS5),
+      P1: formData?.P1,
+      P2: formData?.P2,
+      P3: formData?.P3,
+    });
+    setFormData(undefined);
+    onClose();
+  }, [formData, updateAccount, onClose]);
+  console.log("selectedAccount", selectedAccount);
   return (
     <>
       {/* Account Detail Modal */}
@@ -61,15 +77,12 @@ export const AccountDetailModal = ({
           </ModalHeader>
           <ModalBody>
             {selectedAccount && (
-              <form
-                className="flex flex-row grid-cols-2 gap-4 w-full"
-                onSubmit={handleChangeAccount}
-              >
+              <form className="flex flex-row grid-cols-2 gap-4 w-full">
                 <div className="w-6/12 space-y-4">
                   <div className="flex flex-row gap-2">
                     <label className=" font-medium text-gray-700">Игры:</label>
                     <p className=" text-gray-900">
-                      {selectedAccount.games.name}
+                      {selectedAccount?.games.name}
                     </p>
                   </div>
                   <div className="flex flex-col gap-2">
@@ -81,14 +94,14 @@ export const AccountDetailModal = ({
                         PS4:
                         <Checkbox
                           className="ml-2"
-                          isSelected={selectedAccount.platformPS4}
+                          isSelected={selectedAccount?.platformPS4}
                         />
                       </p>
                       <p className=" text-gray-900">
                         PS5:
                         <Checkbox
                           className="ml-2"
-                          isSelected={selectedAccount.platformPS5}
+                          isSelected={selectedAccount?.platformPS5}
                         />
                       </p>
                     </div>
@@ -99,7 +112,7 @@ export const AccountDetailModal = ({
                         Цена PS4
                       </label>
                       <p className="mt-1 text-lg font-bold text-green-600">
-                        ${selectedAccount.pricePS4}
+                        ${selectedAccount?.pricePS4}
                       </p>
                     </div>
                     <div>
@@ -107,7 +120,7 @@ export const AccountDetailModal = ({
                         Цена PS5
                       </label>
                       <p className="mt-1 text-lg font-bold text-green-600">
-                        ${selectedAccount.pricePS5}
+                        ${selectedAccount?.pricePS5}
                       </p>
                     </div>
                   </div>
@@ -116,7 +129,7 @@ export const AccountDetailModal = ({
                       Создано
                     </label>
                     <p className="mt-1 text-gray-900">
-                      {formatDate(selectedAccount.created)}
+                      {formatDate(selectedAccount?.created)}
                     </p>
                   </div>
                 </div>
@@ -126,13 +139,10 @@ export const AccountDetailModal = ({
                     <label className=" font-medium text-gray-700">P1</label>
                     <Switch
                       id="p1"
-                      isSelected={selectedAccount.P1}
+                      defaultSelected={selectedAccount?.P1}
                       onValueChange={(value) => {
-                        updateAccount(selectedAccount.id!, {
-                          P1: value,
-                        });
-                        setSelectedAccount({
-                          ...selectedAccount,
+                        setFormData({
+                          ...formData!,
                           P1: value,
                         });
                       }}
@@ -142,13 +152,10 @@ export const AccountDetailModal = ({
                     <label className=" font-medium text-gray-700">P2</label>
                     <Switch
                       id="p2"
-                      isSelected={selectedAccount.P2}
+                      defaultSelected={selectedAccount?.P2}
                       onValueChange={(value) => {
-                        updateAccount(selectedAccount.id!, {
-                          P2: value,
-                        });
-                        setSelectedAccount({
-                          ...selectedAccount,
+                        setFormData({
+                          ...formData!,
                           P2: value,
                         });
                       }}
@@ -158,13 +165,10 @@ export const AccountDetailModal = ({
                     <label className=" font-medium text-gray-700">P3</label>
                     <Switch
                       id="p3"
-                      isSelected={selectedAccount.P3}
+                      defaultSelected={selectedAccount?.P3}
                       onValueChange={(value) => {
-                        updateAccount(selectedAccount.id!, {
-                          P3: value,
-                        });
-                        setSelectedAccount({
-                          ...selectedAccount,
+                        setFormData({
+                          ...formData!,
                           P3: value,
                         });
                       }}
@@ -175,6 +179,9 @@ export const AccountDetailModal = ({
             )}
           </ModalBody>
           <ModalFooter>
+            <Button color="primary" onPress={handleUpdate}>
+              Сохранить
+            </Button>
             <Button color="primary" onPress={onClose}>
               Закрыть
             </Button>

@@ -10,8 +10,10 @@ import { AccountCard } from "../../components/ui-components/account-card";
 import { AccountSection } from "@/components/dashboard/account-section";
 import { GameSection } from "@/components/dashboard/game-section";
 import { Card, CardBody, Tab, Tabs } from "@heroui/react";
+import { withAuthCheck } from "@/hoc/withAuthCheck";
+import { Loader } from "@/components/ui-components/loader";
 
-export default function DashboardPage() {
+function DashboardPage() {
   const {
     currentUser,
     logout,
@@ -26,16 +28,6 @@ export default function DashboardPage() {
   const router = useRouter();
 
   const [isCreateGameModalOpen, setIsCreateGameModalOpen] = useState(false);
-  useEffect(() => {
-    if (!loading && !currentUser) {
-      router.push("/login");
-    }
-  }, [currentUser, loading, router]);
-  useEffect(() => {
-    if (!currentUser) {
-      fetchCurrentUser();
-    }
-  }, [currentUser, fetchCurrentUser]);
 
   useEffect(() => {
     if (!accounts) {
@@ -47,22 +39,15 @@ export default function DashboardPage() {
       fetchGames();
     }
   }, [fetchGames, games]);
-  console.log(accounts);
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Загрузка...</div>
-      </div>
-    );
-  }
 
   if (!currentUser) {
-    return null;
+    return <Loader />;
   }
 
   const handleAddGame = () => {
     setIsCreateGameModalOpen(true);
   };
+
   return (
     <div className="min-h-screen bg-gray-50 px-[10%]">
       <CreateGameModal
@@ -110,3 +95,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+export default withAuthCheck(DashboardPage);

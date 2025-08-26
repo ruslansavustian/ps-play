@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import z from "zod";
 interface InputChangeEvent {
   target: {
     name: string;
@@ -11,9 +12,51 @@ export interface FormState {
 }
 
 export type StatusType = "default" | "success" | "error";
+export const loginSchema = z.object({
+  email: z.string().email("Введите корректный email"),
+  password: z.string().min(6, "Пароль должен содержать минимум 6 символов"),
+});
 
-export const useFormState = (initialData: FormState) => {
+export const registerSchema = z.object({
+  name: z.string().min(2, "Имя должно содержать минимум 2 символа"),
+  email: z.string().email("Введите корректный email"),
+  password: z.string().min(6, "Пароль должен содержать минимум 6 символов"),
+});
+
+export const useFormState = (initialData: FormState, schema: z.ZodSchema) => {
   const [formData, setFormData] = useState<FormState>(initialData);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [inputStatus, setInputStatus] = useState<Record<string, StatusType>>({
+    email: "default",
+    password: "default",
+  });
+
+  const validateField = (name: string, value: string) => {
+    try {
+      const fieldSchema = (schema as z.ZodObject<any>).pick({ [name]: true });
+      fieldSchema.parse({ [name]: value });
+
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+      setInputStatus((prev) => ({ ...prev, [name]: "success" }));
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errorMessage = error.issues[0].message;
+
+        setErrors((prev) => ({ ...prev, [name]: errorMessage }));
+        setInputStatus((prev) => ({ ...prev, [name]: "error" }));
+        // setErrors((prev) => ({ ...prev, [name]: errorMessage }));
+        // setInputStatus((prev) => ({ ...prev, [name]: "error" }));
+        // setErrors((prev) => ({ ...prev, [name]: errorMessage }));
+        // setInputStatus((prev) => ({ ...prev, [name]: "error" }));
+        // const errorMessage = fieldError?.message || "Неверное значение";
+        // setErrors((prev) => ({ ...prev, [name]: errorMessage }));
+        // setInputStatus((prev) => ({ ...prev, [name]: "error" }));
+      }
+      return false;
+    }
+  };
+
   const handleChange = (e: InputChangeEvent) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -21,54 +64,39 @@ export const useFormState = (initialData: FormState) => {
       [name]: value,
     }));
 
-    const status = validateInput(name, value);
-    setInputStatus((prev) => ({
-      ...prev,
-      [name]: status,
-    }));
+    validateField(name, value);
   };
-  const [inputStatus, setInputStatus] = useState<Record<string, StatusType>>(
-    {}
-  );
 
-  const validateInput = (name: string, value: string) => {
-    switch (name) {
-      case "email":
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        // Check for invalid patterns in the email
-        const hasInvalidDashes =
-          value.includes("--") ||
-          value.endsWith("-") ||
-          value.startsWith("-") ||
-          /-\./.test(value) || // Dash followed by dot
-          /\.-/.test(value) || // Dot followed by dash
-          /-@/.test(value) || // Dash before @
-          /@-/.test(value); // Dash after @
-
-        // Check for dashes in domain part
-        const domainParts = value.split("@")[1]?.split(".") || [];
-        const hasDashInDomainPart = domainParts.some((part) =>
-          part.includes("-")
-        );
-
-        return emailRegex.test(value) &&
-          !hasInvalidDashes &&
-          !hasDashInDomainPart
-          ? "success"
-          : "error";
-
-      case "password":
-        return value.trim().length >= 8 ? "success" : "error";
-
-      default:
-        return "default";
+  const validateForm = () => {
+    try {
+      schema.parse(formData);
+      setErrors({});
+      return { isValid: true, errors: {} };
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.log(error);
+        // const newErrors: Record<string, string> = {};
+        // error.errors.forEach((err: any) => {
+        //   const fieldName = err.path[0] as string;
+        //   newErrors[fieldName] = err.message;
+        //   setInputStatus((prev) => ({ ...prev, [fieldName]: "error" }));
+        // });
+        // setErrors(newErrors);
+        // return { isValid: false, errors: newErrors };
+      }
+      return { isValid: false, errors: {} };
     }
   };
 
   const resetForm = () => {
     setFormData({});
-    setInputStatus({});
+    setErrors({});
+    setInputStatus({
+      email: "default",
+      password: "default",
+    });
   };
+
   const isFormValid = Object.values(inputStatus).every(
     (status) => status === "success"
   );
@@ -78,5 +106,6 @@ export const useFormState = (initialData: FormState) => {
     resetForm,
     isFormValid,
     inputStatus,
+    errors,
   };
 };

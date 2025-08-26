@@ -10,13 +10,25 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
-
+  async createWithSalt(
+    name: string,
+    email: string,
+    hashedPassword: string,
+  ): Promise<User> {
+    const user = this.userRepository.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
+    return this.userRepository.save(user);
+  }
   async create(name: string, email: string, password: string): Promise<User> {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = this.userRepository.create({
       name,
       email,
       password: hashedPassword,
+      salt: null,
     });
     return this.userRepository.save(user);
   }

@@ -5,6 +5,7 @@ import {
   Get,
   UseGuards,
   Request,
+  Headers,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,7 +22,21 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
-
+  @Post('init-session')
+  @ApiOperation({ summary: 'Initialize authentication session' })
+  @ApiResponse({
+    status: 201,
+    description: 'Session initialized successfully',
+    schema: {
+      example: {
+        uuid: '550e8400-e29b-41d4-a716-446655440000',
+        expiresAt: '2024-01-01T12:00:00.000Z',
+      },
+    },
+  })
+  initSession() {
+    return this.authService.initSession();
+  }
   @Post('register')
   @ApiOperation({ summary: 'User registration' })
   @ApiResponse({ status: 201, description: 'User successfully registered' })
@@ -31,24 +46,17 @@ export class AuthController {
   }
 
   @Post('login')
-  @ApiOperation({ summary: 'User login' })
+  @ApiOperation({ summary: 'User login with Basic Auth' })
   @ApiResponse({
     status: 201,
     description: 'User successfully logged in',
-    schema: {
-      example: {
-        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        user: {
-          id: 1,
-          name: 'John Doe',
-          email: 'john@example.com',
-        },
-      },
-    },
   })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  async login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  login(
+    @Body() loginDto: LoginDto,
+    @Headers('authorization') authHeader: string,
+  ) {
+    return this.authService.loginWithBasicAuth(loginDto, authHeader);
   }
 
   @UseGuards(JwtAuthGuard)
