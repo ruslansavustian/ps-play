@@ -22,6 +22,9 @@ function DashboardPage() {
     games,
     fetchGames,
     orders,
+    ordersLoading,
+    gamesLoading,
+    accountsLoading,
     auditLogs,
     fetchAuditLogs,
     fetchOrders,
@@ -53,6 +56,10 @@ function DashboardPage() {
   }, [fetchGames, games]);
 
   if (!currentUser) {
+    return <Loader />;
+  }
+
+  if (ordersLoading || gamesLoading || accountsLoading) {
     return <Loader />;
   }
 

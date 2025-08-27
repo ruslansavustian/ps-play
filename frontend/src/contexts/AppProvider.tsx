@@ -38,13 +38,13 @@ const useProvideApp = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>();
+  const [games, setGames] = useState<Game[]>();
   const [accounts, setAccounts] = useState<Account[]>();
   const [accountsLoading, setAccountsLoading] = useState<boolean>(false);
   const [gamesLoading, setGamesLoading] = useState<boolean>(false);
   const [ordersLoading, setOrdersLoading] = useState<boolean>(false);
   const [auditLogsLoading, setAuditLogsLoading] = useState<boolean>(false);
   const [publicAccounts, setPublicAccounts] = useState<Account[]>();
-  const [games, setGames] = useState<Game[]>();
 
   const [orders, setOrders] = useState<Order[]>();
   const isAuthenticated = useMemo(() => {
@@ -157,7 +157,9 @@ const useProvideApp = () => {
     try {
       const result = await request.post("/accounts", data);
       const newAccount = result.data;
-      setAccounts((prev) => [...(prev || []), newAccount]);
+      if (newAccount) {
+        fetchAccounts();
+      }
       return newAccount;
     } catch (error: any) {
       console.error("Failed to create account:", error);
@@ -169,12 +171,9 @@ const useProvideApp = () => {
     try {
       const result = await request.post("/games", data);
       const newGame = result.data;
-      if (games) {
-        setGames([...games, newGame]);
-      } else {
-        setGames([newGame]);
+      if (newGame) {
+        fetchGames();
       }
-      return newGame;
     } catch (error: any) {
       console.error("Failed to create game:", error);
       throw error;
@@ -282,7 +281,9 @@ const useProvideApp = () => {
   const createOrder = useCallback(async (data: CreateOrderDto) => {
     try {
       const result = await request.post("/orders", data);
-      setOrders((prev) => [...(prev || []), result.data]);
+      if (result.data) {
+        fetchOrders();
+      }
     } catch (error: any) {
       console.error("Failed to create order:", error);
       throw error;
