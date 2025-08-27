@@ -10,10 +10,16 @@ import {
   TableRow,
 } from "@heroui/react";
 import { useApp } from "@/contexts/AppProvider";
+import { Loader } from "../ui-components/loader";
+import moment from "moment";
 
 export const OrderTable = () => {
-  const { orders, fetchOrders } = useApp();
-  if (!orders) return null;
+  const { orders, fetchOrders, ordersLoading } = useApp();
+
+  if (ordersLoading) {
+    return <Loader />;
+  }
+
   return (
     <Table aria-label="Orders table">
       <TableHeader>
@@ -25,13 +31,15 @@ export const OrderTable = () => {
         <TableColumn key="notes">Примечания</TableColumn>
       </TableHeader>
       <TableBody>
-        {orders?.map((order: Order) => (
+        {(orders || []).map((order: Order) => (
           <TableRow key={order.id}>
             <TableCell>{order.customerName}</TableCell>
             <TableCell>{order.phone}</TableCell>
             <TableCell>{order.gameName}</TableCell>
             <TableCell>{order.platform}</TableCell>
-            <TableCell>{order.createdAt}</TableCell>
+            <TableCell>
+              {moment(order.createdAt).format("DD.MM.YYYY HH:mm")}
+            </TableCell>
             <TableCell>{order.notes}</TableCell>
           </TableRow>
         ))}

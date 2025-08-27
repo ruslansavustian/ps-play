@@ -41,6 +41,17 @@ export interface Account {
   created?: string;
 }
 
+export interface UpdateAccountDto {
+  games?: number;
+  platformPS4?: boolean;
+  platformPS5?: boolean;
+  P1?: boolean;
+  P2?: boolean;
+  P3?: boolean;
+  pricePS5?: number;
+  pricePS4?: number;
+}
+
 export interface CreateAccountDto {
   games: number;
   platformPS4: boolean;
@@ -86,6 +97,8 @@ export interface CreateOrderDto {
   gameName: string;
   platform: string;
   notes?: string;
+  email?: string;
+  telegram?: string;
 }
 
 export interface Order {
@@ -101,6 +114,20 @@ export interface Order {
 export interface OrdersState {
   orders: Order[];
   ordersLoading: boolean;
+}
+
+export interface AuditLog {
+  id: number;
+  userId: number;
+  user: User;
+  action: string;
+  entityType: string;
+  entityId?: number;
+  description: string;
+  metadata: any;
+  ipAddress: string;
+  userAgent: string;
+  timestamp: string;
 }
 
 export interface AppState extends AuthState, AccountsState, GamesState {

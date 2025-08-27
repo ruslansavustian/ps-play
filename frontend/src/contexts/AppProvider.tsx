@@ -21,6 +21,8 @@ import {
   Game,
   CreateOrderDto,
   Order,
+  AuditLog,
+  UpdateAccountDto,
 } from "@/types";
 import { FormState } from "@/utils/form";
 import { generateSalt, hashPassword } from "@/utils/security";
@@ -35,9 +37,12 @@ const useProvideApp = () => {
 
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>();
   const [accounts, setAccounts] = useState<Account[]>();
   const [accountsLoading, setAccountsLoading] = useState<boolean>(false);
+  const [gamesLoading, setGamesLoading] = useState<boolean>(false);
+  const [ordersLoading, setOrdersLoading] = useState<boolean>(false);
+  const [auditLogsLoading, setAuditLogsLoading] = useState<boolean>(false);
   const [publicAccounts, setPublicAccounts] = useState<Account[]>();
   const [games, setGames] = useState<Game[]>();
 
@@ -149,7 +154,6 @@ const useProvideApp = () => {
   }, []);
 
   const createAccount = useCallback(async (data: CreateAccountDto) => {
-    setLoading(true);
     try {
       const result = await request.post("/accounts", data);
       const newAccount = result.data;
@@ -158,23 +162,22 @@ const useProvideApp = () => {
     } catch (error: any) {
       console.error("Failed to create account:", error);
       throw error;
-    } finally {
-      setLoading(false);
     }
   }, []);
 
   const createGame = useCallback(async (data: { name: string }) => {
-    setLoading(true);
     try {
       const result = await request.post("/games", data);
       const newGame = result.data;
-      setGames((prev) => [...(prev || []), newGame]);
+      if (games) {
+        setGames([...games, newGame]);
+      } else {
+        setGames([newGame]);
+      }
       return newGame;
     } catch (error: any) {
       console.error("Failed to create game:", error);
       throw error;
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -209,7 +212,7 @@ const useProvideApp = () => {
   }, []);
 
   const updateAccount = useCallback(
-    async (id: number, data: Partial<CreateAccountDto>) => {
+    async (id: number, data: UpdateAccountDto) => {
       try {
         const result = await request.put(`/accounts/${id}`, data);
         const updatedAccount = result.data;
@@ -238,7 +241,7 @@ const useProvideApp = () => {
   }, []);
 
   const fetchGames = useCallback(async () => {
-    setLoading(true);
+    setGamesLoading(true);
     try {
       const result = await request.get("/games");
       const fetchedGames = result.data;
@@ -246,7 +249,7 @@ const useProvideApp = () => {
     } catch (error: any) {
       console.log("error", error);
     } finally {
-      setLoading(false);
+      setGamesLoading(false);
     }
   }, []);
 
@@ -264,7 +267,7 @@ const useProvideApp = () => {
   }, []);
 
   const fetchOrders = useCallback(async () => {
-    setLoading(true);
+    setOrdersLoading(true);
     try {
       const result = await request.get("/orders");
       const fetchedOrders = result.data;
@@ -272,22 +275,17 @@ const useProvideApp = () => {
     } catch (error: any) {
       console.log("error", error);
     } finally {
-      setLoading(false);
+      setOrdersLoading(false);
     }
   }, []);
 
   const createOrder = useCallback(async (data: CreateOrderDto) => {
-    setLoading(true);
     try {
       const result = await request.post("/orders", data);
-      const newOrder = result.data;
-      setOrders((prev) => [...(prev || []), newOrder]);
-      return newOrder;
+      setOrders((prev) => [...(prev || []), result.data]);
     } catch (error: any) {
       console.error("Failed to create order:", error);
       throw error;
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -317,6 +315,20 @@ const useProvideApp = () => {
     },
     []
   );
+
+  const fetchAuditLogs = useCallback(async () => {
+    setAuditLogsLoading(true);
+    try {
+      const result = await request.get("/audit-logs");
+      const fetchedAuditLogs = result.data;
+
+      setAuditLogs(fetchedAuditLogs);
+    } catch (error: any) {
+      console.log("error", error);
+    } finally {
+      setAuditLogsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -354,6 +366,11 @@ const useProvideApp = () => {
     createOrder,
     deleteOrder,
     updateOrder,
+    fetchAuditLogs,
+    auditLogs,
+    auditLogsLoading,
+    ordersLoading,
+    gamesLoading,
   };
 };
 

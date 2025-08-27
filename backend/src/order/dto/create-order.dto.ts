@@ -6,9 +6,9 @@ export class CreateOrderDto {
     description: 'Customer name',
     type: String,
   })
-  @IsNotEmpty()
   @IsString()
-  customerName: string;
+  @IsOptional()
+  customerName?: string;
 
   @ApiProperty({
     description: 'Phone number',
@@ -42,4 +42,20 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @ApiProperty({
+    description: 'Customer email',
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  @ApiProperty({
+    description: 'Customer telegram',
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  telegram?: string;
 }

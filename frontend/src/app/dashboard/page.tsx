@@ -2,7 +2,7 @@
 
 import { useApp } from "@/contexts/AppProvider";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CreateGameModal } from "../../components/modals/create-game.modal";
 import { AccountSection } from "@/components/dashboard/account-section";
 import { GameSection } from "@/components/dashboard/game-section";
@@ -10,19 +10,20 @@ import { Card, CardBody, Tab, Tabs } from "@heroui/react";
 import { withAuthCheck } from "@/hoc/withAuthCheck";
 import { Loader } from "@/components/ui-components/loader";
 import { OrderSection } from "@/components/dashboard/order-section";
+import { AuditLogSection } from "@/components/dashboard/audit-log-section";
 
 function DashboardPage() {
   const {
     currentUser,
     logout,
-    loading,
     accounts,
-    accountsLoading,
     fetchCurrentUser,
     fetchAccounts,
     games,
     fetchGames,
     orders,
+    auditLogs,
+    fetchAuditLogs,
     fetchOrders,
   } = useApp();
   const router = useRouter();
@@ -32,16 +33,24 @@ function DashboardPage() {
       fetchAccounts();
     }
   }, [fetchAccounts, accounts]);
+
   useEffect(() => {
-    if (!games) {
-      fetchGames();
+    if (!auditLogs) {
+      fetchAuditLogs();
     }
-  }, [fetchGames, games]);
+  }, [fetchAuditLogs, auditLogs]);
+
   useEffect(() => {
     if (!orders) {
       fetchOrders();
     }
   }, [fetchOrders, orders]);
+
+  useEffect(() => {
+    if (!games) {
+      fetchGames();
+    }
+  }, [fetchGames, games]);
 
   if (!currentUser) {
     return <Loader />;
@@ -89,6 +98,13 @@ function DashboardPage() {
             <Card>
               <CardBody>
                 <GameSection />
+              </CardBody>
+            </Card>
+          </Tab>
+          <Tab key="audit-logs" title="Логи">
+            <Card>
+              <CardBody>
+                <AuditLogSection />
               </CardBody>
             </Card>
           </Tab>

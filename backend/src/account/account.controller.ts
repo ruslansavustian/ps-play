@@ -22,15 +22,24 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Public } from 'src/auth/public.decorator';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
+import { AuditLog } from '../audit-log/audit-log.decorator';
+import { AuditLogInterceptor } from '../audit-log/audit-log.interceptor';
+import { UseInterceptors } from '@nestjs/common';
 
 @ApiTags('Gaming Accounts')
 @ApiBearerAuth()
 @Controller('accounts')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(AuditLogInterceptor)
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @Post()
+  @AuditLog({
+    action: 'CREATE_ACCOUNT',
+    entityType: 'ACCOUNT',
+    description: 'Создан новый игровой аккаунт',
+  })
   @ApiOperation({ summary: 'Create a new gaming account' })
   @ApiResponse({
     status: 201,
@@ -106,6 +115,11 @@ export class AccountController {
   }
 
   @Put(':id')
+  @AuditLog({
+    action: 'UPDATE_ACCOUNT',
+    entityType: 'ACCOUNT',
+    description: 'Обновлен игровой аккаунт',
+  })
   @ApiOperation({ summary: 'Update gaming account by ID' })
   @ApiParam({ name: 'id', type: 'number', description: 'Account ID' })
   @ApiResponse({
@@ -120,6 +134,11 @@ export class AccountController {
   }
 
   @Delete(':id')
+  @AuditLog({
+    action: 'DELETE_ACCOUNT',
+    entityType: 'ACCOUNT',
+    description: 'Удален игровой аккаунт',
+  })
   @ApiOperation({ summary: 'Delete gaming account by ID' })
   @ApiParam({ name: 'id', type: 'number', description: 'Account ID' })
   @ApiResponse({
