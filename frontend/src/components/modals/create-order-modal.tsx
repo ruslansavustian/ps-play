@@ -30,15 +30,29 @@ export const CreateOrderModal = ({
     gameName: "",
     platform: "",
     notes: "",
+    email: "",
+    telegram: "",
   });
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     createOrder({
       customerName: formData.customerName,
       phone: formData.phone,
       gameName: formData.gameName,
       platform: formData.platform,
       notes: formData.notes,
+      email: formData.email,
+      telegram: formData.telegram,
     });
+    setFormData({
+      customerName: "",
+      phone: "",
+      gameName: "",
+      platform: "",
+      notes: "",
+      email: "",
+      telegram: "",
+    });
+    onClose?.();
   };
 
   const handleInputChange = (e: any) => {
@@ -67,19 +81,40 @@ export const CreateOrderModal = ({
             label="Телефон"
             type="tel"
             name="phone"
+            isRequired
             value={formData.phone}
             onChange={handleInputChange}
           />
+          <Input
+            label="Телеграм"
+            type="text"
+            name="telegram"
+            value={formData.telegram}
+            onChange={handleInputChange}
+          />
+          <Input
+            label="Почта"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+          />
           {games && (
-            <Select label="Игра" name="gameName" onChange={handleInputChange}>
+            <Select
+              label="Игра"
+              isRequired
+              name="gameName"
+              onChange={handleInputChange}
+            >
               {games?.map((game: Game) => (
-                <SelectItem key={game.id}>{game.name}</SelectItem>
+                <SelectItem key={game.name}>{game.name}</SelectItem>
               ))}
             </Select>
           )}
           <Select
             label="Платформа"
             name="platform"
+            isRequired
             onChange={handleInputChange}
           >
             {Platforms.map((platform) => (

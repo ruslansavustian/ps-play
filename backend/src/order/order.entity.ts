@@ -40,6 +40,20 @@ export class Order {
   customerName: string;
 
   @ApiProperty({
+    description: 'Customer email',
+    type: String,
+  })
+  @Column({ length: 100, nullable: true })
+  email?: string;
+
+  @ApiProperty({
+    description: 'Customer telegram',
+    type: String,
+  })
+  @Column({ length: 100, nullable: true })
+  telegram?: string;
+
+  @ApiProperty({
     description: 'Phone number',
     type: String,
   })

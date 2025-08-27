@@ -81,7 +81,6 @@ export const AccountTable = () => {
             <TableColumn key="p1">P1</TableColumn>
             <TableColumn key="p2">P2</TableColumn>
             <TableColumn key="p3">P3</TableColumn>
-            <TableColumn key="actions">ДЕЙСТВИЯ</TableColumn>
           </TableHeader>
           <TableBody
             emptyContent={
@@ -137,16 +136,6 @@ export const AccountTable = () => {
                 </TableCell>
                 <TableCell>
                   <Checkbox isSelected={account.P3} />
-                </TableCell>
-
-                <TableCell>
-                  <Button
-                    size="sm"
-                    color="danger"
-                    onPress={() => setDeleteModal(true)}
-                  >
-                    Удалить
-                  </Button>
                 </TableCell>
               </TableRow>
             ))}

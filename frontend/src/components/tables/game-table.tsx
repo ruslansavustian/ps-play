@@ -22,7 +22,7 @@ import { useCallback, useEffect, useState } from "react";
 
 // Games List Component
 export const GameTable = () => {
-  const { games, fetchGames, updateGame, deleteGame } = useApp();
+  const { games, fetchGames, updateGame, deleteGame, gamesLoading } = useApp();
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [editingGame, setEditingGame] = useState<Game | null>(null);
   const [editName, setEditName] = useState("");
@@ -82,7 +82,7 @@ export const GameTable = () => {
     });
   };
 
-  if (!games) {
+  if (gamesLoading) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -97,7 +97,7 @@ export const GameTable = () => {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">Игры</h1>
           <div className="text-sm text-gray-600">
-            Найдено {games.length} игр
+            Найдено {games?.length} игр
           </div>
         </div>
 
@@ -126,7 +126,7 @@ export const GameTable = () => {
               </div>
             }
           >
-            {games.map((game) => (
+            {(games || []).map((game) => (
               <TableRow
                 key={game.id}
                 className="cursor-pointer hover:bg-gray-50 transition-colors"

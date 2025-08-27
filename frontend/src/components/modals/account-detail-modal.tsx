@@ -8,15 +8,16 @@ import {
   Button,
   Checkbox,
   Switch,
+  Input,
 } from "@heroui/react";
-import { Account } from "@/types";
+import { Account, UpdateAccountDto } from "@/types";
 import { useApp } from "@/contexts/AppProvider";
 
 interface AccountDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedAccount: Account;
-  setSelectedAccount: (account: Account) => void;
+  setSelectedAccount?: (account: Account) => void;
 }
 
 export const AccountDetailModal = ({
@@ -27,6 +28,7 @@ export const AccountDetailModal = ({
 }: AccountDetailModalProps) => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [formData, setFormData] = useState<Account | undefined>();
+  const [changes, setChanges] = useState<UpdateAccountDto | undefined>();
   const { deleteAccount, updateAccount } = useApp();
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
@@ -53,19 +55,10 @@ export const AccountDetailModal = ({
   );
 
   const handleUpdate = useCallback(async () => {
-    await updateAccount(selectedAccount.id!, {
-      games: selectedAccount.games.id,
-      platformPS4: selectedAccount.platformPS4,
-      platformPS5: selectedAccount.platformPS5,
-      pricePS4: Number(selectedAccount.pricePS4),
-      pricePS5: Number(selectedAccount.pricePS5),
-      P1: formData?.P1,
-      P2: formData?.P2,
-      P3: formData?.P3,
-    });
-    setFormData(undefined);
+    await updateAccount(selectedAccount.id!, changes!);
+    setChanges(undefined);
     onClose();
-  }, [formData, updateAccount, onClose]);
+  }, [changes, updateAccount, onClose]);
   console.log("selectedAccount", selectedAccount);
   return (
     <>
@@ -111,17 +104,39 @@ export const AccountDetailModal = ({
                       <label className=" font-medium text-gray-700">
                         Цена PS4
                       </label>
-                      <p className="mt-1 text-lg font-bold text-green-600">
-                        ${selectedAccount?.pricePS4}
-                      </p>
+                      <Input
+                        className="mt-1 text-lg font-bold text-green-600"
+                        type="number"
+                        min="0"
+                        step="1"
+                        name="pricePS4"
+                        defaultValue={selectedAccount?.pricePS4.toString()}
+                        onChange={(e) => {
+                          setChanges({
+                            ...changes!,
+                            pricePS4: Number(e.target.value),
+                          });
+                        }}
+                      />
                     </div>
                     <div>
                       <label className=" font-medium text-gray-700">
                         Цена PS5
                       </label>
-                      <p className="mt-1 text-lg font-bold text-green-600">
-                        ${selectedAccount?.pricePS5}
-                      </p>
+                      <Input
+                        className="mt-1 text-lg font-bold text-green-600"
+                        type="number"
+                        min="0"
+                        step="1"
+                        name="pricePS5"
+                        defaultValue={selectedAccount?.pricePS5.toString()}
+                        onChange={(e) => {
+                          setChanges({
+                            ...changes!,
+                            pricePS5: Number(e.target.value),
+                          });
+                        }}
+                      />
                     </div>
                   </div>
                   <div>
@@ -141,8 +156,8 @@ export const AccountDetailModal = ({
                       id="p1"
                       defaultSelected={selectedAccount?.P1}
                       onValueChange={(value) => {
-                        setFormData({
-                          ...formData!,
+                        setChanges({
+                          ...changes!,
                           P1: value,
                         });
                       }}
@@ -154,8 +169,8 @@ export const AccountDetailModal = ({
                       id="p2"
                       defaultSelected={selectedAccount?.P2}
                       onValueChange={(value) => {
-                        setFormData({
-                          ...formData!,
+                        setChanges({
+                          ...changes!,
                           P2: value,
                         });
                       }}
@@ -167,8 +182,8 @@ export const AccountDetailModal = ({
                       id="p3"
                       defaultSelected={selectedAccount?.P3}
                       onValueChange={(value) => {
-                        setFormData({
-                          ...formData!,
+                        setChanges({
+                          ...changes!,
                           P3: value,
                         });
                       }}
