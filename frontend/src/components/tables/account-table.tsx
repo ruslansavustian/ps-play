@@ -76,10 +76,13 @@ export const AccountTable = () => {
             <TableColumn key="platform">ИГРЫ</TableColumn>
             <TableColumn key="platformPS4">ПЛАТФОРМА PS4</TableColumn>
             <TableColumn key="platformPS5">ПЛАТФОРМА PS5</TableColumn>
-            <TableColumn key="pricePS">ЦЕНА PS5</TableColumn>
-            <TableColumn key="pricePS4">ЦЕНА PS4</TableColumn>
+            <TableColumn key="priceP1">ЦЕНА P1</TableColumn>
+            <TableColumn key="priceP2PS5">ЦЕНА P2PS5</TableColumn>
+            <TableColumn key="priceP2PS4">ЦЕНА P2PS4</TableColumn>
+            <TableColumn key="priceP3">ЦЕНА P3</TableColumn>
             <TableColumn key="p1">P1</TableColumn>
-            <TableColumn key="p2">P2</TableColumn>
+            <TableColumn key="p2PS4">P2PS4</TableColumn>
+            <TableColumn key="p2PS5">P2PS5</TableColumn>
             <TableColumn key="p3">P3</TableColumn>
           </TableHeader>
           <TableBody
@@ -120,19 +123,32 @@ export const AccountTable = () => {
                 </TableCell>
                 <TableCell>
                   <span className="font-bold text-green-600">
-                    ${account.pricePS5}
+                    ${account.priceP1}
                   </span>
                 </TableCell>
                 <TableCell>
                   <span className="font-bold text-green-600">
-                    ${account.pricePS4}
+                    ${account.priceP2PS5}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className="font-bold text-green-600">
+                    ${account.priceP2PS4}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className="font-bold text-green-600">
+                    ${account.priceP3}
                   </span>
                 </TableCell>
                 <TableCell>
                   <Checkbox isSelected={account.P1} />
                 </TableCell>
                 <TableCell>
-                  <Checkbox isSelected={account.P2} />
+                  <Checkbox isSelected={account.P2PS4} />
+                </TableCell>
+                <TableCell>
+                  <Checkbox isSelected={account.P2PS5} />
                 </TableCell>
                 <TableCell>
                   <Checkbox isSelected={account.P3} />

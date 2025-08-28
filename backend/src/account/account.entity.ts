@@ -45,13 +45,49 @@ export class Account {
   @Column({ type: 'boolean', default: false })
   platformPS5: boolean;
 
-  @ApiProperty({ description: 'Price for PS5 platform', type: Number })
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
-  pricePS5: number;
+  //PRICE FOR P1
+  @ApiProperty({ description: 'Price for P1', type: Number })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: 0,
+  })
+  priceP1: number;
 
-  @ApiProperty({ description: 'Price for PS4 platform', type: Number })
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
-  pricePS4: number;
+  //PRICE FOR P2PS4
+  @ApiProperty({ description: 'Price for P2PS4', type: Number })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: 0,
+  })
+  priceP2PS4: number;
+
+  //PRICE FOR P2PS5
+  @ApiProperty({ description: 'Price for P2PS5', type: Number })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: 0,
+  })
+  priceP2PS5: number;
+
+  //PRICE FOR P3
+  @ApiProperty({ description: 'Price for P3', type: Number })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: 0,
+  })
+  priceP3: number;
 
   //P1 STATUS
   @ApiProperty({
@@ -61,14 +97,21 @@ export class Account {
   @Column({ type: 'boolean', default: false })
   P1: boolean;
 
-  //P2 STATUS
+  //P2 STATUS FOR PS4
   @ApiProperty({
-    description: 'P2 status',
+    description: 'P2 status for PS4',
     type: Boolean,
   })
   @Column({ type: 'boolean', default: false })
-  P2: boolean;
+  P2PS4: boolean;
 
+  //P2 STATUS FOR PS5
+  @ApiProperty({
+    description: 'P2 status for PS5',
+    type: Boolean,
+  })
+  @Column({ type: 'boolean', default: false })
+  P2PS5: boolean;
   //P3 STATUS
   @ApiProperty({
     description: 'Account activation status',

@@ -27,20 +27,36 @@ export class CreateAccountDto {
   platformPS5: boolean;
 
   @ApiProperty({
-    description: 'Price for PS platform',
+    description: 'Price for P1',
     example: 29.99,
+    required: false,
   })
   @IsNumber()
-  @IsNotEmpty()
-  pricePS5: number;
+  priceP1?: number;
 
   @ApiProperty({
-    description: 'Price for PS4 platform',
-    example: 39.99,
+    description: 'Price for P2PS4',
+    example: 29.99,
+    required: false,
   })
   @IsNumber()
-  @IsNotEmpty()
-  pricePS4: number;
+  priceP2PS4?: number;
+
+  @ApiProperty({
+    description: 'Price for P2PS5',
+    example: 39.99,
+    required: false,
+  })
+  @IsNumber()
+  priceP2PS5?: number;
+
+  @ApiProperty({
+    description: 'Price for P3',
+    example: 39.99,
+    required: false,
+  })
+  @IsNumber()
+  priceP3?: number;
 
   @ApiProperty({
     description: 'P1 status',
@@ -51,12 +67,20 @@ export class CreateAccountDto {
   P1?: boolean;
 
   @ApiProperty({
-    description: 'P2 status',
+    description: 'P2 status for PS4',
     example: true,
   })
   @IsBoolean()
   @IsNotEmpty()
-  P2?: boolean;
+  P2PS4?: boolean;
+
+  @ApiProperty({
+    description: 'P2 status for PS5',
+    example: true,
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  P2PS5?: boolean;
 
   @ApiProperty({
     description: 'P3 status',

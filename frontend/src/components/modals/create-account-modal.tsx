@@ -29,10 +29,13 @@ export const CreateAccountModal = ({
     games: {} as Game,
     platformPS4: false,
     platformPS5: false,
-    pricePS5: 0,
-    pricePS4: 0,
+    priceP1: 0,
+    priceP2PS4: 0,
+    priceP2PS5: 0,
+    priceP3: 0,
     P1: false,
-    P2: false,
+    P2PS4: false,
+    P2PS5: false,
     P3: false,
   });
 
@@ -49,10 +52,13 @@ export const CreateAccountModal = ({
       games: formData.games.id || 0,
       platformPS4: formData.platformPS4,
       platformPS5: formData.platformPS5,
-      pricePS5: Number(formData.pricePS5),
-      pricePS4: Number(formData.pricePS4),
+      priceP1: Number(formData.priceP1),
+      priceP2PS4: Number(formData.priceP2PS4),
+      priceP2PS5: Number(formData.priceP2PS5),
+      priceP3: Number(formData.priceP3),
       P1: formData.P1,
-      P2: formData.P2,
+      P2PS4: formData.P2PS4,
+      P2PS5: formData.P2PS5,
       P3: formData.P3,
     };
     await createAccount(accountData);
@@ -61,10 +67,13 @@ export const CreateAccountModal = ({
       games: {} as Game,
       platformPS4: false,
       platformPS5: false,
-      pricePS5: 0,
-      pricePS4: 0,
+      priceP1: 0,
+      priceP2PS4: 0,
+      priceP2PS5: 0,
+      priceP3: 0,
       P1: false,
-      P2: false,
+      P2PS4: false,
+      P2PS5: false,
       P3: false,
     });
     fetchAccounts();
@@ -100,7 +109,10 @@ export const CreateAccountModal = ({
       formData.games.id &&
       formData.platformPS4 &&
       formData.platformPS5 &&
-      (formData.pricePS5 > 0 || formData.pricePS4 > 0)
+      (formData.priceP1 > 0 ||
+        formData.priceP2PS4 > 0 ||
+        formData.priceP2PS5 > 0 ||
+        formData.priceP3 > 0)
     );
   };
 
@@ -165,24 +177,46 @@ export const CreateAccountModal = ({
             {/* Prices */}
             <div className="flex gap-4">
               <Input
-                label="Цена PS (USD)"
+                label="Цена P1 (USD)"
                 placeholder="0.00"
-                name="pricePS5"
+                name="priceP1"
                 type="number"
                 min="0"
                 step="0.01"
-                value={formData.pricePS5.toString()}
+                value={formData.priceP1.toString()}
                 onChange={handleInputChange}
                 startContent={<span className="text-gray-500">$</span>}
               />
               <Input
-                label="Цена PS4 (USD)"
+                label="Цена P2PS4 (USD)"
                 placeholder="0.00"
-                name="pricePS4"
+                name="priceP2PS4"
                 type="number"
                 min="0"
                 step="0.01"
-                value={formData.pricePS4.toString()}
+                value={formData.priceP2PS4.toString()}
+                onChange={handleInputChange}
+                startContent={<span className="text-gray-500">$</span>}
+              />
+              <Input
+                label="Цена P2PS5 (USD)"
+                placeholder="0.00"
+                name="priceP2PS5"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.priceP2PS5.toString()}
+                onChange={handleInputChange}
+                startContent={<span className="text-gray-500">$</span>}
+              />
+              <Input
+                label="Цена P3 (USD)"
+                placeholder="0.00"
+                name="priceP3"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.priceP3.toString()}
                 onChange={handleInputChange}
                 startContent={<span className="text-gray-500">$</span>}
               />
