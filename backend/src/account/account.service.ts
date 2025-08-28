@@ -18,10 +18,13 @@ export class AccountService {
       games: { id: createAccountDto.games } as Game,
       platformPS4: createAccountDto.platformPS4,
       platformPS5: createAccountDto.platformPS5,
-      pricePS5: createAccountDto.pricePS5,
-      pricePS4: createAccountDto.pricePS4,
+      priceP1: createAccountDto.priceP1 || 0,
+      priceP2PS4: createAccountDto.priceP2PS4 || 0,
+      priceP2PS5: createAccountDto.priceP2PS5 || 0,
+      priceP3: createAccountDto.priceP3 || 0,
       P1: createAccountDto.P1 || false,
-      P2: createAccountDto.P2 || false,
+      P2PS4: createAccountDto.P2PS4 || false,
+      P2PS5: createAccountDto.P2PS5 || false,
       P3: createAccountDto.P3 || false,
     });
     return await this.accountRepository.save(account);
@@ -50,11 +53,17 @@ export class AccountService {
     if (updateData.platformPS5 !== undefined) {
       updatePayload.platformPS5 = updateData.platformPS5;
     }
-    if (updateData.pricePS5 !== undefined) {
-      updatePayload.pricePS5 = updateData.pricePS5;
+    if (updateData.priceP1 !== undefined) {
+      updatePayload.priceP1 = updateData.priceP1 || 0;
     }
-    if (updateData.pricePS4 !== undefined) {
-      updatePayload.pricePS4 = updateData.pricePS4;
+    if (updateData.priceP2PS5 !== undefined) {
+      updatePayload.priceP2PS5 = updateData.priceP2PS5 || 0;
+    }
+    if (updateData.priceP2PS4 !== undefined) {
+      updatePayload.priceP2PS4 = updateData.priceP2PS4 || 0;
+    }
+    if (updateData.priceP3 !== undefined) {
+      updatePayload.priceP3 = updateData.priceP3 || 0;
     }
 
     // Handle games property separately - convert to games relation
@@ -66,8 +75,11 @@ export class AccountService {
     if (updateData.P1 !== undefined) {
       updatePayload.P1 = updateData.P1;
     }
-    if (updateData.P2 !== undefined) {
-      updatePayload.P2 = updateData.P2;
+    if (updateData.P2PS4 !== undefined) {
+      updatePayload.P2PS4 = updateData.P2PS4;
+    }
+    if (updateData.P2PS5 !== undefined) {
+      updatePayload.P2PS5 = updateData.P2PS5;
     }
     if (updateData.P3 !== undefined) {
       updatePayload.P3 = updateData.P3;

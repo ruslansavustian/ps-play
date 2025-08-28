@@ -31,12 +31,15 @@ export interface AuthResponse {
 export interface Account {
   id?: number;
   games: Game;
-  pricePS5: number;
+  priceP1: number;
+  priceP2PS4: number;
+  priceP2PS5: number;
+  priceP3: number;
   platformPS4: boolean;
   platformPS5: boolean;
-  pricePS4: number;
   P1: boolean;
-  P2: boolean;
+  P2PS4: boolean;
+  P2PS5: boolean;
   P3: boolean;
   created?: string;
 }
@@ -46,10 +49,13 @@ export interface UpdateAccountDto {
   platformPS4?: boolean;
   platformPS5?: boolean;
   P1?: boolean;
-  P2?: boolean;
+  P2PS4?: boolean;
+  P2PS5?: boolean;
   P3?: boolean;
-  pricePS5?: number;
-  pricePS4?: number;
+  priceP1?: number;
+  priceP2PS4?: number;
+  priceP2PS5?: number;
+  priceP3?: number;
 }
 
 export interface CreateAccountDto {
@@ -57,10 +63,13 @@ export interface CreateAccountDto {
   platformPS4: boolean;
   platformPS5: boolean;
   P1: boolean;
-  P2: boolean;
+  P2PS4: boolean;
+  P2PS5: boolean;
   P3: boolean;
-  pricePS5: number;
-  pricePS4: number;
+  priceP1: number;
+  priceP2PS4: number;
+  priceP2PS5: number;
+  priceP3: number;
 }
 
 // Game types
