@@ -64,10 +64,16 @@ export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
                 </div>
               </div>
               <div key="4">
-                <p>Цена PS5: ${selectedAccount?.pricePS5}</p>
+                <p>Цена P1: ${selectedAccount?.priceP1}</p>
               </div>
               <div key="5">
-                <p>Цена PS4: ${selectedAccount?.pricePS4}</p>
+                <p>Цена P2PS5: ${selectedAccount?.priceP2PS5}</p>
+              </div>
+              <div key="5">
+                <p>Цена P2PS4: ${selectedAccount?.priceP2PS4}</p>
+              </div>
+              <div key="6">
+                <p>Цена P3: ${selectedAccount?.priceP3}</p>
               </div>
             </div>
           </ModalBody>
@@ -78,8 +84,10 @@ export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
           <TableColumn>Игры</TableColumn>
           <TableColumn>Платаформа PS4</TableColumn>
           <TableColumn>Платаформа PS5</TableColumn>
-          <TableColumn>Цена PS5</TableColumn>
-          <TableColumn>Цена PS4</TableColumn>
+          <TableColumn>Цена P1</TableColumn>
+          <TableColumn>Цена P2PS4</TableColumn>
+          <TableColumn>Цена P2PS5</TableColumn>
+          <TableColumn>Цена P3</TableColumn>
         </TableHeader>
         <TableBody>
           {accounts.map((account) => (
@@ -91,8 +99,10 @@ export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
               <TableCell>{account.games.name}</TableCell>
               <TableCell>{account.platformPS4 ? "Да" : "Нет"}</TableCell>
               <TableCell>{account.platformPS5 ? "Да" : "Нет"}</TableCell>
-              <TableCell>${account.pricePS5}</TableCell>
-              <TableCell>${account.pricePS4}</TableCell>
+              <TableCell>${account.priceP1}</TableCell>
+              <TableCell>${account.priceP2PS4}</TableCell>
+              <TableCell>${account.priceP2PS5}</TableCell>
+              <TableCell>${account.priceP3}</TableCell>
             </TableRow>
           ))}
         </TableBody>
