@@ -38,7 +38,12 @@ interface JoinAdminData {
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    // CORS_ORIGINS - список разрешенных origins через запятую
+    // Например: "http://localhost:3000,http://localhost:3001,https://yourdomain.com"
+    origin: process.env.CORS_ORIGINS?.split(',') || [
+      'http://localhost:3000',
+      'http://localhost:3001',
+    ],
     credentials: true,
   },
   transports: ['websocket', 'polling'],
