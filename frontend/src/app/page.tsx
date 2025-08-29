@@ -8,6 +8,9 @@ import { Account } from "@/types";
 import { AccountTable } from "../components/tables/account-table";
 import { HomeAccountsTable } from "@/components/tables/home-accounts-table";
 
+import { SupportChat } from "@/components/chat/support-chat";
+// import { TestChat } from "@/components/chat/test-chat";
+
 export default function Home() {
   const { loading, publicAccounts, fetchPublicAccounts } = useApp();
 
@@ -26,7 +29,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen  container mx-auto">
+    <div className="min -h-screen  container mx-auto">
       {/* <Header /> */}
       <main>
         <div className="py-8">
@@ -42,6 +45,8 @@ export default function Home() {
           </div>
         </div>
         {publicAccounts && <HomeAccountsTable accounts={publicAccounts} />}
+        <SupportChat />
+        {/* <TestChat /> */}
       </main>
     </div>
   );
