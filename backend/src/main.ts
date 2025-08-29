@@ -5,7 +5,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  console.log('Starting NestJS application...');
   const app = await NestFactory.create(AppModule);
+  console.log('AppModule loaded successfully');
   app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
@@ -20,12 +22,14 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
       'http://localhost:3001',
       'http://127.0.0.1:3001',
       process.env.FRONTEND_URL,
       /\.vercel\.app$/,
     ].filter(Boolean),
-    credentials: false,
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     preflightContinue: false,
@@ -39,7 +43,10 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = process.env.PORT ?? 3001;
+  await app.listen(port);
+  console.log(`Backend server running on port ${port}`);
+  console.log(`WebSocket server available at ws://localhost:${port}`);
 }
 bootstrap().catch((err) =>
   console.error('Error starting the application:', err),

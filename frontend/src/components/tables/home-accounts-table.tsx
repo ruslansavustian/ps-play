@@ -69,17 +69,22 @@ export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
               <div key="5">
                 <p>Цена P2PS5: ${selectedAccount?.priceP2PS5}</p>
               </div>
-              <div key="5">
+              <div key="6">
                 <p>Цена P2PS4: ${selectedAccount?.priceP2PS4}</p>
               </div>
-              <div key="6">
+              <div key="7">
                 <p>Цена P3: ${selectedAccount?.priceP3}</p>
               </div>
             </div>
           </ModalBody>
         </ModalContent>
       </Modal>
-      <Table>
+      <Table
+        aria-label="Example static collection table"
+        classNames={{
+          base: "rounded-none",
+        }}
+      >
         <TableHeader>
           <TableColumn>Игры</TableColumn>
           <TableColumn>Платаформа PS4</TableColumn>

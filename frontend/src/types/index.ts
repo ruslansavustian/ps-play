@@ -139,6 +139,37 @@ export interface AuditLog {
   timestamp: string;
 }
 
+// Chat types
+export interface ChatMessage {
+  id?: number;
+  message: string;
+  userName: string;
+  userId?: string;
+  createdAt?: Date;
+  timestamp?: Date;
+}
+
+export interface JoinTheChatDto {
+  userName: string;
+  userId: string;
+}
+
+export interface ChatState {
+  messages: ChatMessage[];
+  messagesLoading: boolean;
+}
+
+export interface SupportTicket {
+  id: string;
+  userName: string;
+  message: string;
+  status: "open" | "closed";
+}
+
+export interface CreateTicketData {
+  userName: string;
+  initialMessage: string;
+}
 export interface AppState extends AuthState, AccountsState, GamesState {
   // Future: можно добавить другие состояния (projects, settings, etc.)
 }

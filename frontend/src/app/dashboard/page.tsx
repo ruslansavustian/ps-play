@@ -6,11 +6,13 @@ import { useCallback, useEffect, useState } from "react";
 import { CreateGameModal } from "../../components/modals/create-game.modal";
 import { AccountSection } from "@/components/dashboard/account-section";
 import { GameSection } from "@/components/dashboard/game-section";
-import { Card, CardBody, Tab, Tabs } from "@heroui/react";
+import { Card, CardBody, Link, Tab, Tabs } from "@heroui/react";
 import { withAuthCheck } from "@/hoc/withAuthCheck";
 import { Loader } from "@/components/ui-components/loader";
 import { OrderSection } from "@/components/dashboard/order-section";
 import { AuditLogSection } from "@/components/dashboard/audit-log-section";
+
+import { paths } from "@/utils/paths";
 
 function DashboardPage() {
   const {
@@ -78,6 +80,9 @@ function DashboardPage() {
           </div>
         </div>
       </nav>
+      <div className="flex">
+        <Link href={paths.support}> Панель поддержки</Link>
+      </div>
       <div className="mt-4">
         <Tabs aria-label="Options">
           <Tab key="orders" title="Заказы">
