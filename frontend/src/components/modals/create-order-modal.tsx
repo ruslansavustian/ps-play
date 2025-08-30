@@ -32,7 +32,7 @@ export const CreateOrderModal = ({
     notes: "",
     email: "",
     telegram: "",
-    account: 0,
+    accountId: 0,
   });
   const handleSubmit = async () => {
     createOrder({
@@ -43,7 +43,7 @@ export const CreateOrderModal = ({
       notes: formData.notes,
       email: formData.email,
       telegram: formData.telegram,
-      account: formData.account,
+      accountId: formData.accountId,
     });
     setFormData({
       customerName: "",
@@ -53,7 +53,7 @@ export const CreateOrderModal = ({
       notes: "",
       email: "",
       telegram: "",
-      account: 0,
+      accountId: 0,
     });
     onClose?.();
   };
@@ -106,7 +106,7 @@ export const CreateOrderModal = ({
             <Select
               label="Аккаунт"
               isRequired
-              name="account"
+              name="accountId"
               onChange={handleInputChange}
             >
               {accounts?.map((account: Account) => (
