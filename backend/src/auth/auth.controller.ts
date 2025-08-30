@@ -6,6 +6,7 @@ import {
   UseGuards,
   Request,
   Headers,
+  OnModuleInit,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,8 +21,16 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 
 @ApiTags('Authentication')
 @Controller('auth')
-export class AuthController {
-  constructor(private authService: AuthService) {}
+export class AuthController implements OnModuleInit {
+  constructor(private authService: AuthService) {
+    console.log('AuthController constructor called');
+  }
+
+  onModuleInit() {
+    console.log('AuthController initialized successfully');
+    console.log('Auth routes should be registered now');
+  }
+
   @Post('init-session')
   @ApiOperation({ summary: 'Initialize authentication session' })
   @ApiResponse({
@@ -35,6 +44,7 @@ export class AuthController {
     },
   })
   initSession() {
+    console.log('init-session endpoint called');
     return this.authService.initSession();
   }
   @Post('register')

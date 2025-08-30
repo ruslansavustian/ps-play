@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Account } from 'src/account/account.entity';
 
 export class CreateOrderDto {
   @ApiProperty({
@@ -11,20 +12,20 @@ export class CreateOrderDto {
   customerName?: string;
 
   @ApiProperty({
+    description: 'Customer account',
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  account?: Account;
+
+  @ApiProperty({
     description: 'Phone number',
     type: String,
   })
   @IsNotEmpty()
   @IsString()
   phone: string;
-
-  @ApiProperty({
-    description: 'Game name',
-    type: String,
-  })
-  @IsNotEmpty()
-  @IsString()
-  gameName: string;
 
   @ApiProperty({
     description: 'Platform',

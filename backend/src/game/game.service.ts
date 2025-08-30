@@ -39,6 +39,6 @@ export class GameService {
   }
 
   async remove(id: number): Promise<void> {
-    await this.gameRepository.delete(id);
+    await this.gameRepository.update(id, { isDeleted: true });
   }
 }

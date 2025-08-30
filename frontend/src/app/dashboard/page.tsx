@@ -80,8 +80,13 @@ function DashboardPage() {
           </div>
         </div>
       </nav>
-      <div className="flex">
-        <Link href={paths.support}> Панель поддержки</Link>
+      <div className="flex my-4">
+        <Link
+          className="rounded-md px-4 py-2 bg-black text-white"
+          href={paths.support}
+        >
+          Панель поддержки
+        </Link>
       </div>
       <div className="mt-4">
         <Tabs aria-label="Options">

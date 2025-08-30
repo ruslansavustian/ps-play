@@ -4,8 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Account } from 'src/account/account.entity';
 
 export enum OrderStatus {
   PENDING = 'pending',
@@ -61,13 +64,6 @@ export class Order {
   phone: string;
 
   @ApiProperty({
-    description: 'Game name',
-    type: String,
-  })
-  @Column({ length: 100 })
-  gameName: string;
-
-  @ApiProperty({
     description: 'Platform for the order (PS4 or PS5)',
     type: String,
   })
@@ -97,4 +93,19 @@ export class Order {
   })
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ApiProperty({
+    description: 'Customer account',
+    type: Account,
+  })
+  @ManyToOne(() => Account, (account) => account.orders)
+  @JoinColumn({ name: 'accountId' })
+  account: Account;
+
+  @ApiProperty({
+    description: 'Account ID',
+    type: Number,
+  })
+  @Column({ nullable: true })
+  accountId: number;
 }
