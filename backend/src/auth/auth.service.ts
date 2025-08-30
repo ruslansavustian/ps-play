@@ -21,7 +21,7 @@ export class AuthService {
   private activeSessions = new Map<string, { expiresAt: Date }>();
   initSession() {
     const uuid = uuidv4();
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
     this.activeSessions.set(uuid, { expiresAt });
 
@@ -58,26 +58,22 @@ export class AuthService {
     hashedPassword: string,
     storedPassword: string,
   ): boolean => {
-    // Простое сравнение хешей
     return hashedPassword === storedPassword;
   };
   async loginWithBasicAuth(loginDto: LoginDto, authHeader: string) {
     const { uuid } = loginDto;
 
-    // Validate session UUID
     const session = this.activeSessions.get(uuid);
     if (!session || session.expiresAt < new Date()) {
       throw new UnauthorizedException('Invalid or expired session');
     }
     this.activeSessions.delete(uuid);
 
-    // Parse Basic Auth header
     if (!authHeader || !authHeader.startsWith('Basic ')) {
       throw new UnauthorizedException('Invalid authorization header');
     }
 
     try {
-      // Decode Base64 credentials
       const base64Credentials = authHeader.replace('Basic ', '');
       const credentials = Buffer.from(base64Credentials, 'base64').toString(
         'utf-8',
@@ -88,7 +84,6 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials format');
       }
 
-      // Find user by email
       const user = await this.userService.findByEmail(email);
       if (!user) {
         throw new UnauthorizedException('Invalid credentials');
@@ -101,7 +96,6 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
-      // Generate JWT token
       const payload = { username: user.email, sub: user.id };
       const access_token = this.jwtService.sign(payload);
 
@@ -148,7 +142,6 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
-      // Generate JWT token
       const payload = { username: user.email, sub: user.id };
       const access_token = this.jwtService.sign(payload);
 
