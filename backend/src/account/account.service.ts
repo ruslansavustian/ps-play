@@ -46,7 +46,6 @@ export class AccountService {
   ): Promise<Account | null> {
     const updatePayload: Partial<Account> = {};
 
-    // Only copy properties that exist in Account entity
     if (updateData.platformPS4 !== undefined) {
       updatePayload.platformPS4 = updateData.platformPS4;
     }
@@ -66,12 +65,10 @@ export class AccountService {
       updatePayload.priceP3 = updateData.priceP3 || 0;
     }
 
-    // Handle games property separately - convert to games relation
     if (updateData.games !== undefined) {
       updatePayload.games = { id: updateData.games } as Game;
     }
 
-    // Handle P1, P2, P3 properties
     if (updateData.P1 !== undefined) {
       updatePayload.P1 = updateData.P1;
     }
