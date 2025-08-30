@@ -39,7 +39,6 @@ export const useChat = () => {
       "userDisconnected",
       (data: { ticketId: string; userName: string; userId: string }) => {
         console.log("🔌 [HOOK] User disconnected from support:", data);
-        // Можно добавить уведомление или обновление статуса тикета
       }
     );
 
@@ -47,7 +46,6 @@ export const useChat = () => {
       "userReconnected",
       (data: { ticketId: string; userName: string; userId: string }) => {
         console.log("🔌 [HOOK] User reconnected to support:", data);
-        // Можно добавить уведомление или обновление статуса тикета
       }
     );
 
@@ -56,7 +54,6 @@ export const useChat = () => {
       setMessages((prev) => [...prev, message]);
     });
 
-    // Обработка истории сообщений при присоединении к тикету
     newSocket.on("ticketMessages", (ticketMessages: ChatMessage[]) => {
       console.log("💬 [HOOK] Received ticket messages:", ticketMessages);
       console.log("💬 [HOOK] Setting messages to:", ticketMessages);
@@ -87,7 +84,6 @@ export const useChat = () => {
       console.log("👨‍💼 [HOOK] joinTicket called with ticketId:", ticketId);
       if (socket) {
         console.log("👨‍💼 [HOOK] Joining ticket:", ticketId);
-        // Очищаем сообщения перед присоединением к новому тикету
         setMessages([]);
         socket.emit("joinTicket", { ticketId });
         setSelectedTicket(ticketId);
@@ -101,7 +97,6 @@ export const useChat = () => {
     (data: { userName: string; initialMessage: string }) => {
       console.log("🎫 [HOOK] createSupportTicket called with data:", data);
       if (socket) {
-        // Устанавливаем имя пользователя при создании тикета
         setUserName(data.userName);
         console.log("🎫 [HOOK] Emitting createSupportTicket event");
         socket.emit("createSupportTicket", data);

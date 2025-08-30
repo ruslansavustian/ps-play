@@ -11,7 +11,7 @@ interface InputSelectorProps {
   value: string;
   IconSelector?: React.ComponentType;
   name: string;
-  onChange: (e: { target: { name: string; value: string } }) => void; // Updated type
+  onChange: (e: { target: { name: string; value: string } }) => void;
 }
 
 const InputSelector: React.FC<InputSelectorProps> = ({
@@ -23,17 +23,15 @@ const InputSelector: React.FC<InputSelectorProps> = ({
   placeholderName,
   labelStyle,
   IconSelector,
-  name, // We use this to pass the field name to onChange
+  name,
   onChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Handle dropdown item selection
   const handleOptionClick = useCallback(
     (selectedValue: string) => {
-      // Call onChange with the updated structure to pass the name and value
       onChange({ target: { name, value: selectedValue } });
-      setIsOpen(false); // Close dropdown after selection
+      setIsOpen(false);
     },
     [name, onChange]
   );

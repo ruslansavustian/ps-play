@@ -38,8 +38,6 @@ interface JoinAdminData {
 
 @WebSocketGateway({
   cors: {
-    // CORS_ORIGINS - список разрешенных origins через запятую
-    // Например: "http://localhost:3000,http://localhost:3001,https://yourdomain.com"
     origin: process.env.CORS_ORIGINS?.split(',') || [
       'http://localhost:3000',
       'http://localhost:3001',
@@ -54,7 +52,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private connectedUsers = new Map<string, string>();
   private supportTickets = new Map<string, SupportTicket>();
-  private supportMessages = new Map<string, any[]>(); // Сохраняем сообщения для каждого тикета
+  private supportMessages = new Map<string, any[]>();
 
   constructor(private readonly chatService: ChatService) {
     console.log('ChatGateway initialized');
@@ -66,7 +64,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       `🔌 [CONNECTION] Total connected clients: ${this.server.sockets.sockets.size}`,
     );
 
-    // Отправляем последние сообщения новому пользователю
     const recentMessages = await this.chatService.getRecentMessages();
     client.emit('recentMessages', recentMessages.reverse());
     console.log(
@@ -80,14 +77,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       `🔌 [DISCONNECT] Total connected clients: ${this.server.sockets.sockets.size}`,
     );
 
-    // Проверяем, был ли это пользователь поддержки
     const supportTicket = this.findTicketByUserId(client.id);
     if (supportTicket) {
       console.log(
         `🔌 [DISCONNECT] Support user ${supportTicket.userName} (${client.id}) disconnected from ticket ${supportTicket.id}`,
       );
 
-      // Уведомляем админов об отключении пользователя
       this.server.to('admin-room').emit('userDisconnected', {
         ticketId: supportTicket.id,
         userName: supportTicket.userName,
@@ -98,12 +93,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
     }
 
-    // Сохраняем имя пользователя перед удалением
     const userName = this.connectedUsers.get(client.id) || 'Anonymous';
     console.log(
       `🔌 [DISCONNECT] User ${userName} (${client.id}) left the chat`,
     );
-    // Уведомляем всех о том, что пользователь покинул чат
     this.server.emit('userLeft', {
       userId: client.id,
       userName: userName,
@@ -120,7 +113,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(joinData);
     console.log(this.connectedUsers);
 
-    // Уведомляем всех о новом пользователе
     this.server.emit('userJoined', {
       userId: client.id,
       userName: joinData.userName,
@@ -132,14 +124,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userName =
       this.connectedUsers.get(client.id) || messageData.userName || 'Anonymous';
 
-    // Сохраняем сообщение в базе данных
     const savedMessage = await this.chatService.saveMessage({
       ...messageData,
       userName,
       userId: client.id,
     });
 
-    // Отправляем сообщение всем подключенным клиентам
     this.server.emit('newMessage', {
       id: savedMessage.id,
       message: savedMessage.message,
@@ -174,7 +164,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       status: 'open',
     });
 
-    // Инициализируем массив сообщений для этого тикета и добавляем первое сообщение
     const initialMessage = {
       message: data.initialMessage,
       userName: data.userName,
@@ -188,7 +177,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     console.log('🎫 [CREATE_TICKET] Initial message saved:', initialMessage);
 
-    // Уведомляем админов о новом тикете
     console.log(
       '🎫 [CREATE_TICKET] Sending notification to admin-room about new ticket',
     );
@@ -209,21 +197,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     console.log('💬 [USER_MESSAGE] Message data:', data);
 
-    // Сначала ищем по client.id
     let ticket = this.findTicketByUserId(client.id);
     console.log(
       '💬 [USER_MESSAGE] Found ticket by userId:',
       ticket?.id || 'NOT_FOUND',
     );
 
-    // Если не найден, ищем по userName (для переподключенных пользователей)
     if (!ticket && data.userName) {
       console.log('💬 [USER_MESSAGE] Searching by userName:', data.userName);
       for (const [, t] of this.supportTickets) {
         if (t.userName === data.userName && t.status === 'open') {
           ticket = t;
           console.log('💬 [USER_MESSAGE] Found ticket by userName:', ticket.id);
-          // Обновляем userId для переподключенного пользователя
           ticket.userId = client.id;
           console.log(
             '💬 [USER_MESSAGE] Updated userId for reconnected user:',
@@ -243,7 +228,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         timestamp: new Date(),
       };
 
-      // Сохраняем сообщение в истории тикета
       const ticketMessages = this.supportMessages.get(ticket.id) || [];
       ticketMessages.push(messageData);
       this.supportMessages.set(ticket.id, ticketMessages);
@@ -256,7 +240,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.server.to(ticket.roomId).emit('newMessage', messageData);
       console.log('💬 [USER_MESSAGE] Message sent to room');
 
-      // Уведомляем админов о том, что пользователь снова онлайн
       this.server.to('admin-room').emit('userReconnected', {
         ticketId: ticket.id,
         userName: ticket.userName,
@@ -289,7 +272,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         timestamp: new Date(),
       };
 
-      // Сохраняем сообщение в истории тикета
       const ticketMessages = this.supportMessages.get(ticket.id) || [];
       ticketMessages.push(messageData);
       this.supportMessages.set(ticket.id, ticketMessages);
@@ -317,7 +299,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await client.join('admin-room');
     console.log(`👨‍💼 [JOIN_ADMIN] Admin ${data.adminName} joined admin room`);
 
-    // Отправляем админу список всех открытых тикетов
     const openTickets = Array.from(this.supportTickets.values()).filter(
       (ticket) => ticket.status === 'open',
     );
@@ -327,7 +308,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     client.emit('supportTicketsList', openTickets);
     console.log(
-      `👨‍💼 [JOIN_ADMIN] Sent ${openTickets.length} open tickets to admin`,
+      `👨‍💼 [ADMIN_MESSAGE] Sent ${openTickets.length} open tickets to admin`,
     );
   }
 
@@ -343,7 +324,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         `👨‍💼 [JOIN_TICKET] Admin ${client.id} joined ticket room: ${ticket.roomId}`,
       );
 
-      // Отправляем историю сообщений для этого тикета
       const ticketMessages = this.supportMessages.get(ticket.id) || [];
       console.log(
         `👨‍💼 [JOIN_TICKET] Sending ${ticketMessages.length} messages to admin for ticket ${data.ticketId}`,
@@ -356,7 +336,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  // Вспомогательный метод для поиска тикета по userId
   private findTicketByUserId(userId: string) {
     console.log('🔍 [FIND_TICKET] Searching for ticket with userId:', userId);
     console.log(

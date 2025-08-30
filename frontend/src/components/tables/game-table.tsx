@@ -20,7 +20,6 @@ import {
 import { EditIcon, TrashIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-// Games List Component
 export const GameTable = () => {
   const { games, fetchGames, updateGame, deleteGame, gamesLoading } = useApp();
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
@@ -54,7 +53,6 @@ export const GameTable = () => {
   const handleSaveEdit = useCallback(async () => {
     if (editingGame && editName.trim()) {
       try {
-        // Call the updateGame function from your context
         await updateGame(editingGame.id!, { name: editName.trim() });
         onEditClose();
         setEditingGame(null);

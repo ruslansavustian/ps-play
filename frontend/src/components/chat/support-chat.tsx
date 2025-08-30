@@ -36,7 +36,6 @@ export const SupportChat: React.FC = () => {
         initialMessage,
       });
 
-      // Создаем тикет поддержки
       createSupportTicket({
         userName: joinUserName,
         initialMessage: initialMessage,
