@@ -33,7 +33,6 @@ export const withAuthCheck = <P extends object>(
       checkAuth();
     }, [currentUser, router]);
 
-    // Если есть токен, но пользователь еще не загружен, показываем загрузку
     useEffect(() => {
       const token = localStorage.getItem("token");
       if (token && !currentUser && !loading) {

@@ -114,7 +114,6 @@ const useProvideApp = () => {
         });
         const { access_token, user } = response.data;
 
-        // Store token
         localStorage.setItem("token", access_token);
         request.defaults.headers.common[
           "Authorization"
@@ -130,7 +129,6 @@ const useProvideApp = () => {
     [router]
   );
 
-  // Logout function
   const logout = useCallback(async () => {
     localStorage.removeItem("token");
     request.defaults.headers.common["Authorization"] = "";

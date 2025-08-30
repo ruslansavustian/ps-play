@@ -31,7 +31,6 @@ export const CreateGameModal = ({ isOpen, onClose }: CreateGameModalProps) => {
 
   const handleSubmit = useCallback(async () => {
     await createGame(formData);
-    // Reset form
     setFormData({
       name: "",
     });

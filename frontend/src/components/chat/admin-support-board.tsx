@@ -40,7 +40,6 @@ export function AdminSupportBoard() {
     console.log("👨‍💼 [ADMIN_BOARD] isAdminConnected:", isAdminConnected);
     console.log("👨‍💼 [ADMIN_BOARD] isConnected:", isConnected);
 
-    // Подключаемся как админ
     if (!isAdminConnected && isConnected) {
       console.log("👨‍💼 [ADMIN_BOARD] Joining as admin");
       joinAsAdmin();
@@ -54,7 +53,6 @@ export function AdminSupportBoard() {
     console.log("🎫 [ADMIN_BOARD] Selected ticket:", selectedTicket);
   }, [messages, selectedTicket]);
 
-  // Слушаем отключения пользователей
   useEffect(() => {
     if (socket) {
       socket.on(
@@ -64,7 +62,6 @@ export function AdminSupportBoard() {
           setDisconnectedUsers((prev) => new Set(prev).add(data.userId));
           setDisconnectedUserNames((prev) => new Set(prev).add(data.userName));
 
-          // Добавляем системное сообщение в чат
           if (selectedTicket === data.ticketId) {
             const systemMessage = {
               id: Date.now(),
@@ -95,7 +92,6 @@ export function AdminSupportBoard() {
             return newSet;
           });
 
-          // Добавляем системное сообщение в чат
           if (selectedTicket === data.ticketId) {
             const systemMessage = {
               id: Date.now(),
@@ -142,7 +138,6 @@ export function AdminSupportBoard() {
       </h2>
 
       <div className="flex gap-4 h-96">
-        {/* Список тикетов */}
         <div className="w-1/3 border-r pr-4">
           <h3 className="text-lg font-semibold mb-4">Тикеты поддержки</h3>
 
@@ -210,7 +205,6 @@ export function AdminSupportBoard() {
           </div>
         </div>
 
-        {/* Чат с выбранным тикетом */}
         <div className="flex-1 flex flex-col">
           {selectedTicket ? (
             <>
@@ -276,7 +270,6 @@ export function AdminSupportBoard() {
         </div>
       </div>
 
-      {/* Статус подключения */}
       <div className="mt-4 flex items-center gap-2">
         <div
           className={`w-2 h-2 rounded-full ${
