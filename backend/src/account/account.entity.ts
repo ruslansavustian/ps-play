@@ -5,9 +5,11 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Game } from '../game/game.entity';
+import { Order } from '../order/order.entity';
 
 @Entity('accounts')
 export class Account {
@@ -22,6 +24,13 @@ export class Account {
   @ManyToOne(() => Game, { eager: true })
   @JoinColumn({ name: 'gameId' })
   games: Game;
+
+  @ApiProperty({
+    description: 'Orders associated with this account',
+    type: () => [Order],
+  })
+  @OneToMany(() => Order, (order) => order.account)
+  orders: Order[];
 
   @ApiProperty({
     description: 'Gaming platform',

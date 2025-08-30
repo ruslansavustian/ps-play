@@ -4,18 +4,23 @@ import { Repository } from 'typeorm';
 import { Order } from './order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 
+import { TelegramService } from '../telegram/telegram-service';
+
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+    private telegramService: TelegramService,
   ) {}
 
   async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
     const order = this.orderRepository.create(createOrderDto);
-    return this.orderRepository.save(order);
-  }
+    const savedOrder = await this.orderRepository.save(order);
 
+    await this.telegramService.sendOrderNotification(savedOrder);
+    return savedOrder;
+  }
   async getOrders(): Promise<Order[]> {
     return this.orderRepository.find();
   }

@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
 
 @Entity('games')
 export class Game {
@@ -27,4 +28,23 @@ export class Game {
   })
   @CreateDateColumn()
   created: Date;
+
+  @ApiProperty({
+    description: 'Deleted',
+    type: String,
+    example: 'true',
+    format: 'boolean',
+  })
+  @Column({ type: 'boolean', default: false })
+  isDeleted: boolean;
+
+  @ApiProperty({
+    description: 'Deleted At',
+    type: String,
+    example: '2025-01-01',
+    format: 'date-time',
+  })
+  @IsOptional()
+  @Column({ type: 'date', nullable: true })
+  deletedAt?: string;
 }

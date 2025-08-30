@@ -12,7 +12,7 @@ import {
   SelectItem,
 } from "@heroui/react";
 import { useApp } from "@/contexts/AppProvider";
-import { Game } from "@/types";
+import { Account, Game } from "@/types";
 
 interface CreateOrderModalProps {
   isOpen: boolean;
@@ -23,7 +23,7 @@ export const CreateOrderModal = ({
   isOpen,
   onClose,
 }: CreateOrderModalProps) => {
-  const { createOrder, games } = useApp();
+  const { createOrder, accounts } = useApp();
   const [formData, setFormData] = useState({
     customerName: "",
     phone: "",
@@ -32,6 +32,7 @@ export const CreateOrderModal = ({
     notes: "",
     email: "",
     telegram: "",
+    account: 0,
   });
   const handleSubmit = async () => {
     createOrder({
@@ -42,6 +43,7 @@ export const CreateOrderModal = ({
       notes: formData.notes,
       email: formData.email,
       telegram: formData.telegram,
+      account: formData.account,
     });
     setFormData({
       customerName: "",
@@ -51,6 +53,7 @@ export const CreateOrderModal = ({
       notes: "",
       email: "",
       telegram: "",
+      account: 0,
     });
     onClose?.();
   };
@@ -99,15 +102,17 @@ export const CreateOrderModal = ({
             value={formData.email}
             onChange={handleInputChange}
           />
-          {games && (
+          {accounts && (
             <Select
-              label="Игра"
+              label="Аккаунт"
               isRequired
-              name="gameName"
+              name="account"
               onChange={handleInputChange}
             >
-              {games?.map((game: Game) => (
-                <SelectItem key={game.name}>{game.name}</SelectItem>
+              {accounts?.map((account: Account) => (
+                <SelectItem key={account.id}>
+                  {account.id?.toString()}
+                </SelectItem>
               ))}
             </Select>
           )}

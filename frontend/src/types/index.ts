@@ -108,6 +108,7 @@ export interface CreateOrderDto {
   notes?: string;
   email?: string;
   telegram?: string;
+  account?: string;
 }
 
 export interface Order {

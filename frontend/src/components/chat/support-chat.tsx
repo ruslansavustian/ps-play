@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useChat } from "@/hooks/use-chat";
 import { ChatMessage } from "@/types";
-import { Headset, X } from "lucide-react";
+import { MessageCircle, ChartBar, Headset, X } from "lucide-react";
+import Image from "next/image";
+import { Button } from "@heroui/react";
 
 export const SupportChat: React.FC = () => {
   const {
@@ -21,6 +23,7 @@ export const SupportChat: React.FC = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [showJoinForm, setShowJoinForm] = useState(false);
   const [joinUserName, setJoinUserName] = useState("");
+  const [socialIcons, setSocialIcons] = useState(false);
   const [ticketCreated, setTicketCreated] = useState(false);
   const [isWaitingForSupport, setIsWaitingForSupport] = useState(false);
   const [smallScreen, setSmallScreen] = useState(true);
@@ -71,16 +74,64 @@ export const SupportChat: React.FC = () => {
 
   if (smallScreen) {
     return (
-      <div className="fixed bottom-10 right-10 transition-all duration-600">
+      <div className="fixed bottom-10 right-10 transition-all duration-600  p-2">
         <button
           className="cursor-pointer hover:scale-110 transition-all duration-300"
           onClick={() => {
+            setSocialIcons(true);
             setSmallScreen(false);
-            setShowJoinForm(true);
           }}
         >
-          <Headset />
+          <Headset height={60} width={60} />
         </button>
+      </div>
+    );
+  }
+
+  if (socialIcons) {
+    return (
+      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4  border-2 min-w-[150px] ">
+        <div className="flex flex-col ">
+          <X
+            className="cursor-pointer self-end mb-4"
+            onClick={() => {
+              setSocialIcons(false);
+              setSmallScreen(true);
+            }}
+          />
+          <div className="flex flex-row gap-[15px]">
+            <Image
+              src="/social-media/viber-icon.svg"
+              alt="Viber"
+              height={40}
+              onClick={() => {
+                window.open("viber://chat?number=380675993986", "_blank");
+              }}
+              className="cursor-pointer hover:scale-110 transition-all duration-300"
+              width={40}
+            />
+            <Image
+              src="/social-media/telegram-icon.svg"
+              alt="Telegram"
+              height={40}
+              onClick={() => {
+                window.open("https://t.me/Savustian", "_blank");
+              }}
+              className="cursor-pointer hover:scale-110 transition-all duration-300"
+              width={40}
+            />
+            <MessageCircle
+              onClick={() => {
+                setShowJoinForm(true);
+                setSocialIcons(false);
+                setSmallScreen(false);
+              }}
+              className="cursor-pointer hover:scale-110 transition-all duration-300"
+              height={40}
+              width={40}
+            />
+          </div>
+        </div>
       </div>
     );
   }
@@ -125,23 +176,31 @@ export const SupportChat: React.FC = () => {
 
   if (ticketCreated)
     return (
-      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg w-80 h-96 flex flex-col border-2 border-blue-500">
+      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg w-80 h-96 flex flex-col border-2 border-black">
         {/* Header */}
         <div className="p-4 border-b bg-blue-50 rounded-t-lg">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-blue-600">Поддержка</h3>
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  isConnected ? "bg-green-500" : "bg-red-500"
-                }`}
-              ></div>
-              <span className="text-sm text-gray-600">{userName}</span>
+            <h3 className="text-lg font-semibold ">Поддержка</h3>
+            <div className="flex justify-end cursor-pointer">
+              <X
+                onClick={() => {
+                  setShowJoinForm(false);
+                  setSmallScreen(true);
+                }}
+              />
             </div>
           </div>
           {isWaitingForSupport && (
-            <div className="text-xs text-blue-600 mt-1">
+            <div className="text-xs text-black mt-1 flex flex-row justify-between">
               Ожидайте ответа от поддержки...
+              <div className="flex items-center gap-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    isConnected ? "bg-green-500" : "bg-red-500"
+                  }`}
+                ></div>
+                <span className="text-sm text-gray-600">{userName}</span>
+              </div>
             </div>
           )}
         </div>
@@ -193,7 +252,7 @@ export const SupportChat: React.FC = () => {
             />
             <button
               onClick={handleSendMessage}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 cursor-pointer"
             >
               Отправить
             </button>
