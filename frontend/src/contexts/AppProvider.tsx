@@ -182,19 +182,22 @@ const useProvideApp = () => {
     }
   }, []);
 
-  const login = useCallback(async (credentials: FormState) => {
+  const login = useCallback(async (formData: FormState) => {
     dispatch({ type: "SET_LOADING", payload: true });
     try {
       const sessionResponse = await request.post("/auth/init-session");
       const { uuid } = sessionResponse.data;
-      const salt = generateSalt();
-      const hashedPassword = hashPassword(credentials.password!);
-      const response = await request.post("/auth/login", {
-        uuid,
-        email: credentials.email,
-        hashedPassword,
-        salt,
-      });
+
+      const credentials = btoa(`${formData.email}:${formData.password}`);
+      const response = await request.post(
+        "/auth/login",
+        { uuid },
+        {
+          headers: {
+            Authorization: `Basic ${credentials}`,
+          },
+        }
+      );
       const { access_token, user } = response.data;
       localStorage.setItem("token", access_token);
       request.defaults.headers.common[
