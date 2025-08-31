@@ -63,11 +63,11 @@ export class GameController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a game' })
+  @ApiOperation({ summary: 'Soft delete a game' })
   @ApiParam({ name: 'id', description: 'Game ID' })
-  @ApiResponse({ status: 200, description: 'Game deleted successfully' })
+  @ApiResponse({ status: 200, description: 'Game soft deleted successfully' })
   @ApiResponse({ status: 404, description: 'Game not found' })
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.gameService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<Game> {
+    return this.gameService.remove(id);
   }
 }

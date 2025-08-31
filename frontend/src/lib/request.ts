@@ -1,4 +1,9 @@
-import axios, { AxiosInstance } from "axios";
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
@@ -9,7 +14,7 @@ const axiosInstance: AxiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(
-  (request: any) => {
+  (request: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem("token");
     if (token) {
       request.headers.Authorization = `Bearer ${token}`;
@@ -17,14 +22,14 @@ axiosInstance.interceptors.request.use(
 
     return request;
   },
-  (error: any) => Promise.reject(error)
+  (error: AxiosError) => Promise.reject(error)
 );
 
 axiosInstance.interceptors.response.use(
-  (response: any) => {
+  (response: AxiosResponse) => {
     return response;
   },
-  async (error: any) => {
+  async (error: AxiosError) => {
     console.log("Request error details:", {
       message: error.message,
       code: error.code,
@@ -35,7 +40,11 @@ axiosInstance.interceptors.response.use(
 
     const originalRequest = error.config;
     if (error.response && error.response.status === 401) {
-      const responseData = error.response.data;
+      const responseData = error.response.data as {
+        title?: string;
+        type?: string;
+        error?: string;
+      };
       const errorTitle =
         responseData?.title || responseData?.type || responseData?.error || "";
       if (errorTitle === "expired_token") {
@@ -59,12 +68,12 @@ const _doRefreshToken = async (originalRequest: any) => {
 
     const token = `Bearer ${data.token}`;
 
-    await storeToken(data);
+    storeToken(data);
     axiosInstance.defaults.headers.common["Authorization"] = token;
     originalRequest.headers.Authorization = token;
 
     return axiosInstance.request(originalRequest);
-  } catch (error) {
+  } catch (error: any) {
     console.log("error", error);
     localStorage.removeItem("token");
     // For now, just remove the router redirect since we're not implementing refresh tokens yet

@@ -10,9 +10,10 @@ import {
   Textarea,
   Switch,
 } from "@heroui/react";
-import { Account, Game, CreateAccountDto } from "@/types";
+import { Account, Game } from "@/types";
 import { useApp } from "@/contexts/AppProvider";
 import InputSelector from "../ui-components/input-selector";
+import { ErrorContainer } from "../ui-components/error-container";
 
 interface CreateAccountModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ export const CreateAccountModal = ({
   isOpen,
   onClose,
 }: CreateAccountModalProps) => {
-  const { createAccount, fetchAccounts } = useApp();
+  const { createAccount, fetchAccounts, errorMessage, clearError } = useApp();
 
   const [formData, setFormData] = useState<Account>({
     games: {} as Game,
@@ -33,6 +34,8 @@ export const CreateAccountModal = ({
     priceP2PS4: 0,
     priceP2PS5: 0,
     priceP3: 0,
+    priceP3A: 0,
+    P3A: false,
     P1: false,
     P2PS4: false,
     P2PS5: false,
@@ -41,44 +44,62 @@ export const CreateAccountModal = ({
 
   const { games } = useApp();
   const handleOpenChange = (open: boolean) => {
-    if (!open && onClose) {
-      onClose();
+    if (!open) {
+      // Очищаем ошибки при закрытии модального окна
+      clearError();
+      if (onClose) {
+        onClose();
+      }
     }
   };
 
   const handleSubmit = useCallback(async () => {
-    // Convert the full game object to just the ID for the API
-    const accountData: CreateAccountDto = {
-      games: formData.games.id || 0,
-      platformPS4: formData.platformPS4,
-      platformPS5: formData.platformPS5,
-      priceP1: Number(formData.priceP1),
-      priceP2PS4: Number(formData.priceP2PS4),
-      priceP2PS5: Number(formData.priceP2PS5),
-      priceP3: Number(formData.priceP3),
-      P1: formData.P1,
-      P2PS4: formData.P2PS4,
-      P2PS5: formData.P2PS5,
-      P3: formData.P3,
-    };
-    await createAccount(accountData);
-    // Reset form
-    setFormData({
-      games: {} as Game,
-      platformPS4: false,
-      platformPS5: false,
-      priceP1: 0,
-      priceP2PS4: 0,
-      priceP2PS5: 0,
-      priceP3: 0,
-      P1: false,
-      P2PS4: false,
-      P2PS5: false,
-      P3: false,
-    });
-    fetchAccounts();
-    onClose?.();
-  }, [formData, createAccount, onClose]);
+    try {
+      const accountData: Account = {
+        games: formData.games,
+        platformPS4: formData.platformPS4,
+        platformPS5: formData.platformPS5,
+        priceP1: Number(formData.priceP1),
+        priceP2PS4: Number(formData.priceP2PS4),
+        priceP2PS5: Number(formData.priceP2PS5),
+        priceP3: Number(formData.priceP3),
+        priceP3A: Number(formData.priceP3A),
+        P3A: formData.P3A,
+        P1: formData.P1,
+        P2PS4: formData.P2PS4,
+        P2PS5: formData.P2PS5,
+        P3: formData.P3,
+      };
+
+      await createAccount(accountData);
+
+      // Загружаем обновленный список аккаунтов
+      await fetchAccounts();
+
+      // Reset form
+      setFormData({
+        games: {} as Game,
+        platformPS4: false,
+        platformPS5: false,
+        priceP1: 0,
+        priceP2PS4: 0,
+        priceP2PS5: 0,
+        priceP3: 0,
+        priceP3A: 0,
+        P3A: false,
+        P1: false,
+        P2PS4: false,
+        P2PS5: false,
+        P3: false,
+      });
+
+      onClose?.();
+    } catch (error) {
+      // Ошибка уже обработана в провайдере и сохранена в errorMessage
+      // Просто логируем для отладки
+      console.error("Account creation failed:", error);
+    }
+  }, [formData, createAccount, fetchAccounts, onClose]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -93,7 +114,7 @@ export const CreateAccountModal = ({
     target: { name: string; value: string };
   }) => {
     const { value } = e.target;
-    // Find the selected game from the games array
+
     const selectedGame = games?.find((game) => game.id?.toString() === value);
     if (selectedGame) {
       setFormData({
@@ -107,8 +128,7 @@ export const CreateAccountModal = ({
     return (
       formData.games &&
       formData.games.id &&
-      formData.platformPS4 &&
-      formData.platformPS5 &&
+      (formData.platformPS4 || formData.platformPS5) &&
       (formData.priceP1 > 0 ||
         formData.priceP2PS4 > 0 ||
         formData.priceP2PS5 > 0 ||
@@ -222,6 +242,7 @@ export const CreateAccountModal = ({
               />
             </div>
           </div>
+          <ErrorContainer />
         </ModalBody>
         <ModalFooter>
           <Button color="danger" variant="light" onPress={onClose}>

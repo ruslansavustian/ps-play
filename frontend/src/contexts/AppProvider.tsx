@@ -5,28 +5,148 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
-  useState,
   useCallback,
   useMemo,
+  useReducer,
 } from "react";
 import { useRouter } from "next/navigation";
 import request from "@/lib/request";
 import {
   User,
-  LoginDto,
   RegisterDto,
-  AuthResponse,
-  CreateAccountDto,
   Account,
   Game,
   CreateOrderDto,
   Order,
   AuditLog,
-  UpdateAccountDto,
 } from "@/types";
 import { FormState } from "@/utils/form";
 import { generateSalt, hashPassword } from "@/utils/security";
 import { paths } from "@/utils/paths";
+import { extractErrorMessage } from "@/utils/error-helper";
+
+// ---------------- STATE ----------------
+
+type State = {
+  currentUser: User | null;
+  loading: boolean;
+  auditLogs?: AuditLog[];
+  accounts?: Account[];
+  accountsLoading: boolean;
+  games?: Game[];
+  gamesLoading: boolean;
+  orders?: Order[];
+  ordersLoading: boolean;
+  auditLogsLoading: boolean;
+  publicAccounts?: Account[];
+  errorMessage?: string;
+};
+
+const initialState: State = {
+  currentUser: null,
+  loading: false,
+  accountsLoading: false,
+  gamesLoading: false,
+  ordersLoading: false,
+  auditLogsLoading: false,
+  errorMessage: "",
+};
+
+// ---------------- ACTIONS ----------------
+
+type Action =
+  | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_USER"; payload: User | null }
+  | { type: "SET_ACCOUNTS"; payload: Account[] }
+  | { type: "ADD_ACCOUNT"; payload: Account }
+  | { type: "UPDATE_ACCOUNT"; payload: Account }
+  | { type: "DELETE_ACCOUNT"; payload: number }
+  | { type: "SET_GAMES"; payload: Game[] }
+  | { type: "ADD_GAME"; payload: Game }
+  | { type: "UPDATE_GAME"; payload: Game }
+  | { type: "DELETE_GAME"; payload: number }
+  | { type: "SET_ORDERS"; payload: Order[] }
+  | { type: "ADD_ORDER"; payload: Order }
+  | { type: "UPDATE_ORDER"; payload: Order }
+  | { type: "DELETE_ORDER"; payload: number }
+  | { type: "SET_AUDIT_LOGS"; payload: AuditLog[] }
+  | { type: "SET_PUBLIC_ACCOUNTS"; payload: Account[] }
+  | { type: "SET_LOADING_FLAG"; payload: { key: keyof State; value: boolean } }
+  | { type: "SET_ERROR_MESSAGE"; payload: string };
+
+// ---------------- REDUCER ----------------
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "SET_LOADING":
+      return { ...state, loading: action.payload };
+    case "SET_USER":
+      return { ...state, currentUser: action.payload };
+    case "SET_ACCOUNTS":
+      return { ...state, accounts: action.payload };
+    case "ADD_ACCOUNT":
+      return {
+        ...state,
+        accounts: [...(state.accounts || []), action.payload],
+      };
+    case "UPDATE_ACCOUNT":
+      return {
+        ...state,
+        accounts: state.accounts?.map((a) =>
+          a.id === action.payload.id ? action.payload : a
+        ),
+      };
+    case "DELETE_ACCOUNT":
+      return {
+        ...state,
+        accounts: state.accounts?.filter((a) => a.id !== action.payload),
+      };
+    case "SET_GAMES":
+      return { ...state, games: action.payload };
+    case "ADD_GAME":
+      return { ...state, games: [...(state.games || []), action.payload] };
+    case "UPDATE_GAME":
+      return {
+        ...state,
+        games: state.games?.map((g) =>
+          g.id === action.payload.id ? action.payload : g
+        ),
+      };
+    case "DELETE_GAME":
+      return {
+        ...state,
+        games: state.games?.filter((g) => g.id !== action.payload),
+      };
+    case "SET_ORDERS":
+      return { ...state, orders: action.payload };
+    case "ADD_ORDER":
+      return { ...state, orders: [...(state.orders || []), action.payload] };
+    case "UPDATE_ORDER":
+      return {
+        ...state,
+        orders: state.orders?.map((o) =>
+          o.id === action.payload.id ? action.payload : o
+        ),
+      };
+    case "DELETE_ORDER":
+      return {
+        ...state,
+        orders: state.orders?.filter((o) => o.id !== action.payload),
+      };
+    case "SET_AUDIT_LOGS":
+      return { ...state, auditLogs: action.payload };
+    case "SET_PUBLIC_ACCOUNTS":
+      return { ...state, publicAccounts: action.payload };
+    case "SET_LOADING_FLAG":
+      return { ...state, [action.payload.key]: action.payload.value };
+    case "SET_ERROR_MESSAGE":
+      return { ...state, errorMessage: action.payload };
+    default:
+      return state;
+  }
+}
+
+// ---------------- HOOK ----------------
 
 const AppContext = createContext<ReturnType<typeof useProvideApp> | undefined>(
   undefined
@@ -34,148 +154,196 @@ const AppContext = createContext<ReturnType<typeof useProvideApp> | undefined>(
 
 const useProvideApp = () => {
   const router = useRouter();
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>();
-  const [accounts, setAccounts] = useState<Account[]>();
-  const [accountsLoading, setAccountsLoading] = useState<boolean>(false);
-  const [gamesLoading, setGamesLoading] = useState<boolean>(false);
-  const [ordersLoading, setOrdersLoading] = useState<boolean>(false);
-  const [auditLogsLoading, setAuditLogsLoading] = useState<boolean>(false);
-  const [publicAccounts, setPublicAccounts] = useState<Account[]>();
-  const [games, setGames] = useState<Game[]>();
+  const isAuthenticated = useMemo(
+    () => !!state.currentUser && !!localStorage.getItem("token"),
+    [state.currentUser]
+  );
 
-  const [orders, setOrders] = useState<Order[]>();
-  const isAuthenticated = useMemo(() => {
-    return !!currentUser && !!localStorage.getItem("token");
-  }, [currentUser]);
+  // ---------------- AUTH ----------------
 
   const fetchCurrentUser = useCallback(async () => {
-    setLoading(true);
+    dispatch({ type: "SET_LOADING", payload: true });
     try {
-      setLoading(true);
       const result = await request.get("/auth/profile");
-      const userData = result.data;
-      setCurrentUser(userData);
+      dispatch({ type: "SET_USER", payload: result.data });
     } catch (error: any) {
-      console.log("error", error);
-
+      console.error(error);
       localStorage.removeItem("token");
-      setCurrentUser(null);
+      dispatch({ type: "SET_USER", payload: null });
+
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
     } finally {
-      setLoading(false);
+      dispatch({ type: "SET_LOADING", payload: false });
     }
   }, []);
 
-  const login = useCallback(
-    async (credentials: FormState) => {
-      setLoading(true);
-
-      try {
-        if (!credentials.password || !credentials.email) {
-          throw new Error("Invalid or empty credentials");
-        }
-        const sessionResponse = await request.post("/auth/init-session");
-        const { uuid } = sessionResponse.data;
-        const salt = generateSalt();
-        const hashedPassword = hashPassword(credentials.password);
-        const response = await request.post("/auth/login", {
-          uuid,
-          email: credentials.email,
-          hashedPassword,
-          salt,
-        });
-
-        const { access_token, user } = response.data;
-
-        localStorage.setItem("token", access_token);
-        request.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${access_token}`;
-        setCurrentUser(user);
-      } catch (error) {
-        console.error("Login failed:", error);
-        throw error;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [router]
-  );
+  const login = useCallback(async (credentials: FormState) => {
+    dispatch({ type: "SET_LOADING", payload: true });
+    try {
+      const sessionResponse = await request.post("/auth/init-session");
+      const { uuid } = sessionResponse.data;
+      const salt = generateSalt();
+      const hashedPassword = hashPassword(credentials.password!);
+      const response = await request.post("/auth/login", {
+        uuid,
+        email: credentials.email,
+        hashedPassword,
+        salt,
+      });
+      const { access_token, user } = response.data;
+      localStorage.setItem("token", access_token);
+      request.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${access_token}`;
+      dispatch({ type: "SET_USER", payload: user });
+      router.push(paths.dashboard);
+    } catch (error: any) {
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
+  }, []);
 
   const register = useCallback(
     async (userData: RegisterDto) => {
       try {
-        const response = await request.post("/auth/register", {
-          name: userData.name,
-          email: userData.email,
-          hashedPassword: userData.hashedPassword,
+        const response = await request.post("/auth/register", userData);
+        if (response) {
+          const { access_token, user } = response.data;
+          localStorage.setItem("token", access_token);
+          request.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${access_token}`;
+          dispatch({ type: "SET_USER", payload: user });
+          router.push("/dashboard");
+        }
+      } catch (error: any) {
+        dispatch({
+          type: "SET_ERROR_MESSAGE",
+          payload: extractErrorMessage(error),
         });
-        const { access_token, user } = response.data;
-
-        localStorage.setItem("token", access_token);
-        request.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${access_token}`;
-
-        setCurrentUser(user);
-        router.push("/dashboard");
-      } catch (error) {
-        console.error("Registration failed:", error);
-        throw error;
       }
     },
     [router]
   );
 
-  const logout = useCallback(async () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
     request.defaults.headers.common["Authorization"] = "";
-    setCurrentUser(undefined);
-
+    dispatch({ type: "SET_USER", payload: null });
     router.push(paths.login);
   }, [router]);
 
+  // ---------------- DATA ----------------
+
   const fetchAccounts = useCallback(async () => {
-    setAccountsLoading(true);
+    dispatch({
+      type: "SET_LOADING_FLAG",
+      payload: { key: "accountsLoading", value: true },
+    });
     try {
-      setAccountsLoading(true);
       const result = await request.get("/accounts");
-      const fetchedAccounts = result.data;
-      setAccounts(fetchedAccounts);
+      dispatch({ type: "SET_ACCOUNTS", payload: result.data });
     } catch (error: any) {
-      console.log("error", error);
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
     } finally {
-      setAccountsLoading(false);
+      dispatch({
+        type: "SET_LOADING_FLAG",
+        payload: { key: "accountsLoading", value: false },
+      });
     }
   }, []);
 
-  const createAccount = useCallback(async (data: CreateAccountDto) => {
+  const createAccount = useCallback(async (data: Account) => {
     try {
+      dispatch({ type: "SET_ERROR_MESSAGE", payload: "" });
+
       const result = await request.post("/accounts", data);
-      const newAccount = result.data;
-      setAccounts((prev) => [...(prev || []), newAccount]);
-      return newAccount;
+      dispatch({ type: "ADD_ACCOUNT", payload: result.data });
+      return result.data;
     } catch (error: any) {
-      console.error("Failed to create account:", error);
-      throw error;
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
+    }
+  }, []);
+
+  const updateAccount = useCallback(async (id: number, data: Account) => {
+    try {
+      // Очищаем предыдущие ошибки
+      dispatch({ type: "SET_ERROR_MESSAGE", payload: "" });
+
+      const result = await request.put(`/accounts/${id}`, data);
+      dispatch({ type: "UPDATE_ACCOUNT", payload: result.data });
+      return result.data;
+    } catch (error: any) {
+      // Безопасное получение сообщения об ошибке
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
+    }
+  }, []);
+
+  const deleteAccount = useCallback(async (id: number) => {
+    try {
+      await request.delete(`/accounts/${id}`);
+      dispatch({ type: "DELETE_ACCOUNT", payload: id });
+    } catch (error: any) {
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
+    }
+  }, []);
+
+  const fetchGames = useCallback(async () => {
+    dispatch({
+      type: "SET_LOADING_FLAG",
+      payload: { key: "gamesLoading", value: true },
+    });
+    try {
+      const result = await request.get("/games");
+      if (result) {
+        dispatch({ type: "SET_GAMES", payload: result.data });
+      }
+    } catch (error: any) {
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
+    } finally {
+      dispatch({
+        type: "SET_LOADING_FLAG",
+        payload: { key: "gamesLoading", value: false },
+      });
     }
   }, []);
 
   const createGame = useCallback(async (data: { name: string }) => {
     try {
       const result = await request.post("/games", data);
-      const newGame = result.data;
-      if (games) {
-        setGames([...games, newGame]);
-      } else {
-        setGames([newGame]);
+      if (result) {
+        dispatch({ type: "ADD_GAME", payload: result.data });
+        return result.data;
       }
-      return newGame;
     } catch (error: any) {
-      console.error("Failed to create game:", error);
-      throw error;
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
     }
   }, []);
 
@@ -183,117 +351,69 @@ const useProvideApp = () => {
     async (id: number, data: Partial<{ name: string }>) => {
       try {
         const result = await request.patch(`/games/${id}`, data);
-        const updatedGame = result.data;
-        setGames((prev) =>
-          prev?.map((game) => (game.id === id ? updatedGame : game))
-        );
-        return updatedGame;
+        if (result) {
+          dispatch({ type: "UPDATE_GAME", payload: result.data });
+          return result.data;
+        }
       } catch (error: any) {
-        console.error("Failed to update game:", error);
-        throw error;
+        dispatch({
+          type: "SET_ERROR_MESSAGE",
+          payload: extractErrorMessage(error),
+        });
       }
     },
     []
   );
 
   const deleteGame = useCallback(async (id: number) => {
-    setLoading(true);
     try {
-      await request.delete(`/games/${id}`);
-      setGames((prev) => prev?.filter((game) => game.id !== id));
-    } catch (error: any) {
-      console.error("Failed to delete game:", error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const updateAccount = useCallback(
-    async (id: number, data: UpdateAccountDto) => {
-      try {
-        const result = await request.put(`/accounts/${id}`, data);
-        const updatedAccount = result.data;
-        setAccounts((prev) =>
-          prev?.map((account) => (account.id === id ? updatedAccount : account))
-        );
-        return updatedAccount;
-      } catch (error: any) {
-        console.error("Failed to update account:", error);
-        throw error;
+      const result = await request.delete(`/games/${id}`);
+      if (result) {
+        dispatch({ type: "UPDATE_GAME", payload: result.data });
       }
-    },
-    []
-  );
-
-  const deleteAccount = useCallback(async (id: number) => {
-    setLoading(true);
-    try {
-      await request.delete(`/accounts/${id}`);
-      setAccounts((prev) => prev?.filter((account) => account.id !== id));
     } catch (error: any) {
-      console.error("Failed to delete candidate:", error);
-      throw error;
-    } finally {
-    }
-  }, []);
-
-  const fetchGames = useCallback(async () => {
-    setGamesLoading(true);
-    try {
-      const result = await request.get("/games");
-      const fetchedGames = result.data;
-      setGames(fetchedGames);
-    } catch (error: any) {
-      console.log("error", error);
-    } finally {
-      setGamesLoading(false);
-    }
-  }, []);
-
-  const fetchPublicAccounts = useCallback(async () => {
-    setLoading(true);
-    try {
-      const result = await request.get("/accounts/public");
-      const fetchedAccounts = result.data;
-      setPublicAccounts(fetchedAccounts);
-    } catch (error: any) {
-      console.log("error", error);
-    } finally {
-      setLoading(false);
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
     }
   }, []);
 
   const fetchOrders = useCallback(async () => {
-    setOrdersLoading(true);
+    dispatch({
+      type: "SET_LOADING_FLAG",
+      payload: { key: "ordersLoading", value: true },
+    });
     try {
       const result = await request.get("/orders");
-      const fetchedOrders = result.data;
-      setOrders(fetchedOrders);
+      if (result) {
+        dispatch({ type: "SET_ORDERS", payload: result.data });
+      }
     } catch (error: any) {
-      console.log("error", error);
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
     } finally {
-      setOrdersLoading(false);
+      dispatch({
+        type: "SET_LOADING_FLAG",
+        payload: { key: "ordersLoading", value: false },
+      });
     }
   }, []);
 
   const createOrder = useCallback(async (data: CreateOrderDto) => {
     try {
       const result = await request.post("/orders", data);
-      setOrders((prev) => [...(prev || []), result.data]);
+      if (result) {
+        dispatch({ type: "ADD_ORDER", payload: result.data });
+        return result.data;
+      }
     } catch (error: any) {
-      console.error("Failed to create order:", error);
-      throw error;
-    }
-  }, []);
-
-  const deleteOrder = useCallback(async (id: number) => {
-    try {
-      await request.delete(`/orders/${id}`);
-      setOrders((prev) => prev?.filter((order) => order.id !== id));
-    } catch (error: any) {
-      console.error("Failed to delete order:", error);
-      throw error;
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
     }
   }, []);
 
@@ -301,76 +421,114 @@ const useProvideApp = () => {
     async (id: number, data: Partial<CreateOrderDto>) => {
       try {
         const result = await request.put(`/orders/${id}`, data);
-        const updatedOrder = result.data;
-        setOrders((prev) =>
-          prev?.map((order) => (order.id === id ? updatedOrder : order))
-        );
-        return updatedOrder;
+        if (result) {
+          dispatch({ type: "UPDATE_ORDER", payload: result.data });
+          return result.data;
+        }
       } catch (error: any) {
-        console.error("Failed to update order:", error);
-        throw error;
+        dispatch({
+          type: "SET_ERROR_MESSAGE",
+          payload: extractErrorMessage(error),
+        });
       }
     },
     []
   );
 
-  const fetchAuditLogs = useCallback(async () => {
-    setAuditLogsLoading(true);
+  const deleteOrder = useCallback(async (id: number) => {
     try {
-      const result = await request.get("/audit-logs");
-      const fetchedAuditLogs = result.data;
-
-      setAuditLogs(fetchedAuditLogs);
+      const result = await request.delete(`/orders/${id}`);
+      if (result) {
+        dispatch({ type: "DELETE_ORDER", payload: id });
+      }
     } catch (error: any) {
-      console.log("error", error);
-    } finally {
-      setAuditLogsLoading(false);
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
     }
   }, []);
 
+  const fetchAuditLogs = useCallback(async () => {
+    dispatch({
+      type: "SET_LOADING_FLAG",
+      payload: { key: "auditLogsLoading", value: true },
+    });
+    try {
+      const result = await request.get("/audit-logs");
+      dispatch({ type: "SET_AUDIT_LOGS", payload: result.data });
+    } catch (error: any) {
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
+    } finally {
+      dispatch({
+        type: "SET_LOADING_FLAG",
+        payload: { key: "auditLogsLoading", value: false },
+      });
+    }
+  }, []);
+
+  const fetchPublicAccounts = useCallback(async () => {
+    dispatch({ type: "SET_LOADING", payload: true });
+    try {
+      const result = await request.get("/accounts/public");
+      dispatch({ type: "SET_PUBLIC_ACCOUNTS", payload: result.data });
+    } catch (error: any) {
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
+    } finally {
+      dispatch({
+        type: "SET_LOADING",
+        payload: false,
+      });
+    }
+  }, []);
+
+  const clearError = useCallback(() => {
+    dispatch({ type: "SET_ERROR_MESSAGE", payload: "" });
+  }, []);
+
+  // ---------------- INIT ----------------
+
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token && !currentUser) {
+    if (token && !state.currentUser) {
       fetchCurrentUser();
     } else if (!token) {
-      setLoading(false);
+      dispatch({ type: "SET_LOADING", payload: false });
     }
-  }, [fetchCurrentUser]);
+  }, [fetchCurrentUser, state.currentUser]);
 
   return {
-    currentUser,
+    ...state,
     isAuthenticated,
-    loading,
-    accounts,
-    accountsLoading,
     login,
     register,
     logout,
     fetchCurrentUser,
     fetchAccounts,
     createAccount,
+    updateAccount,
     deleteAccount,
-    setCurrentUser,
     fetchGames,
-    games,
     createGame,
     updateGame,
     deleteGame,
-    updateAccount,
-    fetchPublicAccounts,
-    publicAccounts,
     fetchOrders,
-    orders,
     createOrder,
-    deleteOrder,
     updateOrder,
+    deleteOrder,
     fetchAuditLogs,
-    auditLogs,
-    auditLogsLoading,
-    ordersLoading,
-    gamesLoading,
+    fetchPublicAccounts,
+    clearError,
   };
 };
+
+// ---------------- PROVIDER ----------------
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const app = useProvideApp();

@@ -108,4 +108,11 @@ export class Order {
   })
   @Column({ nullable: true })
   accountId: number;
+
+  @ApiProperty({
+    description: 'Purchase type',
+    type: String,
+  })
+  @Column({ nullable: true })
+  purchaseType: string;
 }

@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Account } from 'src/account/account.entity';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrderDto {
   @ApiProperty({
@@ -15,9 +14,9 @@ export class CreateOrderDto {
     description: 'Customer account',
     type: String,
   })
-  @IsString()
-  @IsOptional()
-  account?: Account;
+  @IsNotEmpty()
+  @IsNumber()
+  accountId: number;
 
   @ApiProperty({
     description: 'Phone number',
@@ -59,4 +58,12 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   telegram?: string;
+
+  @ApiProperty({
+    description: 'Purchase type',
+    type: String,
+  })
+  @IsNotEmpty()
+  @IsString()
+  purchaseType: string;
 }

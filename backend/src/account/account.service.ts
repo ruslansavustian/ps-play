@@ -26,6 +26,7 @@ export class AccountService {
       P2PS4: createAccountDto.P2PS4 || false,
       P2PS5: createAccountDto.P2PS5 || false,
       P3: createAccountDto.P3 || false,
+      P3A: createAccountDto.P3A || false,
     });
     return await this.accountRepository.save(account);
   }

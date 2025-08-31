@@ -18,16 +18,21 @@ export class GameService {
 
   async findAll(): Promise<Game[]> {
     return await this.gameRepository.find({
+      where: { isDeleted: false }, // Показываем только неудаленные игры
       order: { created: 'DESC' },
     });
   }
 
   async findOne(id: number): Promise<Game | null> {
-    return await this.gameRepository.findOne({ where: { id } });
+    return await this.gameRepository.findOne({
+      where: { id, isDeleted: false }, // Ищем только неудаленные игры
+    });
   }
 
   async findByName(name: string): Promise<Game | null> {
-    return await this.gameRepository.findOne({ where: { name } });
+    return await this.gameRepository.findOne({
+      where: { name, isDeleted: false }, // Ищем только неудаленные игры
+    });
   }
 
   async update(
@@ -38,7 +43,15 @@ export class GameService {
     return this.findOne(id);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number): Promise<Game> {
+    // Мягкое удаление - устанавливаем флаг isDeleted
     await this.gameRepository.update(id, { isDeleted: true });
+
+    // Возвращаем обновленную игру для фронтенда
+    const updatedGame = await this.findOne(id);
+    if (!updatedGame) {
+      throw new Error('Game not found after soft delete');
+    }
+    return updatedGame;
   }
 }

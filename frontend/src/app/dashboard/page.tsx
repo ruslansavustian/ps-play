@@ -2,7 +2,7 @@
 
 import { useApp } from "@/contexts/AppProvider";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { CreateGameModal } from "../../components/modals/create-game.modal";
 import { AccountSection } from "@/components/dashboard/account-section";
 import { GameSection } from "@/components/dashboard/game-section";
@@ -19,7 +19,6 @@ function DashboardPage() {
     currentUser,
     logout,
     accounts,
-    fetchCurrentUser,
     fetchAccounts,
     games,
     fetchGames,
@@ -30,6 +29,7 @@ function DashboardPage() {
   } = useApp();
   const router = useRouter();
 
+  // Загружаем данные только если их нет
   useEffect(() => {
     if (!accounts) {
       fetchAccounts();
