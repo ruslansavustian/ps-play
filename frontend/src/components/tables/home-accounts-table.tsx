@@ -14,102 +14,161 @@ import {
   Listbox,
   ListboxItem,
   Checkbox,
+  Spinner,
 } from "@heroui/react";
 import { useApp } from "@/contexts/AppProvider";
 import { Account } from "@/types";
+import { CustomersCreateModal } from "../modals/customers-create-modal";
+import { useAsyncList } from "@react-stately/data";
 
 interface HomeAccountsTableProps {
   accounts: Account[];
 }
 
 export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
-  const [detailModal, setDetailModal] = useState(false);
+  const { loading } = useApp();
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-
+  const [customersCreateModal, setCustomersCreateModal] = useState(false);
   const handleRowClick = (account: Account) => {
     setSelectedAccount(account);
-    setDetailModal(true);
+
+    setCustomersCreateModal(true);
   };
+  const list = useAsyncList({
+    async load() {
+      return {
+        items: accounts || [],
+      };
+    },
+    async sort({ items, sortDescriptor }) {
+      return {
+        items: items.sort((a, b) => {
+          let first: any;
+          let second: any;
+
+          switch (sortDescriptor.column) {
+            case "id":
+              first = a.id;
+              second = b.id;
+              break;
+            case "gameName":
+              first = a.games?.name || "";
+              second = b.games?.name || "";
+              break;
+            case "priceP1":
+              first = a.priceP1 || 0;
+              second = b.priceP1 || 0;
+              break;
+            case "priceP2PS4":
+              first = a.priceP2PS4 || 0;
+              second = b.priceP2PS4 || 0;
+              break;
+            case "priceP2PS5":
+              first = a.priceP2PS5 || 0;
+              second = b.priceP2PS5 || 0;
+              break;
+            case "priceP3":
+              first = a.priceP3 || 0;
+              second = b.priceP3 || 0;
+              break;
+            case "priceP3A":
+              first = a.priceP3A || 0;
+              second = b.priceP3A || 0;
+              break;
+            default:
+              first = a.id;
+              second = b.id;
+          }
+
+          if (typeof first === "number" && typeof second === "number") {
+            let cmp = first < second ? -1 : 1;
+            if (sortDescriptor.direction === "descending") {
+              cmp *= -1;
+            }
+            return cmp;
+          }
+
+          if (typeof first === "string" && typeof second === "string") {
+            let cmp = first.localeCompare(second);
+            if (sortDescriptor.direction === "descending") {
+              cmp *= -1;
+            }
+            return cmp;
+          }
+
+          return 0;
+        }),
+      };
+    },
+  });
   if (!accounts) return null;
   return (
     <>
-      <Modal
-        isOpen={detailModal}
-        onOpenChange={setDetailModal}
-        size="lg"
-        className="max-w-2xl"
-        onClose={() => setDetailModal(false)}
-      >
-        <ModalContent>
-          <ModalHeader>
-            <h2 className="text-2xl font-bold text-gray-900">
-              {selectedAccount?.games.name}
-            </h2>
-          </ModalHeader>
-          <ModalBody>
-            <div className="flex flex-col gap-2">
-              <div key="1">
-                <p>Игры: {selectedAccount?.games.name}</p>
-              </div>
-              <div key="2">
-                <div className="flex flex-row gap-2">
-                  <p>Платаформа PS4:</p>{" "}
-                  <Checkbox isSelected={selectedAccount?.platformPS4} />
-                </div>
-              </div>
-              <div key="3">
-                <div className="flex flex-row gap-2">
-                  <p>Платаформа PS5:</p>{" "}
-                  <Checkbox isSelected={selectedAccount?.platformPS5} />
-                </div>
-              </div>
-              <div key="4">
-                <p>Цена P1: ${selectedAccount?.priceP1}</p>
-              </div>
-              <div key="5">
-                <p>Цена P2PS5: ${selectedAccount?.priceP2PS5}</p>
-              </div>
-              <div key="6">
-                <p>Цена P2PS4: ${selectedAccount?.priceP2PS4}</p>
-              </div>
-              <div key="7">
-                <p>Цена P3: ${selectedAccount?.priceP3}</p>
-              </div>
-            </div>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      {selectedAccount && selectedAccount.id && (
+        <CustomersCreateModal
+          isOpen={customersCreateModal}
+          onClose={() => {
+            setCustomersCreateModal(false);
+            setSelectedAccount(null);
+          }}
+          accountId={selectedAccount?.id}
+        />
+      )}
+
       <Table
         aria-label="Example static collection table"
+        isStriped
+        isCompact
+        isHeaderSticky
         classNames={{
           base: "rounded-none",
         }}
+        sortDescriptor={list.sortDescriptor}
+        onSortChange={list.sort}
       >
-        <TableHeader>
-          <TableColumn>Игры</TableColumn>
-          <TableColumn>Платаформа PS4</TableColumn>
-          <TableColumn>Платаформа PS5</TableColumn>
-          <TableColumn>Цена P1</TableColumn>
-          <TableColumn>Цена P2PS4</TableColumn>
-          <TableColumn>Цена P2PS5</TableColumn>
-          <TableColumn>Цена P3</TableColumn>
+        <TableHeader className="">
+          <TableColumn key="id" allowsSorting>
+            ID
+          </TableColumn>
+          <TableColumn key="gameName" allowsSorting>
+            Игры
+          </TableColumn>
+          <TableColumn key="priceP1" allowsSorting>
+            Оффлайн активация
+          </TableColumn>
+          <TableColumn key="priceP2PS4" allowsSorting>
+            Онлайн активация для PS4
+          </TableColumn>
+          <TableColumn key="priceP2PS5" allowsSorting>
+            Онлайн активация для PS5
+          </TableColumn>
+          <TableColumn key="priceP3" allowsSorting>
+            Без активации
+          </TableColumn>
+          <TableColumn key="priceP3A" allowsSorting>
+            Аренда
+          </TableColumn>
         </TableHeader>
-        <TableBody>
-          {accounts.map((account) => (
+        <TableBody
+          isLoading={loading}
+          items={list.items}
+          loadingContent={<Spinner label="Loading..." />}
+        >
+          {(account: Account) => (
             <TableRow
               key={account.id}
-              className="cursor-pointer hover:bg-gray-50 transition-colors"
+              className="cursor-pointer hover:bg-gray-400 transition-colors hover:rounded-lg"
               onClick={() => handleRowClick(account)}
             >
-              <TableCell>{account.games.name}</TableCell>
-              <TableCell>{account.platformPS4 ? "Да" : "Нет"}</TableCell>
-              <TableCell>{account.platformPS5 ? "Да" : "Нет"}</TableCell>
+              <TableCell>{account.id}</TableCell>
+              <TableCell>{account.games?.name}</TableCell>
               <TableCell>${account.priceP1}</TableCell>
               <TableCell>${account.priceP2PS4}</TableCell>
               <TableCell>${account.priceP2PS5}</TableCell>
               <TableCell>${account.priceP3}</TableCell>
+              <TableCell>${account.priceP3A}</TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </>

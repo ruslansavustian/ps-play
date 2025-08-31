@@ -10,8 +10,9 @@ import {
   Switch,
   Input,
 } from "@heroui/react";
-import { Account, UpdateAccountDto } from "@/types";
+import { Account } from "@/types";
 import { useApp } from "@/contexts/AppProvider";
+import { ErrorContainer } from "../ui-components/error-container";
 
 interface AccountDetailModalProps {
   isOpen: boolean;
@@ -28,7 +29,7 @@ export const AccountDetailModal = ({
 }: AccountDetailModalProps) => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [formData, setFormData] = useState<Account | undefined>();
-  const [changes, setChanges] = useState<UpdateAccountDto | undefined>();
+  const [changes, setChanges] = useState<Account | undefined>();
   const { deleteAccount, updateAccount } = useApp();
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
@@ -80,10 +81,10 @@ export const AccountDetailModal = ({
             {selectedAccount && (
               <form className="flex flex-row grid-cols-2 gap-4 w-full">
                 <div className="w-6/12 space-y-4">
-                  <div className="flex flex-row gap-2">
+                  <div className="flex flex-col gap-2">
                     <label className=" font-medium text-gray-700">Игры:</label>
                     <p className=" text-gray-900">
-                      {selectedAccount?.games.name}
+                      - {selectedAccount?.games.name}
                     </p>
                   </div>
                   <div className="flex flex-col gap-2">
@@ -108,9 +109,6 @@ export const AccountDetailModal = ({
                     </div>
                   </div>
                   <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <label className=" font-medium text-gray-700">Цены</label>
-                    </div>
                     <div>
                       <label className=" font-medium text-gray-700">
                         Цена P1
@@ -188,6 +186,25 @@ export const AccountDetailModal = ({
                         }}
                       />
                     </div>
+                    <div>
+                      <label className=" font-medium text-gray-700">
+                        Цена P3А
+                      </label>
+                      <Input
+                        className="mt-1 text-lg font-bold text-green-600"
+                        type="number"
+                        min="0"
+                        step="1"
+                        name="priceP3A"
+                        defaultValue={selectedAccount?.priceP3A.toString()}
+                        onChange={(e) => {
+                          setChanges({
+                            ...changes!,
+                            priceP3A: Number(e.target.value),
+                          });
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="w-6/12 space-y-4">
@@ -245,9 +262,23 @@ export const AccountDetailModal = ({
                       }}
                     />
                   </div>
+                  <div className=" flex flex-row gap-2 justify-between max-w-[150px]">
+                    <label className=" font-medium text-gray-700">P3A</label>
+                    <Switch
+                      id="p3"
+                      defaultSelected={selectedAccount?.P3A}
+                      onValueChange={(value) => {
+                        setChanges({
+                          ...changes!,
+                          P3A: value,
+                        });
+                      }}
+                    />
+                  </div>
                 </div>
               </form>
             )}
+            <ErrorContainer />
           </ModalBody>
           <ModalFooter>
             <Button color="primary" onPress={handleUpdate}>

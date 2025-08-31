@@ -69,6 +69,16 @@ export class UpdateAccountDto {
   @IsOptional()
   priceP3?: number;
 
+  //PRICE FOR P3A
+  @ApiProperty({
+    description: 'Price for P3A',
+    example: 39.99,
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  priceP3A?: number;
+
   //P1 STATUS
   @ApiProperty({
     description: 'P1 status',

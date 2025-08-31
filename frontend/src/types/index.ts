@@ -35,41 +35,15 @@ export interface Account {
   priceP2PS4: number;
   priceP2PS5: number;
   priceP3: number;
+  priceP3A: number;
   platformPS4: boolean;
   platformPS5: boolean;
   P1: boolean;
   P2PS4: boolean;
   P2PS5: boolean;
   P3: boolean;
+  P3A: boolean;
   created?: string;
-}
-
-export interface UpdateAccountDto {
-  games?: number;
-  platformPS4?: boolean;
-  platformPS5?: boolean;
-  P1?: boolean;
-  P2PS4?: boolean;
-  P2PS5?: boolean;
-  P3?: boolean;
-  priceP1?: number;
-  priceP2PS4?: number;
-  priceP2PS5?: number;
-  priceP3?: number;
-}
-
-export interface CreateAccountDto {
-  games: number;
-  platformPS4: boolean;
-  platformPS5: boolean;
-  P1: boolean;
-  P2PS4: boolean;
-  P2PS5: boolean;
-  P3: boolean;
-  priceP1: number;
-  priceP2PS4: number;
-  priceP2PS5: number;
-  priceP3: number;
 }
 
 // Game types
@@ -103,12 +77,13 @@ export interface GamesState {
 export interface CreateOrderDto {
   customerName?: string;
   phone: string;
-  gameName: string;
-  platform: string;
+  gameName?: string;
+  platform?: string;
   notes?: string;
   email?: string;
   telegram?: string;
   accountId?: number;
+  purchaseType?: string;
 }
 
 export interface Order {

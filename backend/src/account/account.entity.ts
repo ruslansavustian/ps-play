@@ -98,6 +98,17 @@ export class Account {
   })
   priceP3: number;
 
+  //PRICE FOR P3A
+  @ApiProperty({ description: 'Price for P3A', type: Number })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: 0,
+  })
+  priceP3A: number;
+
   //P1 STATUS
   @ApiProperty({
     description: 'P1 status',
@@ -129,6 +140,13 @@ export class Account {
   @Column({ type: 'boolean', default: false })
   P3: boolean;
 
+  //P3A STATUS
+  @ApiProperty({
+    description: 'P3A status',
+    type: Boolean,
+  })
+  @Column({ type: 'boolean', default: false })
+  P3A: boolean;
   //CREATION DATE
   @ApiProperty({
     description: 'Creation timestamp',

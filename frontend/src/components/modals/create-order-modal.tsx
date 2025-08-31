@@ -13,6 +13,7 @@ import {
 } from "@heroui/react";
 import { useApp } from "@/contexts/AppProvider";
 import { Account, Game } from "@/types";
+import { ErrorContainer } from "../ui-components/error-container";
 
 interface CreateOrderModalProps {
   isOpen: boolean;
@@ -132,6 +133,7 @@ export const CreateOrderModal = ({
             value={formData.notes}
             onChange={handleInputChange}
           />
+          <ErrorContainer />
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onPress={handleSubmit}>

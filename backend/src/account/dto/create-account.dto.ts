@@ -59,6 +59,14 @@ export class CreateAccountDto {
   priceP3?: number;
 
   @ApiProperty({
+    description: 'Price for P3A',
+    example: 39.99,
+    required: false,
+  })
+  @IsNumber()
+  priceP3A?: number;
+
+  @ApiProperty({
     description: 'P1 status',
     example: true,
   })
@@ -89,4 +97,12 @@ export class CreateAccountDto {
   @IsBoolean()
   @IsNotEmpty()
   P3?: boolean;
+
+  @ApiProperty({
+    description: 'P3A status',
+    example: true,
+  })
+  @IsBoolean()
+  @IsNotEmpty()
+  P3A?: boolean;
 }

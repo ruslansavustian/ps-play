@@ -17,7 +17,7 @@ import { paths } from "@/utils/paths";
 
 export default function LoginPage() {
   const [error, setError] = useState("");
-  const { login, currentUser, setCurrentUser } = useApp();
+  const { login, currentUser } = useApp();
   const router = useRouter();
 
   const { formData, handleChange, errors, isFormValid } = useFormState(
@@ -30,31 +30,7 @@ export default function LoginPage() {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      const sessionResponse = await request.post("/auth/init-session");
-      const { uuid } = sessionResponse.data;
-
-      const credentials = btoa(`${formData.email}:${formData.password}`);
-
-      const response = await request.post(
-        "/auth/login",
-        { uuid },
-        {
-          headers: {
-            Authorization: `Basic ${credentials}`,
-          },
-        }
-      );
-
-      const { access_token, user } = response.data;
-      localStorage.setItem("token", access_token);
-      request.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${access_token}`;
-      setCurrentUser(user);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
-    }
+    await login(formData);
   };
 
   useEffect(() => {
@@ -104,7 +80,7 @@ export default function LoginPage() {
               placeholder="Пароль"
             />
 
-            {error && <ErrorContainer message={error} />}
+            <ErrorContainer />
 
             <div className="flex justify-center">
               <MyButton title={"Войти"} type="submit" disabled={!isFormValid} />

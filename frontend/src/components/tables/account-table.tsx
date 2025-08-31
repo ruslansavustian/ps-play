@@ -24,7 +24,7 @@ import { AccountDetailModal } from "../modals/account-detail-modal";
 
 // Accounts List Component
 export const AccountTable = () => {
-  const { accounts, accountsLoading, fetchAccounts, deleteAccount } = useApp();
+  const { accounts, accountsLoading, deleteAccount } = useApp();
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [deleteModal, setDeleteModal] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -74,16 +74,12 @@ export const AccountTable = () => {
           <TableHeader>
             <TableColumn key="id">ID</TableColumn>
             <TableColumn key="platform">ИГРЫ</TableColumn>
-            <TableColumn key="platformPS4">ПЛАТФОРМА PS4</TableColumn>
-            <TableColumn key="platformPS5">ПЛАТФОРМА PS5</TableColumn>
-            <TableColumn key="priceP1">ЦЕНА P1</TableColumn>
-            <TableColumn key="priceP2PS5">ЦЕНА P2PS5</TableColumn>
-            <TableColumn key="priceP2PS4">ЦЕНА P2PS4</TableColumn>
-            <TableColumn key="priceP3">ЦЕНА P3</TableColumn>
+
             <TableColumn key="p1">P1</TableColumn>
             <TableColumn key="p2PS4">P2PS4</TableColumn>
             <TableColumn key="p2PS5">P2PS5</TableColumn>
             <TableColumn key="p3">P3</TableColumn>
+            <TableColumn key="p3A">P3A</TableColumn>
           </TableHeader>
           <TableBody
             emptyContent={
@@ -115,32 +111,7 @@ export const AccountTable = () => {
                     {account.games.name}
                   </Chip>
                 </TableCell>
-                <TableCell>
-                  <Checkbox isSelected={account.platformPS4} />
-                </TableCell>
-                <TableCell>
-                  <Checkbox isSelected={account.platformPS5} />
-                </TableCell>
-                <TableCell>
-                  <span className="font-bold text-green-600">
-                    ${account.priceP1}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className="font-bold text-green-600">
-                    ${account.priceP2PS5}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className="font-bold text-green-600">
-                    ${account.priceP2PS4}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className="font-bold text-green-600">
-                    ${account.priceP3}
-                  </span>
-                </TableCell>
+
                 <TableCell>
                   <Checkbox isSelected={account.P1} />
                 </TableCell>
@@ -152,6 +123,9 @@ export const AccountTable = () => {
                 </TableCell>
                 <TableCell>
                   <Checkbox isSelected={account.P3} />
+                </TableCell>
+                <TableCell>
+                  <Checkbox isSelected={account.P3A} />
                 </TableCell>
               </TableRow>
             ))}

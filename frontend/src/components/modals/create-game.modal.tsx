@@ -10,12 +10,12 @@ import {
 } from "@heroui/react";
 import { Game } from "@/types";
 import { useApp } from "@/contexts/AppProvider";
+import { ErrorContainer } from "../ui-components/error-container";
 
 interface CreateGameModalProps {
   isOpen: boolean;
   onClose?: () => void;
 }
-
 export const CreateGameModal = ({ isOpen, onClose }: CreateGameModalProps) => {
   const { createGame } = useApp();
 
@@ -70,6 +70,7 @@ export const CreateGameModal = ({ isOpen, onClose }: CreateGameModalProps) => {
               isRequired
             />
           </div>
+          <ErrorContainer />
         </ModalBody>
         <ModalFooter>
           <Button color="danger" variant="light" onPress={onClose}>
