@@ -22,14 +22,9 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController implements OnModuleInit {
-  constructor(private authService: AuthService) {
-    console.log('AuthController constructor called');
-  }
+  constructor(private authService: AuthService) {}
 
-  onModuleInit() {
-    console.log('AuthController initialized successfully');
-    console.log('Auth routes should be registered now');
-  }
+  onModuleInit() {}
 
   @Post('init-session')
   @ApiOperation({ summary: 'Initialize authentication session' })
@@ -44,7 +39,6 @@ export class AuthController implements OnModuleInit {
     },
   })
   initSession() {
-    console.log('init-session endpoint called');
     return this.authService.initSession();
   }
   @Post('register')

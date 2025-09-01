@@ -44,10 +44,8 @@ export class GameService {
   }
 
   async remove(id: number): Promise<Game> {
-    // Мягкое удаление - устанавливаем флаг isDeleted
     await this.gameRepository.update(id, { isDeleted: true });
 
-    // Возвращаем обновленную игру для фронтенда
     const updatedGame = await this.findOne(id);
     if (!updatedGame) {
       throw new Error('Game not found after soft delete');

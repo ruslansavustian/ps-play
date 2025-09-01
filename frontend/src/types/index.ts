@@ -30,7 +30,8 @@ export interface AuthResponse {
 // Gaming Account types
 export interface Account {
   id?: number;
-  games: Game;
+  gamesIds: number[];
+  games?: Game[];
   priceP1: number;
   priceP2PS4: number;
   priceP2PS5: number;

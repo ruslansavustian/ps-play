@@ -12,82 +12,66 @@ export const useChat = () => {
 
   useEffect(() => {
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000";
-    console.log("🔌 [HOOK] Connecting to WebSocket:", wsUrl);
     const newSocket = io(wsUrl);
 
     newSocket.on("connect", () => {
       setIsConnected(true);
-      console.log("🔌 [HOOK] Connected to support server");
     });
 
     newSocket.on("disconnect", () => {
       setIsConnected(false);
-      console.log("🔌 [HOOK] Disconnected from support server");
     });
 
     newSocket.on("newSupportTicket", (ticket: any) => {
-      console.log("🎫 [HOOK] New support ticket:", ticket);
       setTickets((prev) => [...prev, ticket]);
     });
 
     newSocket.on("supportTicketsList", (ticketsList: any[]) => {
-      console.log("🎫 [HOOK] Received tickets list:", ticketsList);
       setTickets(ticketsList);
     });
 
     newSocket.on(
       "userDisconnected",
       (data: { ticketId: string; userName: string; userId: string }) => {
-        console.log("🔌 [HOOK] User disconnected from support:", data);
+        // User disconnected from support
       }
     );
 
     newSocket.on(
       "userReconnected",
       (data: { ticketId: string; userName: string; userId: string }) => {
-        console.log("🔌 [HOOK] User reconnected to support:", data);
+        // User reconnected to support
       }
     );
 
     newSocket.on("newMessage", (message: ChatMessage) => {
-      console.log("💬 [HOOK] New support message:", message);
       setMessages((prev) => [...prev, message]);
     });
 
     newSocket.on("ticketMessages", (ticketMessages: ChatMessage[]) => {
-      console.log("💬 [HOOK] Received ticket messages:", ticketMessages);
-      console.log("💬 [HOOK] Setting messages to:", ticketMessages);
       setMessages(ticketMessages);
     });
 
     setSocket(newSocket);
-    console.log("🔌 [HOOK] Socket created and event listeners attached");
 
     return () => {
-      console.log("🔌 [HOOK] Cleaning up socket connection");
       newSocket.close();
     };
   }, []);
 
   const joinAsAdmin = useCallback(() => {
-    console.log("👨‍💼 [HOOK] joinAsAdmin called, socket:", !!socket);
     if (socket) {
-      console.log("👨‍💼 [HOOK] Emitting joinAsAdmin event");
       socket.emit("joinAsAdmin", { adminName: "Support" });
       setUserName("[ADMIN] Support");
-      console.log("👨‍💼 [HOOK] joinAsAdmin event emitted");
     }
   }, [socket]);
 
   const joinTicket = useCallback(
     (ticketId: string) => {
-      console.log("👨‍💼 [HOOK] joinTicket called with ticketId:", ticketId);
       if (socket) {
-        console.log("👨‍💼 [HOOK] Joining ticket:", ticketId);
         setMessages([]);
         socket.emit("joinTicket", { ticketId });
         setSelectedTicket(ticketId);
-        console.log("👨‍💼 [HOOK] joinTicket event emitted");
       }
     },
     [socket]
@@ -95,12 +79,9 @@ export const useChat = () => {
 
   const createSupportTicket = useCallback(
     (data: { userName: string; initialMessage: string }) => {
-      console.log("🎫 [HOOK] createSupportTicket called with data:", data);
       if (socket) {
         setUserName(data.userName);
-        console.log("🎫 [HOOK] Emitting createSupportTicket event");
         socket.emit("createSupportTicket", data);
-        console.log("🎫 [HOOK] createSupportTicket event emitted");
       }
     },
     [socket]
@@ -108,14 +89,11 @@ export const useChat = () => {
 
   const sendMessage = useCallback(
     (message: string) => {
-      console.log("💬 [HOOK] sendMessage called with:", message);
       if (socket && message.trim()) {
-        console.log("💬 [HOOK] Emitting sendSupportMessage");
         socket.emit("sendSupportMessage", {
           message,
           userName: userName,
         });
-        console.log("💬 [HOOK] sendSupportMessage event emitted");
       }
     },
     [socket, userName]
@@ -123,20 +101,12 @@ export const useChat = () => {
 
   const sendAdminMessage = useCallback(
     (message: string, ticketId: string) => {
-      console.log(
-        "👨‍💼 [HOOK] sendAdminMessage called with:",
-        message,
-        "for ticket:",
-        ticketId
-      );
       if (socket && message.trim() && ticketId) {
-        console.log("👨‍💼 [HOOK] Emitting sendAdminMessage");
         socket.emit("sendAdminMessage", {
           message,
           userName: userName,
           ticketId: ticketId,
         });
-        console.log("👨‍💼 [HOOK] sendAdminMessage event emitted");
       }
     },
     [socket, userName]

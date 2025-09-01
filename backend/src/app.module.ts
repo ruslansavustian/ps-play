@@ -47,8 +47,5 @@ import { ChatMessage } from './chat/chat-message.entity';
   providers: [AppService],
 })
 export class AppModule implements OnModuleInit {
-  onModuleInit() {
-    console.log('AppModule initialized successfully');
-    console.log('All sub-modules should be loaded now');
-  }
+  onModuleInit() {}
 }

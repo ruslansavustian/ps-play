@@ -13,6 +13,7 @@ import { AccountDetailModal } from "./account-detail-modal";
 import { useMemo, useState } from "react";
 import { useApp } from "@/contexts/AppProvider";
 import moment from "moment";
+import { useTranslations } from "next-intl";
 
 interface AuditLogModalProps {
   auditLog?: AuditLog | null;
@@ -23,6 +24,7 @@ interface AuditLogModalProps {
 const AuditLogModal = ({ auditLog, isOpen, onClose }: AuditLogModalProps) => {
   const { accounts } = useApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const t = useTranslations("auditLogs");
 
   const entity = useMemo(() => {
     switch (auditLog?.entityType) {
@@ -45,19 +47,23 @@ const AuditLogModal = ({ auditLog, isOpen, onClose }: AuditLogModalProps) => {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
           <ModalHeader>
-            <h2>Информация о действии</h2>
+            <h2>{t("actionInfo")}</h2>
           </ModalHeader>
           <ModalBody>
-            <p>Автор: {auditLog?.user.email}</p>
-            <p>Действие: {auditLog?.description}</p>
+            <p>
+              {t("author")}: {auditLog?.user.email}
+            </p>
+            <p>
+              {t("action")}: {auditLog?.description}
+            </p>
             <div className="flex flex-row gap-2 mt-2 items-center">
-              <p>Объект: </p>
+              <p>{t("object")}: </p>
               <Button color="primary" onPress={() => setIsModalOpen(true)}>
-                открыть
+                {t("open")}
               </Button>
             </div>
             <div className="mt-2">
-              <p className="font-semibold mb-2">Изменения:</p>
+              <p className="font-semibold mb-2">{t("changes")}</p>
               {auditLog?.metadata?.changes && (
                 <div className="grid grid-cols-1 gap-2">
                   {Object.entries(auditLog.metadata.changes).map(
@@ -67,16 +73,16 @@ const AuditLogModal = ({ auditLog, isOpen, onClose }: AuditLogModalProps) => {
                         className="bg-blue-50 border border-blue-200 p-2  flexrounded"
                       >
                         <div className="text-sm text-blue-700 font-medium flex flex-row gap-2">
-                          <p>Свойство: </p>
+                          <p>{t("property")} </p>
                           <p className="text-green-600">{field}</p>
                         </div>
                         <div className="text-sm text-blue-700 font-medium flex flex-row gap-2">
-                          <p>Новое значение: </p>
+                          <p>{t("newValue")} </p>
                           <p className="text-green-600">
                             {typeof value === "boolean"
                               ? value
-                                ? "Да"
-                                : "Нет"
+                                ? t("yes")
+                                : t("no")
                               : String(value)}
                           </p>
                         </div>
@@ -87,14 +93,19 @@ const AuditLogModal = ({ auditLog, isOpen, onClose }: AuditLogModalProps) => {
               )}
             </div>
 
-            <p>IP-адрес: {auditLog?.ipAddress}</p>
-            <p>Устройство: {auditLog?.userAgent}</p>
             <p>
-              Время: {moment(auditLog?.timestamp).format("DD.MM.YYYY HH:mm")}
+              {t("ipAddress")}: {auditLog?.ipAddress}
+            </p>
+            <p>
+              {t("device")}: {auditLog?.userAgent}
+            </p>
+            <p>
+              {t("time")}:{" "}
+              {moment(auditLog?.timestamp).format("DD.MM.YYYY HH:mm")}
             </p>
           </ModalBody>
           <ModalFooter>
-            <Button onPress={onClose}>Закрыть</Button>
+            <Button onPress={onClose}>{t("close")}</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

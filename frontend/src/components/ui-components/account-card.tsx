@@ -23,7 +23,7 @@ export const AccountCard = ({ account }: { account: Account }) => {
         <div className="flex items-center space-x-2">
           <span className="text-xl">{account.platformPS4 ? "PS4" : "PS5"}</span>
           <h4 className="text-lg font-semibold text-gray-900">
-            {account.games.name}
+            {account.games?.map((game) => game.name).join(", ")}
           </h4>
           {/* {account.isVerified && (
             <span className="text-green-500 text-sm">✓ Verified</span>

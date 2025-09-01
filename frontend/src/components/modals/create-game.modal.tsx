@@ -11,6 +11,7 @@ import {
 import { Game } from "@/types";
 import { useApp } from "@/contexts/AppProvider";
 import { ErrorContainer } from "../ui-components/error-container";
+import { useTranslations } from "next-intl";
 
 interface CreateGameModalProps {
   isOpen: boolean;
@@ -18,6 +19,8 @@ interface CreateGameModalProps {
 }
 export const CreateGameModal = ({ isOpen, onClose }: CreateGameModalProps) => {
   const { createGame } = useApp();
+  const t = useTranslations("games");
+  const tCommon = useTranslations("common");
 
   const [formData, setFormData] = useState<Game>({
     name: "",
@@ -53,17 +56,15 @@ export const CreateGameModal = ({ isOpen, onClose }: CreateGameModalProps) => {
     <Modal isOpen={isOpen} onOpenChange={handleOpenChange} size="2xl">
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
-          <h2 className="text-xl font-bold">Создать новую игру</h2>
-          <p className="text-sm text-gray-600">
-            Добавить новую игру в вашу коллекцию
-          </p>
+          <h2 className="text-xl font-bold">{t("createGameTitle")}</h2>
+          <p className="text-sm text-gray-600">{t("createGameDescription")}</p>
         </ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-4">
             {/* Game Name */}
             <Input
-              label="Название игры"
-              placeholder="Введите название игры (например, FIFA 24, Call of Duty)"
+              label={t("gameName")}
+              placeholder={t("gameNamePlaceholder")}
               name="name"
               value={formData.name}
               onChange={handleInputChange}
@@ -74,14 +75,14 @@ export const CreateGameModal = ({ isOpen, onClose }: CreateGameModalProps) => {
         </ModalBody>
         <ModalFooter>
           <Button color="danger" variant="light" onPress={onClose}>
-            Отмена
+            {tCommon("cancel")}
           </Button>
           <Button
             color="primary"
             onPress={handleSubmit}
             isDisabled={!isFormValid()}
           >
-            Создать игру
+            {t("createGameTitle")}
           </Button>
         </ModalFooter>
       </ModalContent>

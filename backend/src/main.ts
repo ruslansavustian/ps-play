@@ -5,14 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  console.log('Starting NestJS application...');
-  console.log('Environment variables:');
-  console.log('PORT:', process.env.PORT);
-  console.log('DATABASE_URL:', process.env.DATABASE_URL);
-  console.log('JWT_SECRET:', process.env.JWT_SECRET);
-
   const app = await NestFactory.create(AppModule);
-  console.log('AppModule loaded successfully');
   app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
@@ -49,10 +42,7 @@ async function bootstrap() {
   );
 
   const port = process.env.PORT ?? 3001;
-  console.log(`Attempting to start server on port: ${port}`);
   await app.listen(port);
-  console.log(`Backend server running on port ${port}`);
-  console.log(`WebSocket server available at ws://localhost:${port}`);
 }
 bootstrap().catch((err) =>
   console.error('Error starting the application:', err),

@@ -13,6 +13,7 @@ import {
 import { Account } from "@/types";
 import { useApp } from "@/contexts/AppProvider";
 import { ErrorContainer } from "../ui-components/error-container";
+import { useTranslations } from "next-intl";
 
 interface AccountDetailModalProps {
   isOpen: boolean;
@@ -31,6 +32,9 @@ export const AccountDetailModal = ({
   const [formData, setFormData] = useState<Account | undefined>();
   const [changes, setChanges] = useState<Account | undefined>();
   const { deleteAccount, updateAccount } = useApp();
+  const t = useTranslations("accounts");
+  const tCommon = useTranslations("common");
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -60,7 +64,7 @@ export const AccountDetailModal = ({
     setChanges(undefined);
     onClose();
   }, [changes, updateAccount, onClose]);
-  console.log("selectedAccount", selectedAccount);
+
   return (
     <>
       {/* Account Detail Modal */}
@@ -68,9 +72,11 @@ export const AccountDetailModal = ({
         <ModalContent>
           <ModalHeader>
             <div className="flex flex-row justify-between w-10/12 mx-auto">
-              <h2 className="text-xl font-bold">Детали аккаунта</h2>
+              <h2 className="text-xl font-bold">{t("accountDetails")}</h2>
               <div className="flex flex-row gap-2">
-                <label className=" font-medium text-gray-700">Создано:</label>
+                <label className=" font-medium text-gray-700">
+                  {t("created")}:
+                </label>
                 <p className=" text-gray-900">
                   {formatDate(selectedAccount?.created)}
                 </p>
@@ -82,14 +88,19 @@ export const AccountDetailModal = ({
               <form className="flex flex-row grid-cols-2 gap-4 w-full">
                 <div className="w-6/12 space-y-4">
                   <div className="flex flex-col gap-2">
-                    <label className=" font-medium text-gray-700">Игры:</label>
+                    <label className=" font-medium text-gray-700">
+                      {t("games")}:
+                    </label>
                     <p className=" text-gray-900">
-                      - {selectedAccount?.games.name}
+                      -{" "}
+                      {selectedAccount?.games
+                        ?.map((game) => game.name)
+                        .join(", ")}
                     </p>
                   </div>
                   <div className="flex flex-col gap-2">
                     <label className=" font-medium text-gray-700">
-                      Платформы:
+                      {t("platformsLabel")}
                     </label>
                     <div className="flex flex-row gap-2">
                       <p className=" text-gray-900">
@@ -111,7 +122,7 @@ export const AccountDetailModal = ({
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <label className=" font-medium text-gray-700">
-                        Цена P1
+                        {t("priceP1")}
                       </label>
                       <Input
                         className="mt-1 text-lg font-bold text-green-600"
@@ -130,7 +141,7 @@ export const AccountDetailModal = ({
                     </div>
                     <div>
                       <label className=" font-medium text-gray-700">
-                        Цена P2PS4
+                        {t("priceP2PS4")}
                       </label>
                       <Input
                         className="mt-1 text-lg font-bold text-green-600"
@@ -150,7 +161,7 @@ export const AccountDetailModal = ({
 
                     <div>
                       <label className=" font-medium text-gray-700">
-                        Цена P2PS5
+                        {t("priceP2PS5")}
                       </label>
                       <Input
                         className="mt-1 text-lg font-bold text-green-600"
@@ -169,7 +180,7 @@ export const AccountDetailModal = ({
                     </div>
                     <div>
                       <label className=" font-medium text-gray-700">
-                        Цена P3
+                        {t("priceP3")}
                       </label>
                       <Input
                         className="mt-1 text-lg font-bold text-green-600"
@@ -188,7 +199,7 @@ export const AccountDetailModal = ({
                     </div>
                     <div>
                       <label className=" font-medium text-gray-700">
-                        Цена P3А
+                        {t("priceP3A")}
                       </label>
                       <Input
                         className="mt-1 text-lg font-bold text-green-600"
@@ -208,7 +219,7 @@ export const AccountDetailModal = ({
                   </div>
                 </div>
                 <div className="w-6/12 space-y-4">
-                  <h1>Статусы</h1>
+                  <h1>{t("statuses")}</h1>
                   <div className="  flex flex-row gap-2 justify-between max-w-[150px]">
                     <label className=" font-medium text-gray-700">P1</label>
                     <Switch
@@ -282,10 +293,10 @@ export const AccountDetailModal = ({
           </ModalBody>
           <ModalFooter>
             <Button color="primary" onPress={handleUpdate}>
-              Сохранить
+              {t("save")}
             </Button>
             <Button color="primary" onPress={onClose}>
-              Закрыть
+              {t("close")}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -293,20 +304,20 @@ export const AccountDetailModal = ({
       <Modal isOpen={deleteModal} onOpenChange={setDeleteModal}>
         <ModalContent>
           <ModalHeader>
-            <h2 className="text-xl font-bold">Удалить аккаунт</h2>
+            <h2 className="text-xl font-bold">{t("deleteAccount")}</h2>
           </ModalHeader>
           <ModalBody>
-            <p>Вы уверены, что хотите удалить этот аккаунт?</p>
+            <p>{t("deleteConfirm")}</p>
           </ModalBody>
           <ModalFooter>
             <Button
               color="danger"
               onPress={() => handleDeleteAccount(selectedAccount?.id!)}
             >
-              Удалить
+              {tCommon("delete")}
             </Button>
             <Button color="primary" onPress={() => setDeleteModal(false)}>
-              Закрыть
+              {t("close")}
             </Button>
           </ModalFooter>
         </ModalContent>

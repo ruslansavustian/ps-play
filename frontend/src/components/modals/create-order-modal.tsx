@@ -14,6 +14,7 @@ import {
 import { useApp } from "@/contexts/AppProvider";
 import { Account, Game } from "@/types";
 import { ErrorContainer } from "../ui-components/error-container";
+import { useTranslations } from "next-intl";
 
 interface CreateOrderModalProps {
   isOpen: boolean;
@@ -25,6 +26,9 @@ export const CreateOrderModal = ({
   onClose,
 }: CreateOrderModalProps) => {
   const { createOrder, accounts } = useApp();
+  const t = useTranslations("orders");
+  const tCommon = useTranslations("common");
+
   const [formData, setFormData] = useState({
     customerName: "",
     phone: "",
@@ -73,16 +77,16 @@ export const CreateOrderModal = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalContent>
-        <ModalHeader>Создать Заказ</ModalHeader>
+        <ModalHeader>{t("createOrderTitle")}</ModalHeader>
         <ModalBody>
           <Input
-            label="Имя"
+            label={t("customerName")}
             name="customerName"
             value={formData.customerName}
             onChange={handleInputChange}
           />
           <Input
-            label="Телефон"
+            label={t("phone")}
             type="tel"
             name="phone"
             isRequired
@@ -90,14 +94,14 @@ export const CreateOrderModal = ({
             onChange={handleInputChange}
           />
           <Input
-            label="Телеграм"
+            label={t("telegram")}
             type="text"
             name="telegram"
             value={formData.telegram}
             onChange={handleInputChange}
           />
           <Input
-            label="Почта"
+            label={t("email")}
             type="email"
             name="email"
             value={formData.email}
@@ -105,7 +109,7 @@ export const CreateOrderModal = ({
           />
           {accounts && (
             <Select
-              label="Аккаунт"
+              label={t("account")}
               isRequired
               name="accountId"
               onChange={handleInputChange}
@@ -118,7 +122,7 @@ export const CreateOrderModal = ({
             </Select>
           )}
           <Select
-            label="Платформа"
+            label={t("selectPlatform")}
             name="platform"
             isRequired
             onChange={handleInputChange}
@@ -128,7 +132,7 @@ export const CreateOrderModal = ({
             ))}
           </Select>
           <Input
-            label="Примечания"
+            label={t("notes")}
             name="notes"
             value={formData.notes}
             onChange={handleInputChange}
@@ -137,7 +141,7 @@ export const CreateOrderModal = ({
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onPress={handleSubmit}>
-            Создать
+            {t("create")}
           </Button>
         </ModalFooter>
       </ModalContent>

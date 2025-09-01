@@ -38,13 +38,6 @@ export class TelegramService {
   }
 
   async sendNotification(message: string) {
-    console.log('📤 [TELEGRAM] sendNotification called');
-    console.log('📤 [TELEGRAM] Message:', message);
-    console.log(
-      '📤 [TELEGRAM] Bot state:',
-      this.bot ? 'Available' : 'Not available',
-    );
-
     if (!this.bot) {
       console.warn('⚠️ [TELEGRAM] Telegram bot not initialized');
       return;
@@ -53,7 +46,6 @@ export class TelegramService {
     try {
       // Отправляем сообщение в ваш чат
       const targetChatId = process.env.TELEGRAM_CHAT_ID;
-      console.log('💬 [TELEGRAM] Target Chat ID:', targetChatId);
 
       if (!targetChatId) {
         console.warn(
@@ -62,25 +54,16 @@ export class TelegramService {
         return;
       }
 
-      console.log('📡 [TELEGRAM] Sending message to chat:', targetChatId);
-
       await this.bot.sendMessage(targetChatId, message, {
         parse_mode: 'HTML',
         disable_web_page_preview: true,
       });
-
-      console.log('✅ [TELEGRAM] Telegram notification sent successfully');
     } catch (error: any) {
       console.error('❌ [TELEGRAM] Telegram notification failed:', error);
     }
   }
 
   async sendOrderNotification(orderData: Order) {
-    console.log(
-      '🛒 [TELEGRAM] sendOrderNotification called with data:',
-      orderData,
-    );
-
     const message = `
 🛒 <b>Новый заказ!</b>
 
@@ -97,16 +80,10 @@ export class TelegramService {
 
     `;
 
-    console.log('📝 [TELEGRAM] Order message prepared:', message);
     await this.sendNotification(message);
   }
 
   async sendSupportNotification(ticketData: TicketData) {
-    console.log(
-      '🆘 [TELEGRAM] sendSupportNotification called with data:',
-      ticketData,
-    );
-
     const message = `
 🆘 <b>Новое обращение в поддержку!</b>
 
@@ -117,7 +94,6 @@ export class TelegramService {
 🔗 <a href="${process.env.FRONTEND_URL}/admin/support/${ticketData.id}">Ответить</a>
     `;
 
-    console.log('📝 [TELEGRAM] Support message prepared:', message);
     await this.sendNotification(message);
   }
 }
