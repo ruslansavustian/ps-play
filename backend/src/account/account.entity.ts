@@ -3,8 +3,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
   OneToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
@@ -18,12 +16,17 @@ export class Account {
   id: number;
 
   @ApiProperty({
-    description: 'Game associated with this account',
-    type: () => Game,
+    description: 'Game IDs for this account',
+    type: [Number],
   })
-  @ManyToOne(() => Game, { eager: true })
-  @JoinColumn({ name: 'gameId' })
-  games: Game;
+  @Column('int', { array: true, default: [] })
+  gameIds: number[];
+
+  @ApiProperty({
+    description: 'Games associated with this account',
+    type: () => [Game],
+  })
+  games?: Game[];
 
   @ApiProperty({
     description: 'Orders associated with this account',
@@ -155,4 +158,13 @@ export class Account {
   })
   @CreateDateColumn()
   created: Date;
+
+  @ApiProperty({
+    description: 'Deleted',
+    type: String,
+    example: 'true',
+    format: 'boolean',
+  })
+  @Column({ type: 'boolean', default: false })
+  isDeleted: boolean;
 }

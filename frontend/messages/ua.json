@@ -1,0 +1,123 @@
+{
+  "common": {
+    "loading": "Завантаження...",
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "delete": "Видалити",
+    "edit": "Редагувати",
+    "create": "Створити",
+    "search": "Пошук",
+    "filter": "Фільтр",
+    "sort": "Сортування",
+    "welcome": "Вітаємо"
+  },
+  "navigation": {
+    "accounts": "Акаунти",
+    "games": "Ігри",
+    "terms": "Умови",
+    "about": "Про нас",
+    "contacts": "Контакти",
+    "login": "Увійти"
+  },
+  "auth": {
+    "login": "Вхід",
+    "register": "Реєстрація",
+    "logout": "Вихід",
+    "email": "Ел. пошта",
+    "password": "Пароль",
+    "confirmPassword": "Підтвердіть пароль",
+    "loginButton": "Увійти",
+    "registerButton": "Зареєструватися"
+  },
+  "dashboard": {
+    "title": "Панель керування",
+    "accounts": "Акаунти",
+    "orders": "Замовлення",
+    "games": "Ігри",
+    "panelTitle": "Панель керування",
+    "supportPanel": "Панель підтримки",
+    "logout": "Вийти",
+    "tabs": {
+      "orders": "Замовлення",
+      "accounts": "Акаунти",
+      "games": "Ігри",
+      "auditLogs": "Логи"
+    }
+  },
+  "accounts": {
+    "title": "Ігрові акаунти",
+    "createAccount": "Створити акаунт",
+    "gameName": "Назва гри",
+    "platform": "Платформа",
+    "price": "Ціна",
+    "createAccountTitle": "Створити ігровий акаунт",
+    "createAccountDescription": "Додати новий ігровий акаунт на ваш маркетплейс",
+    "gameSelection": "Вибір гри",
+    "selectGame": "Вибрати гру",
+    "platforms": "Платформи",
+    "prices": "Ціни",
+    "priceP1": "Ціна P1 (USD)",
+    "priceP2PS4": "Ціна P2PS4 (USD)",
+    "priceP2PS5": "Ціна P2PS5 (USD)",
+    "priceP3": "Ціна P3 (USD)",
+    "priceP3A": "Ціна P3A (USD)",
+    "accountDetails": "Деталі акаунта",
+    "created": "Створено",
+    "games": "Ігри",
+    "platformsLabel": "Платформи:",
+    "statuses": "Статуси",
+    "save": "Зберегти",
+    "close": "Закрити",
+    "deleteAccount": "Видалити акаунт",
+    "deleteConfirm": "Ви впевнені, що хочете видалити цей акаунт?",
+    "cancel": "Скасувати"
+  },
+  "games": {
+    "createGameTitle": "Створити нову гру",
+    "createGameDescription": "Додати нову гру до вашої колекції",
+    "gameName": "Назва гри",
+    "gameNamePlaceholder": "Введіть назву гри (наприклад, FIFA 24, Call of Duty)"
+  },
+  "orders": {
+    "createOrder": "Створити замовлення",
+    "createOrderTitle": "Створити замовлення",
+    "account": "Акаунт",
+    "purchaseType": "Варіант покупки",
+    "purchaseType1": "Покупка акаунта з активацією",
+    "purchaseType2": "Покупка акаунта без активації",
+    "purchaseType3": "Орендувати",
+    "selectPlatform": "Виберіть платформу",
+    "customerName": "Ім'я",
+    "customerNamePlaceholder": "Вкажіть ваше ім'я",
+    "phone": "Телефон",
+    "phonePlaceholder": "Вкажіть ваш телефон",
+    "telegram": "Телеграм",
+    "telegramPlaceholder": "Вкажіть ваш telegram",
+    "email": "Пошта",
+    "notes": "Примітки",
+    "submitOrder": "Відправити замовлення",
+    "create": "Створити"
+  },
+  "auditLogs": {
+    "actionInfo": "Інформація про дію",
+    "author": "Автор",
+    "action": "Дія",
+    "object": "Об'єкт",
+    "open": "відкрити",
+    "changes": "Зміни:",
+    "newValue": "Нове значення:",
+    "ipAddress": "IP-адреса",
+    "device": "Пристрій",
+    "time": "Час",
+    "yes": "Так",
+    "no": "Ні",
+    "close": "Закрити"
+  },
+  "home": {
+    "title": "Ігрові акаунти",
+    "description": "Перегляд і покупка проверенних ігрових акаунтів"
+  },
+  "LocaleSwitcher": {
+    "switchLocale": "Переключити локаль"
+  }
+}

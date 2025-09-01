@@ -28,13 +28,8 @@ export const SupportChat: React.FC = () => {
   const [isWaitingForSupport, setIsWaitingForSupport] = useState(false);
   const [smallScreen, setSmallScreen] = useState(true);
   const handleCreateTicket = () => {
-    console.log("🎫 [SUPPORT_CHAT] handleCreateTicket called");
     if (joinUserName.trim()) {
       const initialMessage = inputMessage || "Нужна помощь";
-      console.log("🎫 [SUPPORT_CHAT] Creating ticket with data:", {
-        joinUserName,
-        initialMessage,
-      });
 
       createSupportTicket({
         userName: joinUserName,
@@ -45,19 +40,13 @@ export const SupportChat: React.FC = () => {
       setTicketCreated(true);
       setIsWaitingForSupport(true);
       setInputMessage("");
-      console.log("🎫 [SUPPORT_CHAT] Ticket creation initiated");
     }
   };
 
   const handleSendMessage = () => {
-    console.log(
-      "💬 [SUPPORT_CHAT] handleSendMessage called with:",
-      inputMessage
-    );
     if (inputMessage.trim()) {
       sendMessage(inputMessage);
       setInputMessage("");
-      console.log("💬 [SUPPORT_CHAT] Message sent");
     }
   };
 
@@ -67,9 +56,6 @@ export const SupportChat: React.FC = () => {
       handleSendMessage();
     }
   };
-  console.log("💬 [SUPPORT_CHAT] smallScreen:", smallScreen);
-  console.log("💬 [SUPPORT_CHAT] showJoinForm:", showJoinForm);
-  console.log("💬 [SUPPORT_CHAT] ticketCreated:", ticketCreated);
 
   if (smallScreen) {
     return (

@@ -14,6 +14,7 @@ import { Account, Game } from "@/types";
 import { useApp } from "@/contexts/AppProvider";
 import InputSelector from "../ui-components/input-selector";
 import { ErrorContainer } from "../ui-components/error-container";
+import { useTranslations } from "next-intl";
 
 interface CreateAccountModalProps {
   isOpen: boolean;
@@ -25,9 +26,11 @@ export const CreateAccountModal = ({
   onClose,
 }: CreateAccountModalProps) => {
   const { createAccount, fetchAccounts, errorMessage, clearError } = useApp();
+  const t = useTranslations("accounts");
+  const tCommon = useTranslations("common");
 
   const [formData, setFormData] = useState<Account>({
-    games: {} as Game,
+    gamesIds: [],
     platformPS4: false,
     platformPS5: false,
     priceP1: 0,
@@ -56,7 +59,7 @@ export const CreateAccountModal = ({
   const handleSubmit = useCallback(async () => {
     try {
       const accountData: Account = {
-        games: formData.games,
+        gamesIds: formData.gamesIds,
         platformPS4: formData.platformPS4,
         platformPS5: formData.platformPS5,
         priceP1: Number(formData.priceP1),
@@ -71,14 +74,15 @@ export const CreateAccountModal = ({
         P3: formData.P3,
       };
 
-      await createAccount(accountData);
-
-      // Загружаем обновленный список аккаунтов
-      await fetchAccounts();
+      const result = await createAccount(accountData);
+      if (result) {
+        await fetchAccounts();
+        onClose?.();
+      }
 
       // Reset form
       setFormData({
-        games: {} as Game,
+        gamesIds: [],
         platformPS4: false,
         platformPS5: false,
         priceP1: 0,
@@ -92,8 +96,6 @@ export const CreateAccountModal = ({
         P2PS5: false,
         P3: false,
       });
-
-      onClose?.();
     } catch (error) {
       // Ошибка уже обработана в провайдере и сохранена в errorMessage
       // Просто логируем для отладки
@@ -114,20 +116,15 @@ export const CreateAccountModal = ({
     target: { name: string; value: string };
   }) => {
     const { value } = e.target;
-
-    const selectedGame = games?.find((game) => game.id?.toString() === value);
-    if (selectedGame) {
-      setFormData({
-        ...formData,
-        games: selectedGame,
-      });
-    }
+    setFormData({
+      ...formData,
+      gamesIds: [parseInt(value)],
+    });
   };
 
   const isFormValid = () => {
     return (
-      formData.games &&
-      formData.games.id &&
+      formData.gamesIds &&
       (formData.platformPS4 || formData.platformPS5) &&
       (formData.priceP1 > 0 ||
         formData.priceP2PS4 > 0 ||
@@ -137,22 +134,22 @@ export const CreateAccountModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={handleOpenChange} size="2xl">
+    <Modal isOpen={isOpen} onOpenChange={handleOpenChange} size="xl">
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
-          <h2 className="text-xl font-bold">Создать игровой аккаунт</h2>
+          <h2 className="text-xl font-bold">{t("createAccountTitle")}</h2>
           <p className="text-sm text-gray-600">
-            Добавить новый игровой аккаунт на ваш маркетплейс
+            {t("createAccountDescription")}
           </p>
         </ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-4">
             {/* Game Name */}
             <InputSelector
-              label="Название игры"
-              placeholderName="Выберите игру"
+              label={t("gameName")}
+              placeholderName={t("selectGame")}
               name="games"
-              value={formData.games?.id?.toString() || ""}
+              value={formData.gamesIds.toString()}
               onChange={handleSelectorChange}
               options={
                 games?.map((game) => ({
@@ -163,22 +160,24 @@ export const CreateAccountModal = ({
             />
 
             {/* Platform */}
-            <div className="flex gap-4">
-              <div>
+            <div className="flex gap-4 flex-col">
+              <h1>{t("platforms")}</h1>
+              <div className="flex gap-2">
                 <p>PS4</p>
+
+                <Switch
+                  name="platformPS4"
+                  isSelected={formData.platformPS4}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      platformPS4: value,
+                    })
+                  }
+                />
               </div>
-              <Switch
-                name="platformPS4"
-                isSelected={formData.platformPS4}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    platformPS4: value,
-                  })
-                }
-              />
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-2 ">
               <div>
                 <p>PS5</p>
               </div>
@@ -195,9 +194,9 @@ export const CreateAccountModal = ({
             </div>
 
             {/* Prices */}
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-col">
               <Input
-                label="Цена P1 (USD)"
+                label={t("priceP1")}
                 placeholder="0.00"
                 name="priceP1"
                 type="number"
@@ -208,7 +207,7 @@ export const CreateAccountModal = ({
                 startContent={<span className="text-gray-500">$</span>}
               />
               <Input
-                label="Цена P2PS4 (USD)"
+                label={t("priceP2PS4")}
                 placeholder="0.00"
                 name="priceP2PS4"
                 type="number"
@@ -219,7 +218,7 @@ export const CreateAccountModal = ({
                 startContent={<span className="text-gray-500">$</span>}
               />
               <Input
-                label="Цена P2PS5 (USD)"
+                label={t("priceP2PS5")}
                 placeholder="0.00"
                 name="priceP2PS5"
                 type="number"
@@ -230,7 +229,7 @@ export const CreateAccountModal = ({
                 startContent={<span className="text-gray-500">$</span>}
               />
               <Input
-                label="Цена P3 (USD)"
+                label={t("priceP3")}
                 placeholder="0.00"
                 name="priceP3"
                 type="number"
@@ -240,20 +239,31 @@ export const CreateAccountModal = ({
                 onChange={handleInputChange}
                 startContent={<span className="text-gray-500">$</span>}
               />
+              <Input
+                label={t("priceP3A")}
+                placeholder="0.00"
+                name="priceP3A"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.priceP3A.toString()}
+                onChange={handleInputChange}
+                startContent={<span className="text-gray-500">$</span>}
+              />
             </div>
           </div>
           <ErrorContainer />
         </ModalBody>
         <ModalFooter>
           <Button color="danger" variant="light" onPress={onClose}>
-            Отмена
+            {tCommon("cancel")}
           </Button>
           <Button
             color="primary"
             onPress={handleSubmit}
             isDisabled={!isFormValid()}
           >
-            Создать аккаунт
+            {t("createAccount")}
           </Button>
         </ModalFooter>
       </ModalContent>

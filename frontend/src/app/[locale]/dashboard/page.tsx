@@ -3,7 +3,7 @@
 import { useApp } from "@/contexts/AppProvider";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect } from "react";
-import { CreateGameModal } from "../../components/modals/create-game.modal";
+import { CreateGameModal } from "../../../components/modals/create-game.modal";
 import { AccountSection } from "@/components/dashboard/account-section";
 import { GameSection } from "@/components/dashboard/game-section";
 import { Card, CardBody, Link, Tab, Tabs } from "@heroui/react";
@@ -13,6 +13,7 @@ import { OrderSection } from "@/components/dashboard/order-section";
 import { AuditLogSection } from "@/components/dashboard/audit-log-section";
 
 import { paths } from "@/utils/paths";
+import { useTranslations } from "next-intl";
 
 function DashboardPage() {
   const {
@@ -28,6 +29,9 @@ function DashboardPage() {
     fetchOrders,
   } = useApp();
   const router = useRouter();
+  const t = useTranslations("dashboard");
+  const tCommon = useTranslations("common");
+  const tAuth = useTranslations("auth");
 
   // Загружаем данные только если их нет
   useEffect(() => {
@@ -64,17 +68,17 @@ function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-semibold">Панель управления</h1>
+              <h1 className="text-xl font-semibold">{t("panelTitle")}</h1>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">
-                Добро пожаловать, {currentUser.name}!
+                {tCommon("welcome")} {currentUser.name}!
               </span>
               <button
                 onClick={logout}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
               >
-                Выйти
+                {tAuth("logout")}
               </button>
             </div>
           </div>
@@ -85,33 +89,33 @@ function DashboardPage() {
           className="rounded-md px-4 py-2 bg-black text-white"
           href={paths.support}
         >
-          Панель поддержки
+          {t("supportPanel")}
         </Link>
       </div>
       <div className="mt-4">
         <Tabs aria-label="Options">
-          <Tab key="orders" title="Заказы">
+          <Tab key="orders" title={t("tabs.orders")}>
             <Card>
               <CardBody>
                 <OrderSection />
               </CardBody>
             </Card>
           </Tab>
-          <Tab key="accounts" title="Аккаунты">
+          <Tab key="accounts" title={t("tabs.accounts")}>
             <Card>
               <CardBody>
                 <AccountSection />
               </CardBody>
             </Card>
           </Tab>
-          <Tab key="games" title="Игры">
+          <Tab key="games" title={t("tabs.games")}>
             <Card>
               <CardBody>
                 <GameSection />
               </CardBody>
             </Card>
           </Tab>
-          <Tab key="audit-logs" title="Логи">
+          <Tab key="audit-logs" title={t("tabs.auditLogs")}>
             <Card>
               <CardBody>
                 <AuditLogSection />

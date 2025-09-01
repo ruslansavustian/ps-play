@@ -31,7 +31,6 @@ export const AccountTable = () => {
 
   const handleRowClick = useCallback(
     (account: Account) => {
-      console.log("account", account);
       setSelectedAccount(account);
       onOpen();
     },
@@ -108,7 +107,9 @@ export const AccountTable = () => {
                 </TableCell>
                 <TableCell>
                   <Chip size="sm" variant="flat" color="primary">
-                    {account.games.name}
+                    {account.games?.[0]?.name
+                      ? account.games?.[0]?.name
+                      : "Без игры"}
                   </Chip>
                 </TableCell>
 

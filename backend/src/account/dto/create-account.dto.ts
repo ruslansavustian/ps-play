@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsNotEmpty, IsBoolean } from 'class-validator';
+import { IsNumber, IsNotEmpty, IsBoolean, IsArray } from 'class-validator';
 
 export class CreateAccountDto {
   @ApiProperty({
     description: 'Game ID for this account',
     example: 1,
   })
-  @IsNumber()
+  @IsArray()
   @IsNotEmpty()
-  games: number;
+  gamesIds: number[];
 
   @ApiProperty({
     description: 'PS4',

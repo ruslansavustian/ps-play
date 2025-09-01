@@ -25,8 +25,5 @@ import { JwtStrategy } from './jwt.strategy';
   exports: [AuthService],
 })
 export class AuthModule implements OnModuleInit {
-  onModuleInit() {
-    console.log('AuthModule initialized successfully');
-    console.log('AuthController should be registered now');
-  }
+  onModuleInit() {}
 }

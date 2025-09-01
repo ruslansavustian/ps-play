@@ -14,6 +14,7 @@ import {
 import { useApp } from "@/contexts/AppProvider";
 import { Account, Game } from "@/types";
 import { ErrorContainer } from "../ui-components/error-container";
+import { useTranslations } from "next-intl";
 
 interface CustomersCreateModalProps {
   isOpen: boolean;
@@ -27,6 +28,9 @@ export const CustomersCreateModal = ({
   accountId,
 }: CustomersCreateModalProps) => {
   const { createOrder } = useApp();
+  const t = useTranslations("orders");
+  const tCommon = useTranslations("common");
+
   const [formData, setFormData] = useState({
     customerName: "",
     phone: "",
@@ -76,10 +80,10 @@ export const CustomersCreateModal = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalContent>
-        <ModalHeader>Создать Заказ</ModalHeader>
+        <ModalHeader>{t("createOrder")}</ModalHeader>
         <ModalBody>
           <Input
-            label="Аккаунт"
+            label={t("account")}
             type="number"
             name="accountId"
             value={formData.accountId.toString()}
@@ -88,17 +92,17 @@ export const CustomersCreateModal = ({
           />
 
           <Select
-            label="Вариант покупки"
+            label={t("purchaseType")}
             name="purchaseType"
             isRequired
             onChange={handleInputChange}
           >
-            <SelectItem key="1">Покупка аккаунта с активацией</SelectItem>
-            <SelectItem key="2">Покупка аккаунта без активации</SelectItem>
-            <SelectItem key="3">Арендовать</SelectItem>
+            <SelectItem key="1">{t("purchaseType1")}</SelectItem>
+            <SelectItem key="2">{t("purchaseType2")}</SelectItem>
+            <SelectItem key="3">{t("purchaseType3")}</SelectItem>
           </Select>
           <Select
-            label="Выбрите платформу"
+            label={t("selectPlatform")}
             name="platform"
             isRequired
             onChange={handleInputChange}
@@ -108,31 +112,31 @@ export const CustomersCreateModal = ({
           </Select>
 
           <Input
-            label="Имя"
-            placeholder="укажите ваше имя"
+            label={t("customerName")}
+            placeholder={t("customerNamePlaceholder")}
             name="customerName"
             value={formData.customerName}
             onChange={handleInputChange}
           />
           <Input
-            label="Телефон"
+            label={t("phone")}
             type="tel"
             name="phone"
-            placeholder="укажите ваш телефон"
+            placeholder={t("phonePlaceholder")}
             isRequired
             value={formData.phone}
             onChange={handleInputChange}
           />
           <Input
-            label="Телеграм"
+            label={t("telegram")}
             type="text"
             name="telegram"
-            placeholder="укажите ваш telegram"
+            placeholder={t("telegramPlaceholder")}
             value={formData.telegram}
             onChange={handleInputChange}
           />
           <Input
-            label="Почта"
+            label={t("email")}
             type="email"
             name="email"
             value={formData.email}
@@ -140,7 +144,7 @@ export const CustomersCreateModal = ({
           />
 
           <Input
-            label="Примечания"
+            label={t("notes")}
             name="notes"
             value={formData.notes}
             onChange={handleInputChange}
@@ -149,7 +153,7 @@ export const CustomersCreateModal = ({
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onPress={handleSubmit}>
-            Отправить заказ
+            {t("submitOrder")}
           </Button>
         </ModalFooter>
       </ModalContent>

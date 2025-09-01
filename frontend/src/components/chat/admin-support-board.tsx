@@ -36,29 +36,17 @@ export function AdminSupportBoard() {
   >(new Set());
 
   useEffect(() => {
-    console.log("👨‍💼 [ADMIN_BOARD] AdminSupportBoard useEffect triggered");
-    console.log("👨‍💼 [ADMIN_BOARD] isAdminConnected:", isAdminConnected);
-    console.log("👨‍💼 [ADMIN_BOARD] isConnected:", isConnected);
-
     if (!isAdminConnected && isConnected) {
-      console.log("👨‍💼 [ADMIN_BOARD] Joining as admin");
       joinAsAdmin();
       setIsAdminConnected(true);
-      console.log("👨‍💼 [ADMIN_BOARD] Admin connection initiated");
     }
   }, [joinAsAdmin, isAdminConnected, isConnected]);
-
-  useEffect(() => {
-    console.log("💬 [ADMIN_BOARD] Messages updated:", messages);
-    console.log("🎫 [ADMIN_BOARD] Selected ticket:", selectedTicket);
-  }, [messages, selectedTicket]);
 
   useEffect(() => {
     if (socket) {
       socket.on(
         "userDisconnected",
         (data: { ticketId: string; userName: string; userId: string }) => {
-          console.log("🔌 [ADMIN_BOARD] User disconnected:", data);
           setDisconnectedUsers((prev) => new Set(prev).add(data.userId));
           setDisconnectedUserNames((prev) => new Set(prev).add(data.userName));
 
@@ -70,9 +58,6 @@ export function AdminSupportBoard() {
               timestamp: new Date(),
             };
             setMessages((prev) => [...prev, systemMessage]);
-            console.log(
-              "🔌 [ADMIN_BOARD] Added disconnect system message to chat"
-            );
           }
         }
       );
@@ -80,7 +65,6 @@ export function AdminSupportBoard() {
       socket.on(
         "userReconnected",
         (data: { ticketId: string; userName: string; userId: string }) => {
-          console.log("🔌 [ADMIN_BOARD] User reconnected:", data);
           setDisconnectedUsers((prev) => {
             const newSet = new Set(prev);
             newSet.delete(data.userId);
@@ -100,9 +84,6 @@ export function AdminSupportBoard() {
               timestamp: new Date(),
             };
             setMessages((prev) => [...prev, systemMessage]);
-            console.log(
-              "🔌 [ADMIN_BOARD] Added reconnect system message to chat"
-            );
           }
         }
       );
@@ -110,18 +91,11 @@ export function AdminSupportBoard() {
   }, [socket, selectedTicket]);
 
   const handleJoinTicket = (ticketId: string) => {
-    console.log("👨‍💼 [ADMIN_BOARD] Admin joining ticket:", ticketId);
     joinTicket(ticketId);
   };
 
   const handleSendMessage = () => {
     if (inputMessage.trim() && selectedTicket) {
-      console.log(
-        "👨‍💼 [ADMIN_BOARD] Admin sending message:",
-        inputMessage,
-        "to ticket:",
-        selectedTicket
-      );
       sendAdminMessage(inputMessage, selectedTicket);
       setInputMessage("");
     }

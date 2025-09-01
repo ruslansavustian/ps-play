@@ -52,8 +52,8 @@ export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
               second = b.id;
               break;
             case "gameName":
-              first = a.games?.name || "";
-              second = b.games?.name || "";
+              first = a.games?.[0]?.name || "";
+              second = b.games?.[0]?.name || "";
               break;
             case "priceP1":
               first = a.priceP1 || 0;
@@ -161,7 +161,7 @@ export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
               onClick={() => handleRowClick(account)}
             >
               <TableCell>{account.id}</TableCell>
-              <TableCell>{account.games?.name}</TableCell>
+              <TableCell>{account.games?.[0]?.name}</TableCell>
               <TableCell>${account.priceP1}</TableCell>
               <TableCell>${account.priceP2PS4}</TableCell>
               <TableCell>${account.priceP2PS5}</TableCell>

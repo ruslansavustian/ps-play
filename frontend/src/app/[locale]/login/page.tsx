@@ -7,8 +7,8 @@ import Link from "next/link";
 import { FormState, loginSchema, useFormState } from "@/utils/form";
 
 import { useApp } from "@/contexts/AppProvider";
-import { MyButton } from "../../components/ui-components/my-button";
-import { ErrorContainer } from "../../components/ui-components/error-container";
+import { MyButton } from "../../../components/ui-components/my-button";
+import { ErrorContainer } from "../../../components/ui-components/error-container";
 import request from "@/lib/request";
 import { generateSalt, hashPassword } from "@/utils/security";
 import { Input } from "@heroui/react";
