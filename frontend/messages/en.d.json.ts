@@ -67,13 +67,16 @@ declare const messages: {
     "accountDetails": "Account Details",
     "created": "Created",
     "games": "Games",
+    "game": "Game",
     "platformsLabel": "Platforms:",
     "statuses": "Statuses",
     "save": "Save",
     "close": "Close",
     "deleteAccount": "Delete Account",
     "deleteConfirm": "Are you sure you want to delete this account?",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "addGame": "Add Game",
+    "deleteGame": "Delete Game"
   },
   "games": {
     "createGameTitle": "Create New Game",
@@ -99,7 +102,9 @@ declare const messages: {
     "email": "Email",
     "notes": "Notes",
     "submitOrder": "Submit Order",
-    "create": "Create"
+    "create": "Create",
+    "createdAt": "Created Date",
+    "status": "Status"
   },
   "auditLogs": {
     "actionInfo": "Action Information",

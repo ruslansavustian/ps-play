@@ -19,10 +19,9 @@ export class AccountService {
     for (const account of accounts) {
       if (account.gameIds && account.gameIds.length > 0) {
         try {
-          // Загружаем только id и name
           const games = await this.gameRepository.find({
             where: { id: In(account.gameIds) },
-            select: ['id', 'name'], // Только нужные поля
+            select: ['id', 'name'],
           });
 
           account.games = games;
@@ -44,6 +43,19 @@ export class AccountService {
     return accounts;
   }
 
+  async loadGamesForAccount(account: Account): Promise<Account> {
+    if (account.gameIds && account.gameIds.length > 0) {
+      const games = await this.gameRepository.find({
+        where: { id: In(account.gameIds) },
+        select: ['id', 'name'],
+      });
+      account.games = games;
+    } else {
+      account.games = [];
+    }
+    return account;
+  }
+
   async create(createAccountDto: CreateAccountDto): Promise<Account> {
     const account = this.accountRepository.create({
       gameIds: createAccountDto.gamesIds,
@@ -60,7 +72,9 @@ export class AccountService {
       P3: createAccountDto.P3 || false,
       P3A: createAccountDto.P3A || false,
     });
-    return await this.accountRepository.save(account);
+    const savedAccount = await this.accountRepository.save(account);
+    const accountWithGames = await this.loadGamesForAccount(savedAccount);
+    return accountWithGames;
   }
 
   async findAll(): Promise<Account[]> {
@@ -74,53 +88,33 @@ export class AccountService {
   }
 
   async findOne(id: number): Promise<Account | null> {
-    return await this.accountRepository.findOne({ where: { id } });
+    const account = await this.accountRepository.findOne({ where: { id } });
+
+    if (account) {
+      const accountsWithGames = await this.loadGamesForAccounts([account]);
+      return accountsWithGames[0];
+    }
+
+    return null;
   }
 
   async update(
     id: number,
     updateData: UpdateAccountDto,
   ): Promise<Account | null> {
-    const updatePayload: Partial<Account> = {};
+    console.log(updateData);
+    const cleanUpdateData = Object.fromEntries(
+      Object.entries(updateData).filter(([value]) => value !== undefined),
+    );
 
-    if (updateData.platformPS4 !== undefined) {
-      updatePayload.platformPS4 = updateData.platformPS4;
-    }
-    if (updateData.platformPS5 !== undefined) {
-      updatePayload.platformPS5 = updateData.platformPS5;
-    }
-    if (updateData.priceP1 !== undefined) {
-      updatePayload.priceP1 = updateData.priceP1 || 0;
-    }
-    if (updateData.priceP2PS5 !== undefined) {
-      updatePayload.priceP2PS5 = updateData.priceP2PS5 || 0;
-    }
-    if (updateData.priceP2PS4 !== undefined) {
-      updatePayload.priceP2PS4 = updateData.priceP2PS4 || 0;
-    }
-    if (updateData.priceP3 !== undefined) {
-      updatePayload.priceP3 = updateData.priceP3 || 0;
-    }
-    if (updateData.priceP3A !== undefined) {
-      updatePayload.priceP3A = updateData.priceP3A || 0;
-    }
-    if (updateData.P1 !== undefined) {
-      updatePayload.P1 = updateData.P1;
-    }
-    if (updateData.P2PS4 !== undefined) {
-      updatePayload.P2PS4 = updateData.P2PS4;
-    }
-    if (updateData.P2PS5 !== undefined) {
-      updatePayload.P2PS5 = updateData.P2PS5;
-    }
-    if (updateData.P3 !== undefined) {
-      updatePayload.P3 = updateData.P3;
+    console.log(cleanUpdateData);
+    if (Object.keys(cleanUpdateData).length === 0) {
+      return;
     }
 
-    await this.accountRepository.update(id, updatePayload);
+    await this.accountRepository.update(id, cleanUpdateData);
     return this.findOne(id);
   }
-
   async remove(id: number): Promise<Account> {
     await this.accountRepository.update(id, { isDeleted: true });
 

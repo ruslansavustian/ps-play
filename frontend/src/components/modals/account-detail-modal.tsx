@@ -29,8 +29,7 @@ export const AccountDetailModal = ({
   setSelectedAccount,
 }: AccountDetailModalProps) => {
   const [deleteModal, setDeleteModal] = useState(false);
-  const [formData, setFormData] = useState<Account | undefined>();
-  const [changes, setChanges] = useState<Account | undefined>();
+  const [changes, setChanges] = useState<Partial<Account>>({});
   const { deleteAccount, updateAccount } = useApp();
   const t = useTranslations("accounts");
   const tCommon = useTranslations("common");
@@ -55,16 +54,23 @@ export const AccountDetailModal = ({
   const handleDeleteAccount = useCallback(
     (accountId: number) => {
       deleteAccount(accountId);
+      setDeleteModal(false);
+      onClose();
     },
     [deleteAccount]
   );
 
   const handleUpdate = useCallback(async () => {
-    await updateAccount(selectedAccount.id!, changes!);
-    setChanges(undefined);
-    onClose();
+    if (!selectedAccount.id || !changes) return;
+    if (selectedAccount.id) {
+      console.log(selectedAccount.id);
+      await updateAccount(selectedAccount.id, changes as Account);
+      setChanges({});
+      onClose();
+    }
   }, [changes, updateAccount, onClose]);
 
+  console.log(selectedAccount.id);
   return (
     <>
       {/* Account Detail Modal */}
@@ -92,10 +98,9 @@ export const AccountDetailModal = ({
                       {t("games")}:
                     </label>
                     <p className=" text-gray-900">
-                      -{" "}
-                      {selectedAccount?.games
-                        ?.map((game) => game.name)
-                        .join(", ")}
+                      {selectedAccount?.games?.map((game) => (
+                        <p key={game.id}>- {game.name}</p>
+                      ))}
                     </p>
                   </div>
                   <div className="flex flex-col gap-2">
@@ -132,10 +137,10 @@ export const AccountDetailModal = ({
                         name="priceP1"
                         defaultValue={selectedAccount?.priceP1.toString()}
                         onChange={(e) => {
-                          setChanges({
-                            ...changes!,
+                          setChanges((prev) => ({
+                            ...prev,
                             priceP1: Number(e.target.value),
-                          });
+                          }));
                         }}
                       />
                     </div>
@@ -151,10 +156,10 @@ export const AccountDetailModal = ({
                         name="priceP2PS4"
                         defaultValue={selectedAccount?.priceP2PS4.toString()}
                         onChange={(e) => {
-                          setChanges({
-                            ...changes!,
+                          setChanges((prev) => ({
+                            ...prev,
                             priceP2PS4: Number(e.target.value),
-                          });
+                          }));
                         }}
                       />
                     </div>
@@ -171,10 +176,10 @@ export const AccountDetailModal = ({
                         name="priceP2PS5"
                         defaultValue={selectedAccount?.priceP2PS5.toString()}
                         onChange={(e) => {
-                          setChanges({
-                            ...changes!,
+                          setChanges((prev) => ({
+                            ...prev,
                             priceP2PS5: Number(e.target.value),
-                          });
+                          }));
                         }}
                       />
                     </div>
@@ -190,10 +195,10 @@ export const AccountDetailModal = ({
                         name="priceP3"
                         defaultValue={selectedAccount?.priceP3.toString()}
                         onChange={(e) => {
-                          setChanges({
-                            ...changes!,
+                          setChanges((prev) => ({
+                            ...prev,
                             priceP3: Number(e.target.value),
-                          });
+                          }));
                         }}
                       />
                     </div>
@@ -209,10 +214,10 @@ export const AccountDetailModal = ({
                         name="priceP3A"
                         defaultValue={selectedAccount?.priceP3A.toString()}
                         onChange={(e) => {
-                          setChanges({
-                            ...changes!,
+                          setChanges((prev) => ({
+                            ...prev,
                             priceP3A: Number(e.target.value),
-                          });
+                          }));
                         }}
                       />
                     </div>
@@ -226,10 +231,10 @@ export const AccountDetailModal = ({
                       id="p1"
                       defaultSelected={selectedAccount?.P1}
                       onValueChange={(value) => {
-                        setChanges({
-                          ...changes!,
+                        setChanges((prev) => ({
+                          ...prev,
                           P1: value,
-                        });
+                        }));
                       }}
                     />
                   </div>
@@ -240,10 +245,10 @@ export const AccountDetailModal = ({
                       id="p2PS4"
                       defaultSelected={selectedAccount?.P2PS4}
                       onValueChange={(value) => {
-                        setChanges({
-                          ...changes!,
+                        setChanges((prev) => ({
+                          ...prev,
                           P2PS4: value,
-                        });
+                        }));
                       }}
                     />
                   </div>
@@ -253,10 +258,10 @@ export const AccountDetailModal = ({
                       id="p2PS5"
                       defaultSelected={selectedAccount?.P2PS5}
                       onValueChange={(value) => {
-                        setChanges({
-                          ...changes!,
+                        setChanges((prev) => ({
+                          ...prev,
                           P2PS5: value,
-                        });
+                        }));
                       }}
                     />
                   </div>
@@ -266,10 +271,10 @@ export const AccountDetailModal = ({
                       id="p3"
                       defaultSelected={selectedAccount?.P3}
                       onValueChange={(value) => {
-                        setChanges({
-                          ...changes!,
+                        setChanges((prev) => ({
+                          ...prev,
                           P3: value,
-                        });
+                        }));
                       }}
                     />
                   </div>
@@ -279,10 +284,10 @@ export const AccountDetailModal = ({
                       id="p3"
                       defaultSelected={selectedAccount?.P3A}
                       onValueChange={(value) => {
-                        setChanges({
-                          ...changes!,
+                        setChanges((prev) => ({
+                          ...prev,
                           P3A: value,
-                        });
+                        }));
                       }}
                     />
                   </div>
@@ -297,6 +302,9 @@ export const AccountDetailModal = ({
             </Button>
             <Button color="primary" onPress={onClose}>
               {t("close")}
+            </Button>
+            <Button color="danger" onPress={() => setDeleteModal(true)}>
+              {t("deleteAccount")}
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -285,7 +285,8 @@ const useProvideApp = () => {
 
   const updateAccount = useCallback(async (id: number, data: Account) => {
     try {
-      // Очищаем предыдущие ошибки
+      console.log(id);
+
       dispatch({ type: "SET_ERROR_MESSAGE", payload: "" });
 
       const result = await request.put(`/accounts/${id}`, data);

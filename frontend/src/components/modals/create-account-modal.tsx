@@ -7,14 +7,15 @@ import {
   ModalFooter,
   Button,
   Input,
-  Textarea,
   Switch,
+  Select,
+  SelectItem,
 } from "@heroui/react";
-import { Account, Game } from "@/types";
+import { Account } from "@/types";
 import { useApp } from "@/contexts/AppProvider";
-import InputSelector from "../ui-components/input-selector";
 import { ErrorContainer } from "../ui-components/error-container";
 import { useTranslations } from "next-intl";
+import { Trash2 } from "lucide-react";
 
 interface CreateAccountModalProps {
   isOpen: boolean;
@@ -25,9 +26,11 @@ export const CreateAccountModal = ({
   isOpen,
   onClose,
 }: CreateAccountModalProps) => {
-  const { createAccount, fetchAccounts, errorMessage, clearError } = useApp();
+  const { createAccount, fetchAccounts, clearError, games } = useApp();
   const t = useTranslations("accounts");
   const tCommon = useTranslations("common");
+
+  const [selectedGames, setSelectedGames] = useState<(number | null)[]>([null]);
 
   const [formData, setFormData] = useState<Account>({
     gamesIds: [],
@@ -44,40 +47,37 @@ export const CreateAccountModal = ({
     P2PS5: false,
     P3: false,
   });
-
-  const { games } = useApp();
+  const disabledGames = games?.map((game) => game.id);
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      // Очищаем ошибки при закрытии модального окна
       clearError();
-      if (onClose) {
-        onClose();
-      }
+      onClose?.();
     }
+  };
+
+  const handleGameSelectorChange = (index: number, value: string) => {
+    const updatedSelectors = [...selectedGames];
+    updatedSelectors[index] = parseInt(value);
+    setSelectedGames(updatedSelectors);
   };
 
   const handleSubmit = useCallback(async () => {
     try {
       const accountData: Account = {
-        gamesIds: formData.gamesIds,
-        platformPS4: formData.platformPS4,
-        platformPS5: formData.platformPS5,
+        ...formData,
+        gamesIds: selectedGames.filter((id): id is number => id !== null),
         priceP1: Number(formData.priceP1),
         priceP2PS4: Number(formData.priceP2PS4),
         priceP2PS5: Number(formData.priceP2PS5),
         priceP3: Number(formData.priceP3),
         priceP3A: Number(formData.priceP3A),
-        P3A: formData.P3A,
-        P1: formData.P1,
-        P2PS4: formData.P2PS4,
-        P2PS5: formData.P2PS5,
-        P3: formData.P3,
       };
 
       const result = await createAccount(accountData);
       if (result) {
         await fetchAccounts();
         onClose?.();
+        setSelectedGames([null]);
       }
 
       // Reset form
@@ -97,34 +97,21 @@ export const CreateAccountModal = ({
         P3: false,
       });
     } catch (error) {
-      // Ошибка уже обработана в провайдере и сохранена в errorMessage
-      // Просто логируем для отладки
       console.error("Account creation failed:", error);
     }
-  }, [formData, createAccount, fetchAccounts, onClose]);
+  }, [formData, selectedGames, createAccount, fetchAccounts, onClose]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     setFormData({
       ...formData,
       [name]: type === "number" ? parseFloat(value) || 0 : value,
-      [name]: type === "boolean" ? value === "true" : value,
-    });
-  };
-
-  const handleSelectorChange = (e: {
-    target: { name: string; value: string };
-  }) => {
-    const { value } = e.target;
-    setFormData({
-      ...formData,
-      gamesIds: [parseInt(value)],
     });
   };
 
   const isFormValid = () => {
     return (
-      formData.gamesIds &&
+      selectedGames.some((id) => id !== null) &&
       (formData.platformPS4 || formData.platformPS5) &&
       (formData.priceP1 > 0 ||
         formData.priceP2PS4 > 0 ||
@@ -143,54 +130,75 @@ export const CreateAccountModal = ({
           </p>
         </ModalHeader>
         <ModalBody>
-          <div className="flex flex-col gap-4">
-            {/* Game Name */}
-            <InputSelector
-              label={t("gameName")}
-              placeholderName={t("selectGame")}
-              name="games"
-              value={formData.gamesIds.toString()}
-              onChange={handleSelectorChange}
-              options={
-                games?.map((game) => ({
-                  id: game.id?.toString() || "",
-                  name: game.name,
-                })) || []
-              }
-            />
+          <div className="flex flex-col gap-4 ">
+            {/* Game selectors */}
+            {selectedGames.map((selectedGameId, index) => (
+              <div className="flex gap-2 flex-row w-full" key={index}>
+                <Select
+                  className="w-10/12"
+                  label={`${t("game")} ${index + 1}`}
+                  selectedKeys={
+                    selectedGameId ? [selectedGameId.toString()] : []
+                  }
+                  onChange={(e) =>
+                    handleGameSelectorChange(index, e.target.value)
+                  }
+                  disabledKeys={selectedGames
+                    .filter((id, i) => i !== index && id !== null)
+                    .map((id) => id!.toString())}
+                >
+                  {games?.map((game) => (
+                    <SelectItem key={game.id}>{game.name}</SelectItem>
+                  )) || []}
+                </Select>
 
-            {/* Platform */}
+                {index !== 0 && (
+                  <div className="flex items-center justify-center">
+                    <Button
+                      className="bg-white"
+                      onPress={() =>
+                        setSelectedGames(
+                          selectedGames.filter((_, i) => i !== index)
+                        )
+                      }
+                    >
+                      <Trash2 height={30} width={30} color="red" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            <Button
+              className="text-white bg-black"
+              onPress={() => setSelectedGames([...selectedGames, null])}
+            >
+              {t("addGame")}
+            </Button>
+
+            {/* Platforms */}
             <div className="flex gap-4 flex-col">
               <h1>{t("platforms")}</h1>
               <div className="flex gap-2">
                 <p>PS4</p>
-
                 <Switch
                   name="platformPS4"
                   isSelected={formData.platformPS4}
                   onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      platformPS4: value,
-                    })
+                    setFormData({ ...formData, platformPS4: value })
                   }
                 />
               </div>
-            </div>
-            <div className="flex gap-2 ">
-              <div>
+              <div className="flex gap-2">
                 <p>PS5</p>
+                <Switch
+                  name="platformPS5"
+                  isSelected={formData.platformPS5}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, platformPS5: value })
+                  }
+                />
               </div>
-              <Switch
-                name="platformPS5"
-                isSelected={formData.platformPS5}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    platformPS5: value,
-                  })
-                }
-              />
             </div>
 
             {/* Prices */}

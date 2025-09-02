@@ -55,13 +55,14 @@ export const AccountTable = () => {
             {accounts?.length || 0} аккаунтов найдено
           </div>
         </div>
-        <AccountDetailModal
-          isOpen={isOpen}
-          onClose={onClose}
-          setSelectedAccount={setSelectedAccount}
-          selectedAccount={selectedAccount!}
-        />
-
+        {selectedAccount?.id && (
+          <AccountDetailModal
+            isOpen={isOpen}
+            onClose={onClose}
+            setSelectedAccount={setSelectedAccount}
+            selectedAccount={selectedAccount!}
+          />
+        )}
         {/* Table */}
         <Table
           aria-label="Gaming accounts table"
@@ -106,11 +107,9 @@ export const AccountTable = () => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Chip size="sm" variant="flat" color="primary">
-                    {account.games?.[0]?.name
-                      ? account.games?.[0]?.name
-                      : "Без игры"}
-                  </Chip>
+                  {account.games?.map((game) => (
+                    <p key={game.id}>{game.name}</p>
+                  ))}
                 </TableCell>
 
                 <TableCell>
