@@ -8,6 +8,7 @@ export class UpdateAccountDto {
     required: false,
   })
   @IsArray()
+  @IsOptional()
   gamesId?: number[];
 
   @ApiProperty({
@@ -114,6 +115,15 @@ export class UpdateAccountDto {
   @IsBoolean()
   @IsOptional()
   P3?: boolean;
+
+  @ApiProperty({
+    description: 'P3A status',
+    example: true,
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  P3A?: boolean;
 
   @ApiProperty({
     description: 'Deleted',

@@ -12,7 +12,7 @@ import {
   SelectItem,
 } from "@heroui/react";
 import { useApp } from "@/contexts/AppProvider";
-import { Account, Game } from "@/types";
+import { Account, CreateOrderDto, Game, Order } from "@/types";
 import { ErrorContainer } from "../ui-components/error-container";
 import { useTranslations } from "next-intl";
 
@@ -25,11 +25,10 @@ export const CreateOrderModal = ({
   isOpen,
   onClose,
 }: CreateOrderModalProps) => {
-  const { createOrder, accounts } = useApp();
+  const { createOrder, accounts, clearError, errorMessage } = useApp();
   const t = useTranslations("orders");
-  const tCommon = useTranslations("common");
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateOrderDto>({
     customerName: "",
     phone: "",
     gameName: "",
@@ -38,17 +37,19 @@ export const CreateOrderModal = ({
     email: "",
     telegram: "",
     accountId: 0,
+    purchaseType: "",
   });
   const handleSubmit = async () => {
     createOrder({
-      customerName: formData.customerName,
-      phone: formData.phone,
-      gameName: formData.gameName,
-      platform: formData.platform,
-      notes: formData.notes,
-      email: formData.email,
-      telegram: formData.telegram,
-      accountId: formData.accountId,
+      customerName: formData?.customerName,
+      phone: formData?.phone ?? "",
+      gameName: formData?.gameName,
+      platform: formData?.platform,
+      notes: formData?.notes,
+      email: formData?.email,
+      telegram: formData?.telegram,
+      accountId: Number(formData?.accountId),
+      purchaseType: formData?.purchaseType,
     });
     setFormData({
       customerName: "",
@@ -59,14 +60,28 @@ export const CreateOrderModal = ({
       email: "",
       telegram: "",
       accountId: 0,
+      purchaseType: "",
     });
     onClose?.();
   };
 
   const handleInputChange = (e: any) => {
+    if (errorMessage) {
+      console.log(errorMessage);
+      clearError();
+    }
     const { name, value } = e.target;
 
     setFormData({ ...formData, [name]: value });
+  };
+
+  const isFormValid = () => {
+    return (
+      formData?.phone &&
+      formData?.platform &&
+      formData?.purchaseType &&
+      formData?.accountId
+    );
   };
 
   const Platforms = [
@@ -82,29 +97,29 @@ export const CreateOrderModal = ({
           <Input
             label={t("customerName")}
             name="customerName"
-            value={formData.customerName}
+            value={formData?.customerName}
             onChange={handleInputChange}
           />
           <Input
             label={t("phone")}
-            type="tel"
+            type="numeric"
             name="phone"
             isRequired
-            value={formData.phone}
+            value={formData?.phone}
             onChange={handleInputChange}
           />
           <Input
             label={t("telegram")}
             type="text"
             name="telegram"
-            value={formData.telegram}
+            value={formData?.telegram}
             onChange={handleInputChange}
           />
           <Input
             label={t("email")}
             type="email"
             name="email"
-            value={formData.email}
+            value={formData?.email}
             onChange={handleInputChange}
           />
           {accounts && (
@@ -131,16 +146,30 @@ export const CreateOrderModal = ({
               <SelectItem key={platform.key}>{platform.label}</SelectItem>
             ))}
           </Select>
+          <Select
+            label={t("purchaseType")}
+            name="purchaseType"
+            isRequired
+            onChange={handleInputChange}
+          >
+            <SelectItem key="1">{t("purchaseType1")}</SelectItem>
+            <SelectItem key="2">{t("purchaseType2")}</SelectItem>
+            <SelectItem key="3">{t("purchaseType3")}</SelectItem>
+          </Select>
           <Input
             label={t("notes")}
             name="notes"
-            value={formData.notes}
+            value={formData?.notes}
             onChange={handleInputChange}
           />
           <ErrorContainer />
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onPress={handleSubmit}>
+          <Button
+            color="primary"
+            onPress={handleSubmit}
+            isDisabled={!isFormValid()}
+          >
             {t("create")}
           </Button>
         </ModalFooter>

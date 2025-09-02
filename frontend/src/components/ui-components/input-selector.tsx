@@ -37,7 +37,7 @@ const InputSelector: React.FC<InputSelectorProps> = ({
   );
 
   return (
-    <div className="relative flex flex-col gap-2 bg-white">
+    <div className="relative flex flex-col gap-2 bg-white w-full">
       {/* Render optional icon */}
 
       <label className={` ${labelStyle} text-[14px]`}>{label && label}</label>

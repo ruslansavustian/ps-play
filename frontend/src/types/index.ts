@@ -77,7 +77,7 @@ export interface GamesState {
 
 export interface CreateOrderDto {
   customerName?: string;
-  phone: string;
+  phone?: string;
   gameName?: string;
   platform?: string;
   notes?: string;
@@ -95,6 +95,7 @@ export interface Order {
   gameName?: string;
   platform?: string;
   notes?: string;
+  status?: string;
 }
 
 export interface OrdersState {

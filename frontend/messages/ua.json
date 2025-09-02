@@ -64,13 +64,16 @@
     "accountDetails": "Деталі акаунта",
     "created": "Створено",
     "games": "Ігри",
+    "game": "Гра",
     "platformsLabel": "Платформи:",
     "statuses": "Статуси",
     "save": "Зберегти",
     "close": "Закрити",
     "deleteAccount": "Видалити акаунт",
     "deleteConfirm": "Ви впевнені, що хочете видалити цей акаунт?",
-    "cancel": "Скасувати"
+    "cancel": "Скасувати",
+    "addGame": "Додати гру",
+    "deleteGame": "Видалити гру"
   },
   "games": {
     "createGameTitle": "Створити нову гру",
@@ -96,7 +99,9 @@
     "email": "Пошта",
     "notes": "Примітки",
     "submitOrder": "Відправити замовлення",
-    "create": "Створити"
+    "create": "Створити",
+    "createdAt": "Дата створення",
+    "status": "Статус"
   },
   "auditLogs": {
     "actionInfo": "Інформація про дію",
