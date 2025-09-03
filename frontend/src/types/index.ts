@@ -52,10 +52,12 @@ export interface Game {
   id?: number;
   name: string;
   created?: string;
+  photoUrl?: string;
 }
 
 export interface CreateGameDto {
   name: string;
+  photoUrl?: string;
 }
 
 // App State types

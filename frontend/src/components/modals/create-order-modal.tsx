@@ -67,7 +67,6 @@ export const CreateOrderModal = ({
 
   const handleInputChange = (e: any) => {
     if (errorMessage) {
-      console.log(errorMessage);
       clearError();
     }
     const { name, value } = e.target;

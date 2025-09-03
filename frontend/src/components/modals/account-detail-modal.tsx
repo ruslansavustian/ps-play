@@ -63,14 +63,12 @@ export const AccountDetailModal = ({
   const handleUpdate = useCallback(async () => {
     if (!selectedAccount.id || !changes) return;
     if (selectedAccount.id) {
-      console.log(selectedAccount.id);
       await updateAccount(selectedAccount.id, changes as Account);
       setChanges({});
       onClose();
     }
   }, [changes, updateAccount, onClose]);
 
-  console.log(selectedAccount.id);
   return (
     <>
       {/* Account Detail Modal */}
@@ -97,11 +95,11 @@ export const AccountDetailModal = ({
                     <label className=" font-medium text-gray-700">
                       {t("games")}:
                     </label>
-                    <p className=" text-gray-900">
+                    <div className=" text-gray-900">
                       {selectedAccount?.games?.map((game) => (
                         <p key={game.id}>- {game.name}</p>
                       ))}
-                    </p>
+                    </div>
                   </div>
                   <div className="flex flex-col gap-2">
                     <label className=" font-medium text-gray-700">

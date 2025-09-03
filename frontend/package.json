@@ -11,6 +11,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.879.0",
     "@heroui/react": "^2.8.2",
     "@hookform/resolvers": "^5.2.1",
     "@react-stately/data": "^3.14.0",

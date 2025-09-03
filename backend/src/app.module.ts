@@ -16,6 +16,7 @@ import { AuditLogModule } from './audit-log/audit-log.module';
 import { AuditLog } from './audit-log/audit-log.entity';
 import { ChatModule } from './chat/chat.module';
 import { ChatMessage } from './chat/chat-message.entity';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ChatMessage } from './chat/chat-message.entity';
     OrderModule,
     AuditLogModule,
     ChatModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -47,4 +47,12 @@ export class Game {
   @IsOptional()
   @Column({ type: 'date', nullable: true })
   deletedAt?: string;
+
+  @ApiProperty({
+    description: 'Photo URL',
+    type: String,
+    example: 'https://example.com/photo.jpg',
+  })
+  @Column({ nullable: true })
+  photoUrl: string;
 }

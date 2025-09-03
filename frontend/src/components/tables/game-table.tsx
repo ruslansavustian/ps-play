@@ -18,50 +18,40 @@ import {
   Input,
 } from "@heroui/react";
 import { EditIcon, TrashIcon } from "lucide-react";
+import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
+import { GameDetailModal } from "./game-detail-modal";
+import { formatDate } from "@/utils/format-date";
 
 export const GameTable = () => {
   const { games, fetchGames, updateGame, deleteGame, gamesLoading } = useApp();
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+
   const [editingGame, setEditingGame] = useState<Game | null>(null);
-  const [editName, setEditName] = useState("");
+
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose,
-  } = useDisclosure();
 
   const handleRowClick = useCallback(
     (game: Game) => {
-      setSelectedGame(game);
+      console.log(game);
+      setEditingGame(game);
       onOpen();
     },
     [onOpen]
   );
 
-  const handleEditClick = useCallback(
-    (game: Game, e: React.MouseEvent) => {
-      e.stopPropagation();
-      setEditingGame(game);
-      setEditName(game.name);
-      onEditOpen();
-    },
-    [onEditOpen]
-  );
-
-  const handleSaveEdit = useCallback(async () => {
-    if (editingGame && editName.trim()) {
-      try {
-        await updateGame(editingGame.id!, { name: editName.trim() });
-        onEditClose();
-        setEditingGame(null);
-        setEditName("");
-      } catch (error) {
-        console.error("Failed to update game:", error);
-      }
-    }
-  }, [editingGame, editName, onEditClose, updateGame]);
+  // const handleSaveEdit = useCallback(async () => {
+  //   if (editingGame && editName.trim()) {
+  //     try {
+  //       await updateGame(editingGame.id!, { name: editName.trim() });
+  //       onEditClose();
+  //       setEditingGame(null);
+  //       setEditName("");
+  //     } catch (error) {
+  //       console.error("Failed to update game:", error);
+  //     }
+  //   }
+  // }, [editingGame, editName, onEditClose, updateGame]);
 
   const handleDeleteClick = useCallback(
     async (game: Game) => {
@@ -70,15 +60,7 @@ export const GameTable = () => {
     },
     [deleteGame, onClose]
   );
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  console.log(editingGame);
 
   if (gamesLoading) {
     return (
@@ -98,7 +80,15 @@ export const GameTable = () => {
             Найдено {games?.length} игр
           </div>
         </div>
-
+        {editingGame && (
+          <GameDetailModal
+            isEditOpen={isOpen}
+            onEditClose={onClose}
+            game={editingGame}
+            // setEditName={setEditName}
+            // handleSaveEdit={handleSaveEdit}
+          />
+        )}
         {/* Table */}
         <Table
           aria-label="Games table"
@@ -169,80 +159,6 @@ export const GameTable = () => {
           </TableBody>
         </Table>
       </div>
-
-      {/* Game Detail Modal */}
-      <Modal isOpen={isOpen} onOpenChange={onClose} size="2xl">
-        <ModalContent>
-          <ModalHeader>
-            <h2 className="text-xl font-bold">Детали игры</h2>
-          </ModalHeader>
-          <ModalBody>
-            {selectedGame && (
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700">
-                    Название игры
-                  </label>
-                  <p className="mt-1 text-gray-900">{selectedGame.name}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">
-                    Создано
-                  </label>
-                  <p className="mt-1 text-gray-900">
-                    {formatDate(selectedGame.created)}
-                  </p>
-                </div>
-                {selectedGame.id && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      ID
-                    </label>
-                    <p className="mt-1 text-gray-900">#{selectedGame.id}</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button color="primary" onPress={onClose}>
-              Закрыть
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      {/* Edit Game Modal */}
-      <Modal isOpen={isEditOpen} onOpenChange={onEditClose} size="2xl">
-        <ModalContent>
-          <ModalHeader>
-            <h2 className="text-xl font-bold">Редактировать игру</h2>
-          </ModalHeader>
-          <ModalBody>
-            <div className="space-y-4">
-              <Input
-                label="Название игры"
-                placeholder="Введите название игры"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                isRequired
-              />
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="danger" variant="light" onPress={onEditClose}>
-              Отмена
-            </Button>
-            <Button
-              color="primary"
-              onPress={handleSaveEdit}
-              isDisabled={!editName.trim()}
-            >
-              Сохранить изменения
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </>
   );
 };
