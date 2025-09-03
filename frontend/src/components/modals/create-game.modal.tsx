@@ -12,6 +12,7 @@ import { Game } from "@/types";
 import { useApp } from "@/contexts/AppProvider";
 import { ErrorContainer } from "../ui-components/error-container";
 import { useTranslations } from "next-intl";
+import { FileUpload } from "../ui-components/file-uploader";
 
 interface CreateGameModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export const CreateGameModal = ({ isOpen, onClose }: CreateGameModalProps) => {
 
   const [formData, setFormData] = useState<Game>({
     name: "",
+    photoUrl: "",
   });
 
   const handleOpenChange = (open: boolean) => {
@@ -70,6 +72,35 @@ export const CreateGameModal = ({ isOpen, onClose }: CreateGameModalProps) => {
               onChange={handleInputChange}
               isRequired
             />
+            <h1>{tCommon("selectPhoto")}</h1>
+            {formData.photoUrl && (
+              <div className="flex items-center space-x-2">
+                <img
+                  src={formData.photoUrl}
+                  alt="Game photo"
+                  className="w-16 h-16 object-cover rounded"
+                />
+                <Button
+                  size="sm"
+                  color="danger"
+                  variant="light"
+                  onPress={() =>
+                    setFormData((prev) => ({ ...prev, photoUrl: "" }))
+                  }
+                >
+                  ✕
+                </Button>
+              </div>
+            )}
+            {!formData.photoUrl && (
+              <FileUpload
+                onFileUploaded={(fileUrl) => {
+                  setFormData({ ...formData, photoUrl: fileUrl });
+                }}
+                accept="image/*"
+                maxSize={5}
+              />
+            )}
           </div>
           <ErrorContainer />
         </ModalBody>

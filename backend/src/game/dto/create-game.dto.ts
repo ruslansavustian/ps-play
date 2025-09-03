@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, MaxLength } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength, IsOptional } from 'class-validator';
 
 export class CreateGameDto {
   @ApiProperty({
@@ -11,4 +11,13 @@ export class CreateGameDto {
   @IsNotEmpty()
   @MaxLength(255)
   name: string;
+
+  @ApiProperty({
+    description: 'Game photo URL',
+    example: 'https://s3.amazonaws.com/bucket/photos/game.jpg',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  photoUrl?: string;
 }

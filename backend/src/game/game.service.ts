@@ -17,10 +17,12 @@ export class GameService {
   }
 
   async findAll(): Promise<Game[]> {
-    return await this.gameRepository.find({
-      where: { isDeleted: false }, // Показываем только неудаленные игры
-      order: { created: 'DESC' },
+    // Получаем только активные игры
+    const activeGames = await this.gameRepository.find({
+      where: { isDeleted: false },
     });
+
+    return activeGames;
   }
 
   async findOne(id: number): Promise<Game | null> {
@@ -44,12 +46,18 @@ export class GameService {
   }
 
   async remove(id: number): Promise<Game> {
+    const gameToDelete = await this.gameRepository.findOne({
+      where: { id, isDeleted: false },
+    });
+
+    if (!gameToDelete) {
+      throw new Error('Game not found');
+    }
     await this.gameRepository.update(id, { isDeleted: true });
 
-    const updatedGame = await this.findOne(id);
-    if (!updatedGame) {
-      throw new Error('Game not found after soft delete');
-    }
-    return updatedGame;
+    return {
+      ...gameToDelete,
+      isDeleted: true,
+    };
   }
 }

@@ -7,6 +7,18 @@ const withNextIntl = createNextIntlPlugin({
   },
 });
 
-const config: NextConfig = {};
+const config: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ps-play.s3.amazonaws.com",
+        port: "",
+        pathname: "/photos/**",
+        search: "",
+      },
+    ],
+  },
+};
 
 export default withNextIntl(config);

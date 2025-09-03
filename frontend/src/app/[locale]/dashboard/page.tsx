@@ -2,11 +2,11 @@
 
 import { useApp } from "@/contexts/AppProvider";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CreateGameModal } from "../../../components/modals/create-game.modal";
 import { AccountSection } from "@/components/dashboard/account-section";
 import { GameSection } from "@/components/dashboard/game-section";
-import { Card, CardBody, Link, Tab, Tabs } from "@heroui/react";
+import { Button, Card, CardBody, Link, Tab, Tabs } from "@heroui/react";
 import { withAuthCheck } from "@/hoc/withAuthCheck";
 import { Loader } from "@/components/ui-components/loader";
 import { OrderSection } from "@/components/dashboard/order-section";
@@ -32,7 +32,6 @@ function DashboardPage() {
   const t = useTranslations("dashboard");
   const tCommon = useTranslations("common");
   const tAuth = useTranslations("auth");
-
   // Загружаем данные только если их нет
   useEffect(() => {
     if (!accounts) {
@@ -84,7 +83,7 @@ function DashboardPage() {
           </div>
         </div>
       </nav>
-      <div className="flex my-4">
+      <div className="flex my-4 ">
         <Link
           className="rounded-md px-4 py-2 bg-black text-white"
           href={paths.support}

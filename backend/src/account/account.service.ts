@@ -25,10 +25,6 @@ export class AccountService {
           });
 
           account.games = games;
-          console.log(
-            `Loaded ${games.length} games for account ${account.id}:`,
-            games,
-          );
         } catch (error) {
           console.error(
             `Error loading games for account ${account.id}:`,
@@ -102,12 +98,10 @@ export class AccountService {
     id: number,
     updateData: UpdateAccountDto,
   ): Promise<Account | null> {
-    console.log(updateData);
     const cleanUpdateData = Object.fromEntries(
       Object.entries(updateData).filter(([value]) => value !== undefined),
     );
 
-    console.log(cleanUpdateData);
     if (Object.keys(cleanUpdateData).length === 0) {
       return;
     }

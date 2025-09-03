@@ -72,7 +72,8 @@ type Action =
   | { type: "SET_AUDIT_LOGS"; payload: AuditLog[] }
   | { type: "SET_PUBLIC_ACCOUNTS"; payload: Account[] }
   | { type: "SET_LOADING_FLAG"; payload: { key: keyof State; value: boolean } }
-  | { type: "SET_ERROR_MESSAGE"; payload: string };
+  | { type: "SET_ERROR_MESSAGE"; payload: string }
+  | { type: "REMOVE_GAME"; payload: number };
 
 // ---------------- REDUCER ----------------
 
@@ -141,6 +142,11 @@ function reducer(state: State, action: Action): State {
       return { ...state, [action.payload.key]: action.payload.value };
     case "SET_ERROR_MESSAGE":
       return { ...state, errorMessage: action.payload };
+    case "REMOVE_GAME":
+      return {
+        ...state,
+        games: state.games?.filter((g) => g.id !== action.payload),
+      };
     default:
       return state;
   }
@@ -285,8 +291,6 @@ const useProvideApp = () => {
 
   const updateAccount = useCallback(async (id: number, data: Account) => {
     try {
-      console.log(id);
-
       dispatch({ type: "SET_ERROR_MESSAGE", payload: "" });
 
       const result = await request.put(`/accounts/${id}`, data);
@@ -373,7 +377,10 @@ const useProvideApp = () => {
     try {
       const result = await request.delete(`/games/${id}`);
       if (result) {
-        dispatch({ type: "UPDATE_GAME", payload: result.data });
+        if (result.status === 200) {
+          // Обновляем состояние вручную (быстрее)
+          dispatch({ type: "REMOVE_GAME", payload: id });
+        }
       }
     } catch (error: any) {
       dispatch({

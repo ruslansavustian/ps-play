@@ -12,7 +12,13 @@ declare const messages: {
     "search": "Search",
     "filter": "Filter",
     "sort": "Sort",
-    "welcome": "Welcome"
+    "welcome": "Welcome",
+    "uploadPhoto": "Upload Photo",
+    "removePhoto": "Remove Photo",
+    "selectPhoto": "Select Photo",
+    "selectFile": "Select File",
+    "fileUploaded": "File uploaded successfully",
+    "photo": "Photo"
   },
   "navigation": {
     "accounts": "Accounts",
@@ -76,7 +82,10 @@ declare const messages: {
     "deleteConfirm": "Are you sure you want to delete this account?",
     "cancel": "Cancel",
     "addGame": "Add Game",
-    "deleteGame": "Delete Game"
+    "deleteGame": "Delete Game",
+    "photos": "Photos",
+    "uploadPhoto": "Upload Photo",
+    "photoUploaded": "Photo uploaded successfully"
   },
   "games": {
     "createGameTitle": "Create New Game",

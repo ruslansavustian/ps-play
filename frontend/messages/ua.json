@@ -9,7 +9,13 @@
     "search": "Пошук",
     "filter": "Фільтр",
     "sort": "Сортування",
-    "welcome": "Вітаємо"
+    "welcome": "Вітаємо",
+    "uploadPhoto": "Завантажити фотографію",
+    "removePhoto": "Вилучити фотографію",
+    "selectPhoto": "Вибрати фотографію",
+    "selectFile": "Вибрати файл",
+    "fileUploaded": "Файл завантажено успішно",
+    "photo": "Фотографія"
   },
   "navigation": {
     "accounts": "Акаунти",
@@ -73,7 +79,10 @@
     "deleteConfirm": "Ви впевнені, що хочете видалити цей акаунт?",
     "cancel": "Скасувати",
     "addGame": "Додати гру",
-    "deleteGame": "Видалити гру"
+    "deleteGame": "Видалити гру",
+    "photos": "Фотографії",
+    "uploadPhoto": "Завантажити фотографію",
+    "photoUploaded": "Фотографію завантажено успішно"
   },
   "games": {
     "createGameTitle": "Створити нову гру",
