@@ -152,7 +152,8 @@ declare const messages: {
     "goHome": "Go to Dashboard"
   },
   "gamePage": {
-    "title": "Accounts which include game"
+    "title": "Accounts which include game",
+    "noAccounts": "No accounts found"
   }
 };
 export default messages;
