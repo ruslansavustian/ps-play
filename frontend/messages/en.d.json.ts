@@ -9,6 +9,7 @@ declare const messages: {
     "delete": "Delete",
     "edit": "Edit",
     "create": "Create",
+    "created": "Created",
     "search": "Search",
     "filter": "Filter",
     "sort": "Sort",
@@ -18,7 +19,8 @@ declare const messages: {
     "selectPhoto": "Select Photo",
     "selectFile": "Select File",
     "fileUploaded": "File uploaded successfully",
-    "photo": "Photo"
+    "photo": "Photo",
+    "close": "Close"
   },
   "navigation": {
     "accounts": "Accounts",
@@ -85,9 +87,15 @@ declare const messages: {
     "deleteGame": "Delete Game",
     "photos": "Photos",
     "uploadPhoto": "Upload Photo",
+    "purchaseType1": "Offline activation",
+    "purchaseType2": "Online activation for PS4",
+    "purchaseType3": "Online activation for PS5",
+    "purchaseType4": "Without activation",
+    "purchaseType5": "For rent",
     "photoUploaded": "Photo uploaded successfully"
   },
   "games": {
+    "games": "Games",
     "createGameTitle": "Create New Game",
     "createGameDescription": "Add a new game to your collection",
     "gameName": "Game Name",
@@ -137,6 +145,14 @@ declare const messages: {
   },
   "LocaleSwitcher": {
     "switchLocale": "Switch Locale"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "Sorry, the page you are looking for does not exist or has been moved.",
+    "goHome": "Go to Dashboard"
+  },
+  "gamePage": {
+    "title": "Accounts which include game"
   }
 };
 export default messages;

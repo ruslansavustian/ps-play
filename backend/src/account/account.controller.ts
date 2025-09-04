@@ -4,8 +4,8 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
-  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -114,7 +114,7 @@ export class AccountController {
     return this.accountService.findOne(+id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @AuditLog({
     action: 'UPDATE_ACCOUNT',
     entityType: 'ACCOUNT',

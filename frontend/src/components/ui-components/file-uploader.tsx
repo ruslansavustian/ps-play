@@ -136,7 +136,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             <span className="text-sm font-medium">{t("loading")}</span>
             <span className="text-sm text-gray-500">{uploadProgress}%</span>
           </div>
-          <Progress value={uploadProgress} className="w-full" />
+          <Progress
+            aria-label="Upload progress"
+            value={uploadProgress}
+            className="w-full"
+          />
         </div>
       )}
 

@@ -34,6 +34,7 @@ type State = {
   accounts?: Account[];
   accountsLoading: boolean;
   games?: Game[];
+  currentGame?: Game;
   gamesLoading: boolean;
   orders?: Order[];
   ordersLoading: boolean;
@@ -65,6 +66,7 @@ type Action =
   | { type: "ADD_GAME"; payload: Game }
   | { type: "UPDATE_GAME"; payload: Game }
   | { type: "DELETE_GAME"; payload: number }
+  | { type: "SET_CURRENT_GAME"; payload: Game }
   | { type: "SET_ORDERS"; payload: Order[] }
   | { type: "ADD_ORDER"; payload: Order }
   | { type: "UPDATE_ORDER"; payload: Order }
@@ -113,6 +115,8 @@ function reducer(state: State, action: Action): State {
           g.id === action.payload.id ? action.payload : g
         ),
       };
+    case "SET_CURRENT_GAME":
+      return { ...state, currentGame: action.payload };
     case "DELETE_GAME":
       return {
         ...state,
@@ -293,7 +297,7 @@ const useProvideApp = () => {
     try {
       dispatch({ type: "SET_ERROR_MESSAGE", payload: "" });
 
-      const result = await request.put(`/accounts/${id}`, data);
+      const result = await request.patch(`/accounts/${id}`, data);
       dispatch({ type: "UPDATE_ACCOUNT", payload: result.data });
       return result.data;
     } catch (error: any) {
@@ -340,6 +344,27 @@ const useProvideApp = () => {
     }
   }, []);
 
+  const fetchGame = useCallback(async (id: number) => {
+    dispatch({
+      type: "SET_LOADING_FLAG",
+      payload: { key: "gamesLoading", value: true },
+    });
+    try {
+      const result = await request.get(`/games/${id}`);
+      dispatch({ type: "SET_CURRENT_GAME", payload: result.data });
+    } catch (error: any) {
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
+    } finally {
+      dispatch({
+        type: "SET_LOADING_FLAG",
+        payload: { key: "gamesLoading", value: false },
+      });
+    }
+  }, []);
+
   const createGame = useCallback(async (data: { name: string }) => {
     try {
       const result = await request.post("/games", data);
@@ -356,7 +381,7 @@ const useProvideApp = () => {
   }, []);
 
   const updateGame = useCallback(
-    async (id: number, data: Partial<{ name: string }>) => {
+    async (id: number, data: Partial<{ name: string; photoUrl: string }>) => {
       try {
         const result = await request.patch(`/games/${id}`, data);
         if (result) {
@@ -536,6 +561,7 @@ const useProvideApp = () => {
     fetchAuditLogs,
     fetchPublicAccounts,
     clearError,
+    fetchGame,
   };
 };
 
