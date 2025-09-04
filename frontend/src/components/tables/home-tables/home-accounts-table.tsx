@@ -18,8 +18,9 @@ import {
 } from "@heroui/react";
 import { useApp } from "@/contexts/AppProvider";
 import { Account } from "@/types";
-import { CustomersCreateModal } from "../modals/customers-create-modal";
+import { CustomersCreateModal } from "@/components/modals/customers-create-modal";
 import { useAsyncList } from "@react-stately/data";
+import { useTranslations } from "next-intl";
 
 interface HomeAccountsTableProps {
   accounts: Account[];
@@ -34,6 +35,8 @@ export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
 
     setCustomersCreateModal(true);
   };
+
+  const t = useTranslations();
   const list = useAsyncList({
     async load() {
       return {
@@ -131,22 +134,22 @@ export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
             ID
           </TableColumn>
           <TableColumn key="gameName" allowsSorting>
-            Игры
+            {t("accounts.games")}
           </TableColumn>
           <TableColumn key="priceP1" allowsSorting>
-            Оффлайн активация
+            {t("accounts.purchaseType1")}
           </TableColumn>
           <TableColumn key="priceP2PS4" allowsSorting>
-            Онлайн активация для PS4
+            {t("accounts.purchaseType2")}
           </TableColumn>
           <TableColumn key="priceP2PS5" allowsSorting>
-            Онлайн активация для PS5
+            {t("accounts.purchaseType3")}
           </TableColumn>
           <TableColumn key="priceP3" allowsSorting>
-            Без активации
+            {t("accounts.purchaseType4")}
           </TableColumn>
           <TableColumn key="priceP3A" allowsSorting>
-            Аренда
+            {t("accounts.purchaseType5")}
           </TableColumn>
         </TableHeader>
         <TableBody
@@ -161,7 +164,9 @@ export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
               onClick={() => handleRowClick(account)}
             >
               <TableCell>{account.id}</TableCell>
-              <TableCell>{account.games?.[0]?.name}</TableCell>
+              <TableCell>
+                {account.games?.map((game) => game.name).join("/ ")}
+              </TableCell>
               <TableCell>${account.priceP1}</TableCell>
               <TableCell>${account.priceP2PS4}</TableCell>
               <TableCell>${account.priceP2PS5}</TableCell>

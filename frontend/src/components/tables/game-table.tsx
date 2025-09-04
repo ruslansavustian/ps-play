@@ -33,7 +33,6 @@ export const GameTable = () => {
 
   const handleRowClick = useCallback(
     (game: Game) => {
-      console.log(game);
       setEditingGame(game);
       onOpen();
     },

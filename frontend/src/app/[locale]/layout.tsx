@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import Providers from "../providers";
 import "@/app/globals.css";
+
 export default async function LocaleLayout({
   children,
   params,
@@ -19,12 +20,8 @@ export default async function LocaleLayout({
   const messages = (await import(`../../../messages/${locale}.json`)).default;
 
   return (
-    <html lang={locale}>
-      <body cz-shortcut-listen="true">
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <Providers>{children}</Providers>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <Providers>{children}</Providers>
+    </NextIntlClientProvider>
   );
 }

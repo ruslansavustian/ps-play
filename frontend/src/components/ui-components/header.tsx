@@ -20,6 +20,7 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import LocaleSwitcher from "./locale-switcher";
 import { ChevronDown } from "lucide-react";
+import { paths } from "@/utils/paths";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -27,11 +28,11 @@ export default function Header() {
   const pathname = usePathname();
 
   const menuItems = [
-    { name: t("accounts"), href: "/" },
-    { name: t("games"), href: "/games" },
-    { name: t("terms"), href: "/terms" },
-    { name: t("about"), href: "/about" },
-    { name: t("contacts"), href: "/contacts" },
+    { name: t("accounts"), href: paths.accounts },
+    { name: t("games"), href: paths.games },
+    { name: t("terms"), href: paths.terms },
+    { name: t("about"), href: paths.about },
+    { name: t("contacts"), href: paths.contacts },
   ];
 
   const isActive = (href: string) => pathname.includes(href);

@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -12,6 +13,9 @@ import { Game } from "@/types";
 import { formatDate } from "@/utils/format-date";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { FileUpload } from "../ui-components/file-uploader";
+import { useApp } from "@/contexts/AppProvider";
+import { TrashIcon, X } from "lucide-react";
 
 interface GameDetailModalProps {
   isEditOpen: boolean;
@@ -29,7 +33,27 @@ export const GameDetailModal = ({
   handleSaveEdit,
 }: GameDetailModalProps) => {
   const tCommon = useTranslations("common");
-  console.log(game);
+  const tGames = useTranslations("games");
+  const { updateGame } = useApp();
+  const [newPhotoUrl, setNewPhotoUrl] = useState("");
+  const [existedPhotoUrl, setExistedPhotoUrl] = useState("");
+  console.log(existedPhotoUrl);
+
+  useEffect(() => {
+    if (game.photoUrl) {
+      setExistedPhotoUrl(game.photoUrl);
+    }
+  }, [game.photoUrl]);
+
+  const handleSaveEditGame = useCallback(async () => {
+    const result = await updateGame(game.id!, { photoUrl: newPhotoUrl });
+    if (result) {
+      setExistedPhotoUrl("");
+      setNewPhotoUrl("");
+    }
+    onEditClose();
+  }, [game.id!, newPhotoUrl, updateGame, onEditClose]);
+
   return (
     <div>
       {/* Game Detail Modal */}
@@ -43,13 +67,13 @@ export const GameDetailModal = ({
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700">
-                    Название игры
+                    {tGames("gameName")}
                   </label>
                   <p className="mt-1 text-gray-900">{game.name}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700">
-                    Создано
+                    {tCommon("created")}
                   </label>
                   <p className="mt-1 text-gray-900">
                     {formatDate(game.created)}
@@ -63,25 +87,66 @@ export const GameDetailModal = ({
                     <p className="mt-1 text-gray-900">#{game.id}</p>
                   </div>
                 )}
-                {game.photoUrl && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      {tCommon("photo")}
-                    </label>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    {tCommon("photo")}
+                  </label>
+                </div>
+                {existedPhotoUrl && (
+                  <div className="">
+                    <div className="flex w-auto">
+                      <Image
+                        src={existedPhotoUrl}
+                        alt="Game photo"
+                        className="rounded-lg relative"
+                        width={250}
+                        height={250}
+                      />
+                      <Button
+                        color="danger"
+                        variant="light"
+                        className=""
+                        onPress={() => setExistedPhotoUrl("")}
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {newPhotoUrl && (
+                  <div className="flex flex-row gap-2">
                     <Image
-                      src={game.photoUrl}
+                      src={newPhotoUrl}
                       alt="Game photo"
                       width={250}
-                      height={250}
+                      className="h-auto"
                     />
+                    <Button
+                      color="danger"
+                      variant="light"
+                      className=""
+                      onPress={() => setNewPhotoUrl("")}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
+                )}
+                {!existedPhotoUrl && !newPhotoUrl && (
+                  <FileUpload
+                    onFileUploaded={(fileUrl) => {
+                      setNewPhotoUrl(fileUrl);
+                    }}
+                  />
                 )}
               </div>
             )}
           </ModalBody>
           <ModalFooter>
+            <Button color="primary" onPress={handleSaveEditGame}>
+              {tCommon("save")}
+            </Button>
             <Button color="primary" onPress={onEditClose}>
-              Закрыть
+              {tCommon("close")}
             </Button>
           </ModalFooter>
         </ModalContent>

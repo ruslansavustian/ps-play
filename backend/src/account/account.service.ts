@@ -98,15 +98,7 @@ export class AccountService {
     id: number,
     updateData: UpdateAccountDto,
   ): Promise<Account | null> {
-    const cleanUpdateData = Object.fromEntries(
-      Object.entries(updateData).filter(([value]) => value !== undefined),
-    );
-
-    if (Object.keys(cleanUpdateData).length === 0) {
-      return;
-    }
-
-    await this.accountRepository.update(id, cleanUpdateData);
+    await this.accountRepository.update(id, updateData);
     return this.findOne(id);
   }
   async remove(id: number): Promise<Account> {

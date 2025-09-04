@@ -33,7 +33,7 @@ export const CreateAccountModal = ({
   const [selectedGames, setSelectedGames] = useState<(number | null)[]>([null]);
 
   const [formData, setFormData] = useState<Account>({
-    gamesIds: [],
+    gameIds: [],
     platformPS4: false,
     platformPS5: false,
     priceP1: 0,
@@ -65,7 +65,7 @@ export const CreateAccountModal = ({
     try {
       const accountData: Account = {
         ...formData,
-        gamesIds: selectedGames.filter((id): id is number => id !== null),
+        gameIds: selectedGames.filter((id): id is number => id !== null),
         priceP1: Number(formData.priceP1),
         priceP2PS4: Number(formData.priceP2PS4),
         priceP2PS5: Number(formData.priceP2PS5),
@@ -82,7 +82,7 @@ export const CreateAccountModal = ({
 
       // Reset form
       setFormData({
-        gamesIds: [],
+        gameIds: [],
         platformPS4: false,
         platformPS5: false,
         priceP1: 0,
