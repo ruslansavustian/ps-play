@@ -2,8 +2,9 @@
 import React, { useEffect } from "react";
 import { useApp } from "@/contexts/AppProvider";
 import HomeGameCard from "@/components/ui-components/home-game-card";
-import { Loader } from "@/components/ui-components/loader";
+
 import { useTranslations } from "next-intl";
+import { PSLoader } from "@/components/ui-components/ps-loader";
 
 export const HomeGamesTable = () => {
   const { games, gamesLoading, fetchGames } = useApp();
@@ -15,11 +16,7 @@ export const HomeGamesTable = () => {
   }, [fetchGames, games]);
 
   if (gamesLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
-    );
+    return <PSLoader />;
   }
 
   return (
