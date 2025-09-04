@@ -6,6 +6,7 @@ import React, { useEffect } from "react";
 import { useApp } from "@/contexts/AppProvider";
 import { useTranslations } from "next-intl";
 import { SupportChat } from "@/components/chat/support-chat";
+import { PSLoader } from "@/components/ui-components/ps-loader";
 
 export default function AccountsPage() {
   const { publicAccounts, fetchPublicAccounts } = useApp();
@@ -16,6 +17,10 @@ export default function AccountsPage() {
       fetchPublicAccounts();
     }
   }, [fetchPublicAccounts]);
+
+  if (!publicAccounts) {
+    return <PSLoader />;
+  }
 
   return (
     <div className="min -h-screen ">
