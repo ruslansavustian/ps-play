@@ -13,8 +13,13 @@ import { paths } from "@/utils/paths";
 import { Link } from "@heroui/react";
 
 const GamePage = () => {
-  const { fetchGame, currentGame, gamesLoading, accounts, fetchAccounts } =
-    useApp();
+  const {
+    fetchGame,
+    currentGame,
+    gamesLoading,
+    publicAccounts,
+    fetchPublicAccounts,
+  } = useApp();
 
   const [filteredAccounts, setFilteredAccounts] = useState<
     Account[] | undefined
@@ -26,14 +31,14 @@ const GamePage = () => {
   }, [fetchGame, params.gameId]);
 
   useEffect(() => {
-    if (!accounts) {
-      fetchAccounts();
+    if (!publicAccounts) {
+      fetchPublicAccounts();
     }
-  }, [fetchAccounts, accounts]);
+  }, [fetchPublicAccounts, publicAccounts]);
 
   const handleFilterAccounts = useCallback(
     (currentGameId: number) => {
-      const filteredAccounts = accounts?.filter((account) => {
+      const filteredAccounts = publicAccounts?.filter((account) => {
         const hasGameId =
           account.gameIds && account.gameIds.includes(currentGameId);
 
@@ -41,14 +46,14 @@ const GamePage = () => {
       });
       setFilteredAccounts(filteredAccounts);
     },
-    [accounts]
+    [publicAccounts]
   );
 
   useEffect(() => {
-    if (currentGame && currentGame.id && accounts) {
+    if (currentGame && currentGame.id && publicAccounts) {
       handleFilterAccounts(currentGame.id);
     }
-  }, [currentGame, accounts, handleFilterAccounts]);
+  }, [currentGame, publicAccounts, handleFilterAccounts]);
 
   if (gamesLoading)
     return (
@@ -56,6 +61,14 @@ const GamePage = () => {
         <Loader />
       </div>
     );
+
+  if (filteredAccounts && filteredAccounts.length === 0) {
+    return (
+      <div className="text-2xl font-bold text-gray-900 mt-[50px]   flex flex-col text-center gap-2">
+        {t("gamePage.noAccounts")}
+      </div>
+    );
+  }
 
   return (
     <div className="h-full min-h-screen flex flex-col gap-4">
@@ -74,10 +87,8 @@ const GamePage = () => {
       </div>
 
       <div>
-        {filteredAccounts && filteredAccounts.length > 0 ? (
+        {filteredAccounts && filteredAccounts.length > 0 && (
           <HomeAccountsTable accounts={filteredAccounts} />
-        ) : (
-          <Loader />
         )}
       </div>
     </div>
