@@ -24,6 +24,7 @@ export function AdminSupportBoard() {
     sendMessage,
     sendAdminMessage,
     clearMessages,
+    connectSocket,
     setMessages,
   } = useChat();
   const [inputMessage, setInputMessage] = useState("");
@@ -34,6 +35,10 @@ export function AdminSupportBoard() {
   const [disconnectedUserNames, setDisconnectedUserNames] = useState<
     Set<string>
   >(new Set());
+
+  useEffect(() => {
+    connectSocket();
+  }, [connectSocket]);
 
   useEffect(() => {
     if (!isAdminConnected && isConnected) {

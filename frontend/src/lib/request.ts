@@ -1,9 +1,11 @@
+import { paths } from "@/utils/paths";
 import axios, {
   AxiosError,
   AxiosInstance,
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
+import { useRouter } from "next/navigation";
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
@@ -57,6 +59,7 @@ axiosInstance.interceptors.response.use(
 );
 
 const _doRefreshToken = async (originalRequest: any) => {
+  const router = useRouter();
   try {
     const refreshToken = localStorage.getItem("refreshToken");
     const uuid = localStorage.getItem("uuid");
@@ -76,6 +79,7 @@ const _doRefreshToken = async (originalRequest: any) => {
   } catch (error: any) {
     console.log("error", error);
     localStorage.removeItem("token");
+    router.push(paths.login);
     // For now, just remove the router redirect since we're not implementing refresh tokens yet
     return Promise.reject(error);
   }

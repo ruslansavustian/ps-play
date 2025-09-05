@@ -9,7 +9,7 @@ export default function LocaleSwitcher() {
 
   return (
     <Link href={pathname} locale={otherLocale}>
-      <Image src={`/flags/${locale}.svg`} alt={locale} width={20} height={20} />
+      <Image src={`/flags/${locale}.svg`} alt={locale} width={30} height={30} />
     </Link>
   );
 }

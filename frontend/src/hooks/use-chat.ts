@@ -10,54 +10,67 @@ export const useChat = () => {
   const [tickets, setTickets] = useState<any[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
 
-  useEffect(() => {
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000";
-    const newSocket = io(wsUrl);
+  const connectSocket = useCallback(() => {
+    if (!socket) {
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3000";
+      const newSocket = io(wsUrl);
+      const savedUserName = localStorage.getItem("supportUserName");
+      const savedTicketId = localStorage.getItem("supportTicketId");
 
-    newSocket.on("connect", () => {
-      setIsConnected(true);
-    });
-
-    newSocket.on("disconnect", () => {
-      setIsConnected(false);
-    });
-
-    newSocket.on("newSupportTicket", (ticket: any) => {
-      setTickets((prev) => [...prev, ticket]);
-    });
-
-    newSocket.on("supportTicketsList", (ticketsList: any[]) => {
-      setTickets(ticketsList);
-    });
-
-    newSocket.on(
-      "userDisconnected",
-      (data: { ticketId: string; userName: string; userId: string }) => {
-        // User disconnected from support
+      if (savedUserName) {
+        setUserName(savedUserName);
       }
-    );
-
-    newSocket.on(
-      "userReconnected",
-      (data: { ticketId: string; userName: string; userId: string }) => {
-        // User reconnected to support
+      if (savedTicketId) {
+        setSelectedTicket(savedTicketId);
       }
-    );
+      newSocket.on("connect", () => {
+        setIsConnected(true);
+        console.log("savedTicketId", savedTicketId);
+        console.log("savedUserName", savedUserName);
+        if (savedTicketId && savedUserName) {
+          newSocket.emit("joinTicket", { ticketId: savedTicketId });
+        }
+      });
 
-    newSocket.on("newMessage", (message: ChatMessage) => {
-      setMessages((prev) => [...prev, message]);
-    });
+      newSocket.on("disconnect", () => {
+        setIsConnected(false);
+      });
 
-    newSocket.on("ticketMessages", (ticketMessages: ChatMessage[]) => {
-      setMessages(ticketMessages);
-    });
+      newSocket.on("newSupportTicket", (ticket: any) => {
+        setTickets((prev) => [...prev, ticket]);
+        localStorage.setItem("supportTicketId", ticket.id);
+        setSelectedTicket(ticket.id);
+      });
 
-    setSocket(newSocket);
+      newSocket.on("supportTicketsList", (ticketsList: any[]) => {
+        setTickets(ticketsList);
+      });
 
-    return () => {
-      newSocket.close();
-    };
-  }, []);
+      newSocket.on(
+        "userDisconnected",
+        (data: { ticketId: string; userName: string; userId: string }) => {
+          // User disconnected from support
+        }
+      );
+
+      newSocket.on(
+        "userReconnected",
+        (data: { ticketId: string; userName: string; userId: string }) => {
+          // User reconnected to support
+        }
+      );
+
+      newSocket.on("newMessage", (message: ChatMessage) => {
+        setMessages((prev) => [...prev, message]);
+      });
+
+      newSocket.on("ticketMessages", (ticketMessages: ChatMessage[]) => {
+        setMessages(ticketMessages);
+      });
+
+      setSocket(newSocket);
+    }
+  }, [socket]);
 
   const joinAsAdmin = useCallback(() => {
     if (socket) {
@@ -81,6 +94,7 @@ export const useChat = () => {
     (data: { userName: string; initialMessage: string }) => {
       if (socket) {
         setUserName(data.userName);
+        localStorage.setItem("supportUserName", data.userName);
         socket.emit("createSupportTicket", data);
       }
     },
@@ -135,5 +149,6 @@ export const useChat = () => {
     clearMessages,
     setUser,
     setMessages,
+    connectSocket,
   };
 };
