@@ -21,11 +21,14 @@ import { usePathname } from "next/navigation";
 import LocaleSwitcher from "./locale-switcher";
 import { ChevronDown } from "lucide-react";
 import { paths } from "@/utils/paths";
+import { useApp } from "@/contexts/AppProvider";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const t = useTranslations("navigation");
+  const tDashboard = useTranslations("dashboard");
   const pathname = usePathname();
+  const { currentUser } = useApp();
 
   const menuItems = [
     { name: t("accounts"), href: paths.accounts },
@@ -148,16 +151,24 @@ export default function Header() {
         <NavbarItem>
           <LocaleSwitcher />
         </NavbarItem>
-        <NavbarItem>
-          <Button
-            as={Link}
-            href="/login"
-            variant="flat"
-            className="bg-black text-white hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow-lg px-6 py-2 rounded-lg border border-gray-700"
-          >
-            {t("login")}
-          </Button>
-        </NavbarItem>
+        {!currentUser ? (
+          <NavbarItem>
+            <Button
+              as={Link}
+              href="/login"
+              variant="flat"
+              className="bg-black text-white hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow-lg px-6 py-2 rounded-lg border border-gray-700"
+            >
+              {t("login")}
+            </Button>
+          </NavbarItem>
+        ) : (
+          <NavbarItem>
+            <Button as={Link} href="/dashboard">
+              {tDashboard("title")}
+            </Button>
+          </NavbarItem>
+        )}
       </NavbarContent>
 
       <NavbarMenu className="bg-white">

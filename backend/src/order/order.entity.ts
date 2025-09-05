@@ -39,8 +39,8 @@ export class Order {
     description: 'Customer name',
     type: String,
   })
-  @Column({ length: 100 })
-  customerName: string;
+  @Column({ length: 100, nullable: true })
+  customerName?: string;
 
   @ApiProperty({
     description: 'Customer email',

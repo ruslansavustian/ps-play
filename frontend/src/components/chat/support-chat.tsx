@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
 import { useChat } from "@/hooks/use-chat";
 import { ChatMessage } from "@/types";
 import { MessageCircle, ChartBar, Headset, X } from "lucide-react";
@@ -18,6 +20,7 @@ export const SupportChat: React.FC = () => {
     sendMessage,
     clearMessages,
     setUser,
+    connectSocket,
   } = useChat();
 
   const [inputMessage, setInputMessage] = useState("");
@@ -27,10 +30,11 @@ export const SupportChat: React.FC = () => {
   const [ticketCreated, setTicketCreated] = useState(false);
   const [isWaitingForSupport, setIsWaitingForSupport] = useState(false);
   const [smallScreen, setSmallScreen] = useState(true);
+
   const handleCreateTicket = () => {
     if (joinUserName.trim()) {
       const initialMessage = inputMessage || "Нужна помощь";
-
+      connectSocket();
       createSupportTicket({
         userName: joinUserName,
         initialMessage: initialMessage,
@@ -73,9 +77,30 @@ export const SupportChat: React.FC = () => {
     );
   }
 
+  const handleJoinSupportChat = () => {
+    const savedUserName = localStorage.getItem("supportUserName");
+    const savedTicketId = localStorage.getItem("supportTicketId");
+
+    if (savedUserName && savedTicketId) {
+      setSocialIcons(false);
+      setTicketCreated(true);
+      setIsWaitingForSupport(true);
+      setSmallScreen(false);
+      connectSocket();
+    } else {
+      setShowJoinForm(true);
+      setSocialIcons(false);
+      setSmallScreen(false);
+      connectSocket();
+    }
+  };
+
+  console.log("ticketCreated", ticketCreated);
+  console.log("showJoinForm", showJoinForm);
+
   if (socialIcons) {
     return (
-      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4  border-2 min-w-[150px] ">
+      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4  border-2 min-w-[150px]  ">
         <div className="flex flex-col ">
           <X
             className="cursor-pointer self-end mb-4"
@@ -106,11 +131,7 @@ export const SupportChat: React.FC = () => {
               width={40}
             />
             <MessageCircle
-              onClick={() => {
-                setShowJoinForm(true);
-                setSocialIcons(false);
-                setSmallScreen(false);
-              }}
+              onClick={handleJoinSupportChat}
               className="cursor-pointer hover:scale-110 transition-all duration-300"
               height={40}
               width={40}
@@ -123,7 +144,7 @@ export const SupportChat: React.FC = () => {
 
   if (showJoinForm) {
     return (
-      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 w-80 border-2 ">
+      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 w-80 border-2 z-50 ">
         <div className="flex justify-between  mb-4">
           <h3 className="text-lg font-semibold mb-4 ">Поддержка</h3>
           <div className="cursor-pointer">
@@ -141,7 +162,7 @@ export const SupportChat: React.FC = () => {
           value={joinUserName}
           onChange={(e) => setJoinUserName(e.target.value)}
           className="w-full p-2 border rounded mb-2"
-          onKeyPress={(e) => e.key === "Enter" && handleCreateTicket()}
+          onKeyDown={(e) => e.key === "Enter" && handleCreateTicket()}
         />
         <textarea
           placeholder="Опишите вашу проблему..."
@@ -161,7 +182,7 @@ export const SupportChat: React.FC = () => {
 
   if (ticketCreated)
     return (
-      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg w-80 h-96 flex flex-col border-2 border-black">
+      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg w-80 h-96 flex flex-col border-2 border-black z-50">
         {/* Header */}
         <div className="p-4 border-b bg-blue-50 rounded-t-lg">
           <div className="flex justify-between items-center">
