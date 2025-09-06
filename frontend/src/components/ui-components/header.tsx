@@ -171,7 +171,7 @@ export default function Header() {
         )}
       </NavbarContent>
 
-      <NavbarMenu className="bg-white">
+      <NavbarMenu className="bg-white mt-4">
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item.name}-${index}`}>
             <Link
@@ -188,18 +188,6 @@ export default function Header() {
             </Link>
           </NavbarMenuItem>
         ))}
-        <NavbarMenuItem>
-          <Button
-            as={Link}
-            color="primary"
-            href="/login"
-            variant="flat"
-            className="w-full"
-            onPress={() => setIsMenuOpen(false)}
-          >
-            {t("login")}
-          </Button>
-        </NavbarMenuItem>
       </NavbarMenu>
     </Navbar>
   );

@@ -154,6 +154,15 @@ declare const messages: {
   "gamePage": {
     "title": "Accounts which include game",
     "noAccounts": "No accounts found"
+  },
+  "aiAssistant": {
+    "logo": "AI",
+    "title": "AI Assistant",
+    "description": "AI Assistant",
+    "chat": "Chat",
+    "send": "Send",
+    "askAboutGamingAccounts": "Ask about gaming accounts...",
+    "hello": "Hello! I'm your AI assistant."
   }
 };
 export default messages;

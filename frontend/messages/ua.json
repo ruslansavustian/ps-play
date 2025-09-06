@@ -150,5 +150,14 @@
   "gamePage": {
     "title": "Аккаунти які включають гру",
     "noAccounts": "Аккаунти не знайдені"
+  },
+  "aiAssistant": {
+    "logo": "AI",
+    "title": "Штучний інтелект",
+    "description": "Асистент",
+    "chat": "Чат",
+    "send": "Відправити",
+    "askAboutGamingAccounts": "Запитайте про ігрові акаунти...",
+    "hello": "Привіт! Я ваш AI асістент."
   }
 }

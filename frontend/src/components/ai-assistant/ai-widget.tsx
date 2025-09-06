@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@heroui/react";
 import { MessageCircle, X, Send, Bot, User } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAiChat } from "@/hooks/use-ai-chat";
 
@@ -19,7 +20,7 @@ export default function AiAssistantWidget() {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  const t = useTranslations("aiAssistant");
   const { sendMessage, sessionId, createSession } = useAiChat();
 
   const scrollToBottom = () => {
@@ -91,10 +92,12 @@ export default function AiAssistantWidget() {
       >
         <Button
           isIconOnly
-          className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+          className="w-14 h-14 md:w-24 md:h-24 bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
           onPress={() => setIsOpen(true)}
         >
-          <h1 className="text-white text-2xl font-bold absolute"> ASK AI</h1>
+          <h1 className="text-white text-2xl font-bold absolute">
+            {t("logo")}
+          </h1>
         </Button>
       </motion.div>
 
@@ -115,8 +118,8 @@ export default function AiAssistantWidget() {
                   <Bot className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">AI Assistant</h3>
-                  <p className="text-xs text-white/80">PS-Play Support</p>
+                  <h3 className="font-semibold">{t("title")}</h3>
+                  <p className="text-xs text-white/80">{t("description")}</p>
                 </div>
               </div>
               <Button
@@ -135,9 +138,9 @@ export default function AiAssistantWidget() {
               {messages.length === 0 ? (
                 <div className="text-center text-gray-500 mt-8">
                   <Bot className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-sm">Hello! I'm your AI assistant.</p>
+                  <p className="text-sm">{t("hello")}</p>
                   <p className="text-xs text-gray-400 mt-1">
-                    I can help you choose gaming accounts for PlayStation.
+                    {t("askAboutGamingAccounts")}
                   </p>
                 </div>
               ) : (
@@ -213,8 +216,8 @@ export default function AiAssistantWidget() {
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Ask about gaming accounts..."
+                  onKeyDown={handleKeyPress}
+                  placeholder={t("askAboutGamingAccounts")}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   disabled={isLoading}
                 />
