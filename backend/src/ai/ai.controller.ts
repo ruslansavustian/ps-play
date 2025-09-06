@@ -94,23 +94,12 @@ export class AiController {
     @Body() chatMessageDto: ChatMessageDto,
   ): Promise<AiResponseDto> {
     try {
-      this.logger.log(
-        `Processing message from session: ${chatMessageDto.sessionId}`,
-      );
-
       const response = await this.aiService.processMessage(chatMessageDto);
-
-      this.logger.log(
-        `AI response generated for session: ${chatMessageDto.sessionId}`,
-      );
       return response;
     } catch (error) {
-      this.logger.error('Error processing message:', error);
-
       if (error instanceof HttpException) {
         throw error;
       }
-
       throw new HttpException(
         'Failed to process message',
         HttpStatus.INTERNAL_SERVER_ERROR,

@@ -1,9 +1,10 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import { v4 as uuidv4 } from 'uuid';
+import { validate as validateDto } from 'class-validator';
 
 import { AiChatSession } from './entities/ai-chat-session.entity';
 import { AiMessage } from './entities/ai-message.entity';
@@ -15,53 +16,101 @@ import { Game } from 'src/game/game.entity';
 import { OrderService } from '../order/order.service';
 import { CreateOrderDto } from '../order/dto/create-order.dto';
 import { Order } from '../order/order.entity';
+import { AccountService } from '../account/account.service';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AiService implements IAiService {
   private readonly logger = new Logger(AiService.name);
   private openai: OpenAI;
-  private readonly SYSTEM_PROMPT = `You are a PS-Play assistant. You help customers buy PlayStation accounts.
+  private readonly SYSTEM_PROMPT = `You are a PlayStation game account assistant.
+   You help users buy game accounts by analyzing their requirements and suggesting the best matching accounts.
 
-## CONVERSATION FLOW
+  Your mission is make order. by function i give you.
+  you speak on language which user ask you.
+ 
 
-1. GAME SELECTION (Optional - only if customer asks about games)
-- If the customer mentions a game → check available games.  
-- If the game exists → show all accounts that contain this game.  
-- If no accounts exist → suggest browsing all available games.  
+  TO AKE ORDER U NEED NEXT DATA:
+  
+  - purchaseType required
+  - platform required
+  - phone required
+  - accountId required
+  - customerName optional
+  - email optional
+  - telegram optional
+  - notes optional
 
-2. ACCOUNT SELECTION  
-- When the customer chooses an account ID → confirm their choice.  
 
-3. PURCHASE DETAILS  
-- Ask for purchase type. Allowed values: P1, P2PS4, P2PS5, P3, P3A.  
-- Then ask for platform (PS4 or PS5).  
-- Then ask for their phone number.  
+## INPUT FORMAT:
+You receive JSON with context and user message:
+{
+  "context": {
+    "currentOrder": {
+      "game": 
+      "purchaseType":  
+      "platform": 
+      "phone": 
+    },
+    "availableAccounts": [
+      {
+        "accountId": ,
+        "games": 
+        "platformPS4": 
+        "platformPS5": 
+        "priceP1": 
+        "P1": 
+        "P2PS4": 
+        "P2PS5": 
+      }
+    ]
+  },
+  "userMessage": ""
+}
 
-4. ORDER CREATION  
-- ✅ Only when you have **all 4 required fields** → {accountId, purchaseType, platform, phone} → call the {create_order} function.  
-- ❌ Never call {create_order} if even one field is missing.  
-- ❌ Never guess or invent values. Always explicitly ask the customer for missing details.  
+## NEW APPROACH - AI DECISION MAKING:
 
----
-## IMPORTANT RULES:
-- Game selection is only for discovering accounts.
-- Once an account ID has been provided by the user:
-  - Do NOT ask about games again.
-  - Do NOT suggest other accounts unless explicitly asked.
-  - Move directly to collecting purchase details: purchaseType, platform, phone.
-- Only call {create_order} when all 4 required fields are collected: accountId, purchaseType, platform, phone.
-- Be efficient - don't ask for the same information twice.
-- Track what information you already have from the session context.
+1. **COLLECT USER REQUIREMENTS** - Ask for: game, purchaseType, platform
+2. **GET ACCOUNTS DATA** - Call getAllAccounts() to load all accounts into context
+3. **ANALYZE AVAILABLE ACCOUNTS** - Use availableAccounts from context to find best matches
+4. **SUGGEST BEST OPTIONS** - Present user-friendly suggestions based on requirements
+5. **CREATE ORDER** - When user confirms an account, call createOrder()
 
-## PURCHASE TYPES
-- P1 = Offline activation
-- P2PS4 = Online activation for PS4
-- P2PS5 = Online activation for PS5
-- P3 = Without activation
-- P3A = For rent
+## IMPORTANT:
+- After calling getAllAccounts(), the availableAccounts array will be in your context
+- Analyze availableAccounts to find accounts matching user's game, platform, and purchaseType
+- Present suggestions in a user-friendly way, not as raw JSON
+- After updating data with updateOrderData(), continue the conversation flow automatically
+- Don't wait for user input after calling updateOrderData() - ask the next question immediately
+- ALWAYS provide a response after calling updateOrderData() - never leave the user hanging
 
-⚠️ CRITICAL ORDER RULE
-You must not call {create_order} until you have confirmed ALL required fields: accountId, purchaseType, platform, phone.`;
+## CONVERSATION FLOW:
+
+**Step 1:** Ask "What game would you like to buy?"
+**Step 2:** When user provides game name, call updateOrderData({ game: "game_name" }) then ask "What purchase type do you want? CRITICAL: Show options in user's language (Ukrainian: Офлайн активація, Онлайн активація, На прокат | Russian: Офлайн активация, Онлайн активация, На прокат | English: Offline activation, Online activation, For rent) but always save the exact English value when calling updateOrderData()"**Step 3:** When user provides purchase type, call updateOrderData({purchaseType: "purchaseType_name"}) then ask "What platform? (PS4 or PS5)"
+**Step 4:** When user provides platform, call updateOrderData({ platform: "platform_name" }) then call getAllAccounts() to get all accounts with games
+**Step 5:** Analyze availableAccounts and suggest best matching accounts based on user requirements
+**Step 6:** When user chooses an account, call updateOrderData({ accountId: account_id }) then ask for phone number
+**Step 7:** When user provides phone, call updateOrderData({ phone: "phone_number" }) then call createOrder() with all collected data
+
+## AVAILABLE FUNCTIONS:
+- getAllAccounts() → get all accounts with games (no filters needed)
+- updateOrderData({ game?, purchaseType?, platform?, phone?, accountId?, customerName?, email?, telegram?, notes? }) → save user requirements
+- createOrder() → create final order
+
+## LANGUAGE INSTRUCTIONS:
+- Always speak in the user's language (Ukrainian/Russian/English)
+- Always look which language user speak and speak in this language
+- For purchase types, show translated options but save English values:
+  - Ukrainian: "Офлайн активація, Онлайн активація, На прокат"
+  - Russian: "Офлайн активация, Онлайн активация, На прокат" 
+  - English: "Offline activation, Online activation, For rent"
+- When calling updateOrderData(), always use exact English values: "offline activation", "online activation", "for rent"
+
+
+
+
+⚠️ CRITICAL: Use your intelligence to analyze accounts and suggest the best matches based on user requirements!`;
   constructor(
     @InjectRepository(AiChatSession)
     private chatSessionRepository: Repository<AiChatSession>,
@@ -74,11 +123,12 @@ You must not call {create_order} until you have confirmed ALL required fields: a
     @InjectRepository(Game)
     private gameRepository: Repository<Game>,
     private orderService: OrderService,
+    private accountService: AccountService,
   ) {
     this.openai = new OpenAI({
       apiKey: this.configService.get<string>('OPENAI_API_KEY'),
     });
-    // Добавим логирование для отладки
+
     this.logger.log('AiService constructor started');
 
     const apiKey = this.configService.get<string>('OPENAI_API_KEY');
@@ -143,64 +193,45 @@ You must not call {create_order} until you have confirmed ALL required fields: a
   }
 
   async processMessage(chatMessageDto: ChatMessageDto): Promise<AiResponseDto> {
-    // Validate input data
-    if (!this.validateUserInput(chatMessageDto.message)) {
-      throw new BadRequestException('Invalid message content');
-    }
-
-    const sanitizedMessage = this.sanitizeInput(chatMessageDto.message);
-
-    // Get or create session
     let session = await this.getSession(chatMessageDto.sessionId);
-
-    // Добавим логирование для отладки
-    this.logger.log(`Looking for session: ${chatMessageDto.sessionId}`);
-    this.logger.log(`Session found: ${!!session}`);
-
     if (!session) {
       this.logger.log(
-        `Session not found, creating new one for: ${chatMessageDto.sessionId}`,
+        `🆕 Creating new session for: ${chatMessageDto.sessionId}`,
       );
       session = await this.createSession(
         chatMessageDto.userId,
         chatMessageDto.userName,
         'uk',
       );
-    } else {
-      this.logger.log(`Using existing session: ${session.sessionId}`);
     }
 
-    // Save user message to database
+    // Save user message
     const userMessage = this.messageRepository.create({
       sessionId: session.id,
-      message: sanitizedMessage,
+      message: chatMessageDto.message,
       isFromUser: true,
       messageType: 'text',
     });
     await this.messageRepository.save(userMessage);
-
-    // Extract order information from user message and update session context
-    this.logger.log(
-      `Processing message: "${sanitizedMessage}" for session: ${session.sessionId}`,
-    );
-    this.logger.log(
-      `Current context before update: ${JSON.stringify(session.context)}`,
-    );
-    await this.updateSessionWithOrderInfo(sanitizedMessage, session);
-
-    // Refresh session to get updated context
-    const updatedSession = await this.getSession(session.sessionId);
-    if (!updatedSession) {
-      throw new Error('Session not found after context update');
-    }
+    this.logger.log(`💾 Saved user message`);
 
     // Generate AI response
     const aiResponse = await this.generateResponse(
-      sanitizedMessage,
-      updatedSession,
+      chatMessageDto.message,
+      session,
     );
 
-    // Save AI response to database
+    // Если AI не вернул ответ, возвращаем пустое сообщение
+    if (aiResponse === null || aiResponse === '') {
+      return {
+        message: '',
+        type: 'response',
+        sessionId: session.sessionId,
+        timestamp: new Date(),
+      };
+    }
+
+    // Save AI response
     const aiMessage = this.messageRepository.create({
       sessionId: session.id,
       message: aiResponse,
@@ -208,63 +239,16 @@ You must not call {create_order} until you have confirmed ALL required fields: a
       messageType: 'text',
     });
     await this.messageRepository.save(aiMessage);
+    this.logger.log(`💾 Saved AI response`);
 
     return {
       message: aiResponse,
       type: 'response',
-      sessionId: updatedSession.sessionId,
+      sessionId: session.sessionId,
       timestamp: new Date(),
     };
   }
-  private getMissingOrderFields(context: any): string[] {
-    const required = ['accountId', 'purchaseType', 'platform', 'phone'];
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    return required.filter((field) => !context[field]);
-  }
 
-  private async updateSessionWithOrderInfo(
-    message: string,
-    session: AiChatSession,
-  ): Promise<void> {
-    const context = { ...(session.context || {}) };
-    const lowerMessage = message.toLowerCase().trim();
-    let hasUpdates = false;
-
-    // Extract account ID (numbers)
-    const accountIdMatch = message.match(/\b(\d+)\b/);
-    if (accountIdMatch && !context.accountId) {
-      context.accountId = parseInt(accountIdMatch[1]);
-      hasUpdates = true;
-    }
-
-    // Extract purchase type - handle "p1 and ps4" type messages
-    const purchaseTypeMatch = lowerMessage.match(/\b(p1|p2ps4|p2ps5|p3|p3a)\b/);
-    if (purchaseTypeMatch && !context.purchaseType) {
-      context.purchaseType = purchaseTypeMatch[1].toUpperCase();
-      hasUpdates = true;
-    }
-
-    // Extract platform - handle "ps 4", "ps 5", "ps4", "ps5"
-    const platformMatch = lowerMessage.match(/\b(ps\s*[45]|ps4|ps5)\b/);
-    if (platformMatch && !context.platform) {
-      const platform = platformMatch[1].replace(/\s+/, '').toUpperCase();
-      context.platform = platform;
-      hasUpdates = true;
-    }
-
-    // Extract phone number (Ukrainian phone patterns)
-    const phoneMatch = message.match(/\b(0\d{9})\b/);
-    if (phoneMatch && !context.phone) {
-      context.phone = phoneMatch[1];
-      hasUpdates = true;
-    }
-
-    // Update session context if any changes were made
-    if (hasUpdates) {
-      await this.updateSessionContext(session.sessionId, context);
-      this.logger.log(`Updated session context: ${JSON.stringify(context)}`);
-    }
-  }
   async generateResponse(
     message: string,
     session: AiChatSession,
@@ -272,175 +256,221 @@ You must not call {create_order} until you have confirmed ALL required fields: a
     const apiKey = this.configService.get<string>('OPENAI_API_KEY');
 
     if (!apiKey) {
-      this.logger.log('Using mock response (no OpenAI API key)');
+      this.logger.log('🔧 No OpenAI API key - using mock response');
       return 'Hello! I am your AI assistant for PS-Play. I can help you choose gaming accounts for PlayStation. (Mock response)';
     }
 
     try {
-      const context = await this.buildContext(session);
+      this.logger.log(`🤖 Generating response for message: "${message}"`);
 
-      let retries = 3;
-      let lastError: any;
+      // Всегда отправляем только currentOrder - AI может получить аккаунты через функцию
+      const contextData = {
+        context: {
+          currentOrder: session.context || {},
+        },
+        userMessage: message,
+      };
 
-      while (retries > 0) {
+      this.logger.log(`📤 Sending currentOrder context`);
+
+      this.logger.log(
+        `📋 Context data: ${JSON.stringify(contextData, null, 2)}`,
+      );
+
+      const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+        { role: 'system', content: this.SYSTEM_PROMPT },
+        { role: 'user', content: JSON.stringify(contextData) },
+      ];
+
+      this.logger.log(`📤 Sending ${messages.length} messages to AI`);
+
+      // Helper to execute tool calls and return structured JSON
+      const runTool = async (
+        fnName: string,
+        fnArgsJson: string,
+      ): Promise<Record<string, any>> => {
+        this.logger.log(`🔧 AI called function: ${fnName}`);
         try {
-          const messageHistory = await this.getMessageHistory(
-            session.sessionId,
-            10,
-          );
-          const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
-            [
-              { role: 'system', content: this.SYSTEM_PROMPT },
-              { role: 'system', content: context },
-            ];
-          messageHistory.forEach((msg) => {
-            messages.push({
-              role: msg.isFromUser ? 'user' : 'assistant',
-              content: msg.message,
-            });
-          });
-          messages.push({ role: 'user', content: message });
-          const response = await this.openai.chat.completions.create({
-            model: 'gpt-3.5-turbo',
-            messages: messages,
-            max_tokens: 1000,
-            temperature: 0.7,
-            presence_penalty: 0.6,
-            frequency_penalty: 0.6,
-            tools: [
-              {
-                type: 'function',
-                function: {
-                  name: 'create_order',
-                  description: 'Create a new order for a gaming account',
-                  parameters: {
-                    type: 'object',
-                    properties: {
-                      accountId: { type: 'number' },
-                      purchaseType: {
-                        type: 'string',
-                        enum: ['P1', 'P2PS4', 'P2PS5', 'P3', 'P3A'],
-                      },
-                      platform: { type: 'string', enum: ['PS4', 'PS5'] },
-                      phone: { type: 'string' },
-                      customerName: { type: 'string' },
-                      email: { type: 'string' },
-                      telegram: { type: 'string' },
-                    },
-                    required: [
-                      'accountId',
-                      'purchaseType',
-                      'platform',
-                      'phone',
-                    ],
+          if (fnName === 'createOrder') {
+            const args = JSON.parse(fnArgsJson) as CreateOrderDto;
+
+            const dto = plainToInstance(CreateOrderDto, args);
+            const errors = await validateDto(dto);
+            if (errors.length > 0) {
+              this.logger.warn(
+                `⚠️ Validation failed: ${JSON.stringify(errors.map((e) => e.property))}`,
+              );
+              return { ok: false, error: 'Validation failed for order data' };
+            }
+
+            const order = await this.orderService.createOrder(dto);
+            return { ok: true, orderId: order.id };
+          }
+
+          if (fnName === 'getAllAccounts') {
+            const _args = JSON.parse(fnArgsJson) as {
+              gameFilter?: string;
+              platformFilter?: 'PS4' | 'PS5';
+            };
+            this.logger.log(
+              `🔍 Getting accounts with filters: ${JSON.stringify(_args)}`,
+            );
+
+            const accounts = await this.accountService.findAll();
+
+            const updatedContext = {
+              ...session.context,
+              availableAccounts: accounts,
+            };
+            await this.updateSessionContext(session.sessionId, updatedContext);
+
+            return { ok: true, accounts: accounts };
+          }
+
+          if (fnName === 'updateOrderData') {
+            const args = JSON.parse(fnArgsJson) as Record<string, any>;
+            this.logger.log(`📝 Updating order data: ${JSON.stringify(args)}`);
+
+            const updatedContext = { ...session.context, ...args };
+            await this.updateSessionContext(session.sessionId, updatedContext);
+
+            return { ok: true, context: updatedContext };
+          }
+        } catch (e) {
+          this.logger.error(`❌ Error executing tool ${fnName}:`, e);
+          return { ok: false, error: 'Tool execution error' };
+        }
+
+        this.logger.warn(`⚠️ Unknown tool requested: ${fnName}`);
+        return { ok: false, error: 'Unknown tool' };
+      };
+
+      // Execute function-calling loop until we get a final assistant message
+      let loopGuard = 0;
+      while (loopGuard < 5) {
+        const response = await this.openai.chat.completions.create({
+          model: 'gpt-4.1-mini',
+          messages: messages,
+          max_tokens: 1000,
+          tools: [
+            {
+              type: 'function',
+              function: {
+                name: 'createOrder',
+                description: 'Create a new order',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    customerName: { type: 'string' },
+                    accountId: { type: 'number' },
+                    phone: { type: 'string' },
+                    platform: { type: 'string' },
+                    notes: { type: 'string' },
+                    email: { type: 'string' },
+                    telegram: { type: 'string' },
+                    purchaseType: { type: 'string' },
                   },
+                  required: ['accountId', 'phone', 'platform', 'purchaseType'],
                 },
               },
-            ],
-            tool_choice: 'auto',
-          });
+            },
+            {
+              type: 'function',
+              function: {
+                name: 'getAllAccounts',
+                description:
+                  'Get all available gaming accounts with their details',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    gameFilter: {
+                      type: 'string',
+                      description:
+                        'Optional game name to filter accounts (e.g., "FIFA 25")',
+                    },
+                    platformFilter: {
+                      type: 'string',
+                      enum: ['PS4', 'PS5'],
+                      description: 'Optional platform filter',
+                    },
+                  },
+                  required: [],
+                },
+              },
+            },
+            {
+              type: 'function',
+              function: {
+                name: 'updateOrderData',
+                description: 'Update order data in the current session context',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    game: { type: 'string' },
+                    accountId: { type: 'number' },
+                    purchaseType: {
+                      type: 'string',
+                    },
+                    platform: { type: 'string', enum: ['PS4', 'PS5'] },
+                    phone: { type: 'string' },
+                    customerName: { type: 'string' },
+                    email: { type: 'string' },
+                    telegram: { type: 'string' },
+                    notes: { type: 'string' },
+                  },
+                  required: [],
+                },
+              },
+            },
+          ],
+        });
 
-          const choice = response.choices[0];
-          const msg = choice.message;
+        const aiMessage = response.choices[0]?.message;
+        if (!aiMessage) {
+          break;
+        }
 
+        // Add assistant message with tool calls (if any) to the conversation
+        messages.push(
+          aiMessage as OpenAI.Chat.Completions.ChatCompletionMessageParam,
+        );
+
+        const toolCalls = aiMessage.tool_calls;
+        if (!toolCalls || toolCalls.length === 0) {
+          const finalContent =
+            aiMessage.content || 'Sorry, I could not generate a response.';
+          this.logger.log(`🤖 AI response: "${finalContent}"`);
+          return finalContent;
+        }
+
+        // Execute tool calls sequentially and append their results
+        for (const toolCall of toolCalls) {
+          if (toolCall.type !== 'function') {
+            continue;
+          }
+          const result = await runTool(
+            toolCall.function.name,
+            toolCall.function.arguments,
+          );
           this.logger.log(
-            `AI response type: ${msg?.tool_calls?.length ? 'tool_calls' : 'text'}`,
+            `🔧 Tool result for ${toolCall.function.name}: ${JSON.stringify(result).slice(0, 500)}`,
           );
 
-          // 👉 Обработка вызова функций
-          if (msg?.tool_calls?.length) {
-            const toolCall = msg.tool_calls[0];
-            if (toolCall.type === 'function') {
-              const functionName = toolCall.function.name;
-
-              let functionArgs: CreateOrderDto;
-              try {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                functionArgs = JSON.parse(toolCall.function.arguments);
-              } catch (err) {
-                this.logger.error('Failed to parse function arguments:', err);
-                return 'Sorry, I could not process your order details. Please try again.';
-              }
-
-              this.logger.log(
-                `AI wants to call function: ${functionName}, args: ${JSON.stringify(functionArgs)}`,
-              );
-
-              if (functionName === 'create_order') {
-                // Простая валидация - доверяем AI
-                if (
-                  !functionArgs.accountId ||
-                  !functionArgs.phone ||
-                  !functionArgs.platform ||
-                  !functionArgs.purchaseType
-                ) {
-                  const missing = [];
-                  if (!functionArgs.accountId) missing.push('account ID');
-                  if (!functionArgs.phone) missing.push('phone number');
-                  if (!functionArgs.platform)
-                    missing.push('platform (PS4/PS5)');
-                  if (!functionArgs.purchaseType)
-                    missing.push('purchase type (P1, P2PS4, P2PS5, P3, P3A)');
-
-                  return `⚠️ I cannot create order without: ${missing.join(', ')}. Please provide all required information first.`;
-                }
-
-                // Дополнительная проверка purchaseType
-                const validPurchaseTypes = [
-                  'P1',
-                  'P2PS4',
-                  'P2PS5',
-                  'P3',
-                  'P3A',
-                ];
-                if (!validPurchaseTypes.includes(functionArgs.purchaseType)) {
-                  return `⚠️ Invalid purchase type. Please choose one of: P1, P2PS4, P2PS5, P3, P3A`;
-                }
-
-                // Создаем заказ
-                try {
-                  const order = await this.createOrder(functionArgs);
-                  return `✅ Order created successfully! Order ID: ${order.id}. Thank you for your purchase! We will contact you soon to complete the transaction.`;
-                } catch (error) {
-                  this.logger.error('Error creating order:', error);
-                  return `❌ Sorry, there was an error creating your order. Please try again or contact support.`;
-                }
-              }
-            }
-          }
-
-          // 👉 Обычный текстовый ответ
-          const aiResponse =
-            msg?.content || 'Sorry, I could not generate a response.';
-          this.logger.log(`AI text response: ${aiResponse}`);
-          return this.filterResponse(aiResponse);
-        } catch (err: any) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          lastError = err;
-
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          if (err.status === 429) {
-            retries--;
-            if (retries > 0) {
-              const waitTime = Math.pow(2, 3 - retries) * 1000;
-              this.logger.warn(`Rate limit hit, retrying in ${waitTime}ms...`);
-              await new Promise((resolve) => setTimeout(resolve, waitTime));
-              continue;
-            }
-          }
-          throw err;
+          const toolMessage = {
+            role: 'tool',
+            tool_call_id: toolCall.id,
+            content: JSON.stringify(result),
+          } as OpenAI.Chat.Completions.ChatCompletionMessageParam;
+          messages.push(toolMessage);
         }
+
+        loopGuard += 1;
       }
 
-      throw lastError;
+      this.logger.warn('⚠️ Exceeded tool-calling loop limit.');
+      return 'Sorry, I could not complete the request.';
     } catch (error: any) {
-      this.logger.error('Error generating AI response:', error);
-
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (error.code === 'insufficient_quota' || error.status === 429) {
-        return "⚠️ I'm experiencing high demand. Please try again later or contact support.";
-      }
-
+      this.logger.error('❌ Error generating AI response:', error);
       return "⚠️ I'm having trouble processing your request right now. Please try again in a moment.";
     }
   }
@@ -459,124 +489,6 @@ You must not call {create_order} until you have confirmed ALL required fields: a
       order: { createdAt: 'ASC' },
       take: limit,
     });
-  }
-
-  validateUserInput(message: string): boolean {
-    // Базовые проверки
-    if (!message || message.trim().length === 0) {
-      return false;
-    }
-
-    // Проверка на слишком длинные сообщения (спам)
-    if (message.length > 1000) {
-      return false;
-    }
-
-    // Проверка на запрещенные символы/слова
-    const forbiddenPatterns = [
-      /<script/i,
-      /javascript:/i,
-      /on\w+\s*=/i,
-      /eval\s*\(/i,
-      /expression\s*\(/i,
-    ];
-
-    const hasForbiddenContent = forbiddenPatterns.some((pattern) =>
-      pattern.test(message),
-    );
-
-    if (hasForbiddenContent) {
-      return false;
-    }
-
-    // Принимаем все валидные сообщения
-    return true;
-  }
-
-  sanitizeInput(message: string): string {
-    return message
-      .replace(/\/system|\/admin|\/root/gi, '')
-      .replace(/<script|javascript:|eval\(/gi, '')
-      .trim();
-  }
-
-  filterResponse(response: string): string {
-    if (!response) {
-      return "⚠️ Sorry, I couldn't generate a response. Try again?";
-    }
-
-    // Просто возвращаем ответ без фильтрации
-    return response;
-  }
-
-  private async buildContext(session: AiChatSession): Promise<string> {
-    try {
-      // Get all accounts
-      const accounts = await this.accountRepository.find({
-        where: { isDeleted: false },
-      });
-
-      // Get all games
-      const games = await this.gameRepository.find({
-        where: { isDeleted: false },
-        select: ['id', 'name'],
-      });
-
-      // Logging for debugging
-      this.logger.log(
-        `Found ${accounts.length} accounts and ${games.length} games`,
-      );
-      this.logger.log(
-        `Games: ${games.map((g) => `${g.id}:${g.name}`).join(', ')}`,
-      );
-
-      // Session state - get collected order information
-      const context = session.context || {};
-      const accountId = (context.accountId as number) || 'none';
-      const purchaseType = (context.purchaseType as string) || 'none';
-      const platform = (context.platform as string) || 'none';
-      const phone = (context.phone as string) || 'none';
-
-      // Prepare accounts JSON (optional: you can filter by selected game if needed)
-      const accountsList = JSON.stringify(accounts, null, 2);
-
-      // Build context string
-      return `CURRENT ORDER INFORMATION:
-- Account ID: ${accountId}
-- Purchase Type: ${purchaseType}
-- Platform: ${platform}
-- Phone: ${phone}
-
-MISSING INFORMATION: ${this.getMissingOrderFields(context).join(', ') || 'None - ready to create order'}
-
-User language: ${session.language}
-
-AVAILABLE GAMES: ${games.map((g) => g.name).join(', ')}
-
-AVAILABLE ACCOUNTS:
-${accountsList}
-
-IMPORTANT RULES:
-- Game selection is only for discovering accounts.
-- Once an account ID has been provided and confirmed (${accountId !== 'none' ? 'ALREADY CHOSEN' : 'NOT CHOSEN'}):
-  - Do NOT ask about games again.
-  - Move directly to collecting purchase details: purchaseType, platform, phone.
-- Only call {create_order} when all 4 required fields are collected: accountId, purchaseType, platform, phone.
-- Be efficient - don't ask for information you already have.
-- If all required fields are present, call {create_order} immediately.
-
-Guidance for AI:
-- When user asks about a specific game, show matching accounts if no account is already selected.
-- If an account is already selected, do NOT show games again.
-- Be friendly and guide the user step by step.
-- Use the collected information to avoid asking for the same details twice.`;
-    } catch (error) {
-      this.logger.error('Error building context:', error);
-      return `User session state: none
-User language: ${session.language}
-Platform preference: ${session.platformPreference || 'any'}
-Budget: ${session.budgetRange || 'any'}`;
-    }
   }
 
   async createOrder(orderData: CreateOrderDto): Promise<Order> {
