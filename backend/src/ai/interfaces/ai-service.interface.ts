@@ -36,8 +36,4 @@ export interface IAiService {
   generateResponse(message: string, session: AiChatSession): Promise<string>;
 
   getMessageHistory(sessionId: string, limit?: number): Promise<AiMessage[]>;
-
-  validateUserInput(message: string): boolean;
-  sanitizeInput(message: string): string;
-  filterResponse(response: string): string;
 }
