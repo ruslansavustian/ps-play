@@ -1,11 +1,29 @@
 // User types
+export interface Role {
+  id: number;
+  name: string;
+  description: string;
+  permissions: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface User {
   id: number;
   name: string;
   email: string;
+  role: Role;
+  roleId: number;
   createdAt: string;
   updatedAt: string;
 }
+
+export interface UpdateUser extends Partial<User> {
+  name?: string;
+  email?: string;
+  roleId?: number;
+}
+
 export interface SessionResponse {
   uuid: string;
   expiresAt: string;
@@ -45,6 +63,7 @@ export interface Account {
   P3: boolean;
   P3A: boolean;
   created?: string;
+  email?: string;
 }
 
 // Game types

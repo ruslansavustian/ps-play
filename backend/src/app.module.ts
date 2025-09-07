@@ -20,11 +20,15 @@ import { S3Module } from './s3/s3.module';
 import { AiModule } from './ai/ai.module';
 import { AiChatSession } from './ai/entities/ai-chat-session.entity';
 import { AiMessage } from './ai/entities/ai-message.entity';
+import { RedisModule } from './shared/redis/redis.module';
+import { Role } from './user/role.entity';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
-
+    RedisModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -33,6 +37,7 @@ import { AiMessage } from './ai/entities/ai-message.entity';
         url: config.get<string>('DATABASE_URL'),
         entities: [
           User,
+          Role,
           Account,
           Game,
           Order,
@@ -59,7 +64,13 @@ import { AiMessage } from './ai/entities/ai-message.entity';
     AiModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule implements OnModuleInit {
   onModuleInit() {}

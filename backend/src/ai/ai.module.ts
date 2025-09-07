@@ -10,10 +10,12 @@ import { Order } from '../order/order.entity';
 import { OrderService } from '../order/order.service';
 import { TelegramService } from '../telegram/telegram-service';
 import { AccountService } from '../account/account.service';
+import { RedisModule } from 'src/shared/redis/redis.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AiChatSession, AiMessage, Account, Game, Order]),
+    RedisModule,
   ],
   controllers: [AiController],
   providers: [AiService, OrderService, TelegramService, AccountService],

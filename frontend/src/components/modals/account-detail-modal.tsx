@@ -69,6 +69,17 @@ export const AccountDetailModal = ({
     }
   }, [changes, updateAccount, onClose]);
 
+  const handleChangeAccountInfo = (
+    key: keyof Account,
+    value: string | boolean
+  ) => {
+    if (typeof value === "boolean") {
+      setChanges((prev) => ({ ...prev, [key]: value }));
+    } else {
+      setChanges((prev) => ({ ...prev, [key]: value }));
+    }
+  };
+
   return (
     <>
       {/* Account Detail Modal */}
@@ -93,6 +104,20 @@ export const AccountDetailModal = ({
                 <div className="w-6/12 space-y-4">
                   <div className="flex flex-col gap-2">
                     <label className=" font-medium text-gray-700">
+                      {t("email")}:
+                    </label>
+                    <Input
+                      className="mt-1 text-lg font-bold text-green-600"
+                      type="email"
+                      name="email"
+                      defaultValue={selectedAccount?.email}
+                      onChange={(e) =>
+                        handleChangeAccountInfo("email", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className=" font-medium text-gray-700">
                       {t("games")}:
                     </label>
                     <div className=" text-gray-900">
@@ -100,6 +125,144 @@ export const AccountDetailModal = ({
                         <p key={game.id}>- {game.name}</p>
                       ))}
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className=" font-medium text-gray-700">
+                        {t("priceP1")}
+                      </label>
+                      <Input
+                        className="mt-1 text-lg font-bold text-green-600"
+                        type="number"
+                        min="0"
+                        step="1"
+                        name="priceP1"
+                        defaultValue={selectedAccount?.priceP1.toString()}
+                        onChange={(e) => {
+                          handleChangeAccountInfo("priceP1", e.target.value);
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className=" font-medium text-gray-700">
+                        {t("priceP2PS4")}
+                      </label>
+                      <Input
+                        className="mt-1 text-lg font-bold text-green-600"
+                        type="number"
+                        min="0"
+                        step="1"
+                        name="priceP2PS4"
+                        defaultValue={selectedAccount?.priceP2PS4.toString()}
+                        onChange={(e) => {
+                          handleChangeAccountInfo("priceP2PS4", e.target.value);
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <label className=" font-medium text-gray-700">
+                        {t("priceP2PS5")}
+                      </label>
+                      <Input
+                        className="mt-1 text-lg font-bold text-green-600"
+                        type="number"
+                        min="0"
+                        step="1"
+                        name="priceP2PS5"
+                        defaultValue={selectedAccount?.priceP2PS5.toString()}
+                        onChange={(e) => {
+                          handleChangeAccountInfo("priceP2PS5", e.target.value);
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className=" font-medium text-gray-700">
+                        {t("priceP3")}
+                      </label>
+                      <Input
+                        className="mt-1 text-lg font-bold text-green-600"
+                        type="number"
+                        min="0"
+                        step="1"
+                        name="priceP3"
+                        defaultValue={selectedAccount?.priceP3.toString()}
+                        onChange={(e) => {
+                          handleChangeAccountInfo("priceP3", e.target.value);
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className=" font-medium text-gray-700">
+                        {t("priceP3A")}
+                      </label>
+                      <Input
+                        className="mt-1 text-lg font-bold text-green-600"
+                        type="number"
+                        min="0"
+                        step="1"
+                        name="priceP3A"
+                        defaultValue={selectedAccount?.priceP3A.toString()}
+                        onChange={(e) => {
+                          handleChangeAccountInfo("priceP3A", e.target.value);
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="w-6/12 space-y-4">
+                  <h1>{t("statuses")}</h1>
+                  <div className="  flex flex-row gap-2 justify-between max-w-[150px]">
+                    <label className=" font-medium text-gray-700">P1</label>
+                    <Switch
+                      id="p1"
+                      defaultSelected={selectedAccount?.P1}
+                      onValueChange={(value) => {
+                        handleChangeAccountInfo("P1", value);
+                      }}
+                    />
+                  </div>
+
+                  <div className=" flex flex-row gap-2 justify-between max-w-[150px]">
+                    <label className=" font-medium text-gray-700">P2PS4</label>
+                    <Switch
+                      id="p2PS4"
+                      defaultSelected={selectedAccount?.P2PS4}
+                      onValueChange={(value) => {
+                        handleChangeAccountInfo("P2PS4", value);
+                      }}
+                    />
+                  </div>
+                  <div className=" flex flex-row gap-2 justify-between max-w-[150px]">
+                    <label className=" font-medium text-gray-700">P2PS5</label>
+                    <Switch
+                      id="p2PS5"
+                      defaultSelected={selectedAccount?.P2PS5}
+                      onValueChange={(value) => {
+                        handleChangeAccountInfo("P2PS5", value);
+                      }}
+                    />
+                  </div>
+                  <div className=" flex flex-row gap-2 justify-between max-w-[150px]">
+                    <label className=" font-medium text-gray-700">P3</label>
+                    <Switch
+                      id="p3"
+                      defaultSelected={selectedAccount?.P3}
+                      onValueChange={(value) => {
+                        handleChangeAccountInfo("P3", value);
+                      }}
+                    />
+                  </div>
+                  <div className=" flex flex-row gap-2 justify-between max-w-[150px]">
+                    <label className=" font-medium text-gray-700">P3A</label>
+                    <Switch
+                      id="p3"
+                      defaultSelected={selectedAccount?.P3A}
+                      onValueChange={(value) => {
+                        handleChangeAccountInfo("P3A", value);
+                      }}
+                    />
                   </div>
                   <div className="flex flex-col gap-2">
                     <label className=" font-medium text-gray-700">
@@ -121,173 +284,6 @@ export const AccountDetailModal = ({
                         />
                       </p>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <label className=" font-medium text-gray-700">
-                        {t("priceP1")}
-                      </label>
-                      <Input
-                        className="mt-1 text-lg font-bold text-green-600"
-                        type="number"
-                        min="0"
-                        step="1"
-                        name="priceP1"
-                        defaultValue={selectedAccount?.priceP1.toString()}
-                        onChange={(e) => {
-                          setChanges((prev) => ({
-                            ...prev,
-                            priceP1: Number(e.target.value),
-                          }));
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className=" font-medium text-gray-700">
-                        {t("priceP2PS4")}
-                      </label>
-                      <Input
-                        className="mt-1 text-lg font-bold text-green-600"
-                        type="number"
-                        min="0"
-                        step="1"
-                        name="priceP2PS4"
-                        defaultValue={selectedAccount?.priceP2PS4.toString()}
-                        onChange={(e) => {
-                          setChanges((prev) => ({
-                            ...prev,
-                            priceP2PS4: Number(e.target.value),
-                          }));
-                        }}
-                      />
-                    </div>
-
-                    <div>
-                      <label className=" font-medium text-gray-700">
-                        {t("priceP2PS5")}
-                      </label>
-                      <Input
-                        className="mt-1 text-lg font-bold text-green-600"
-                        type="number"
-                        min="0"
-                        step="1"
-                        name="priceP2PS5"
-                        defaultValue={selectedAccount?.priceP2PS5.toString()}
-                        onChange={(e) => {
-                          setChanges((prev) => ({
-                            ...prev,
-                            priceP2PS5: Number(e.target.value),
-                          }));
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className=" font-medium text-gray-700">
-                        {t("priceP3")}
-                      </label>
-                      <Input
-                        className="mt-1 text-lg font-bold text-green-600"
-                        type="number"
-                        min="0"
-                        step="1"
-                        name="priceP3"
-                        defaultValue={selectedAccount?.priceP3.toString()}
-                        onChange={(e) => {
-                          setChanges((prev) => ({
-                            ...prev,
-                            priceP3: Number(e.target.value),
-                          }));
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className=" font-medium text-gray-700">
-                        {t("priceP3A")}
-                      </label>
-                      <Input
-                        className="mt-1 text-lg font-bold text-green-600"
-                        type="number"
-                        min="0"
-                        step="1"
-                        name="priceP3A"
-                        defaultValue={selectedAccount?.priceP3A.toString()}
-                        onChange={(e) => {
-                          setChanges((prev) => ({
-                            ...prev,
-                            priceP3A: Number(e.target.value),
-                          }));
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="w-6/12 space-y-4">
-                  <h1>{t("statuses")}</h1>
-                  <div className="  flex flex-row gap-2 justify-between max-w-[150px]">
-                    <label className=" font-medium text-gray-700">P1</label>
-                    <Switch
-                      id="p1"
-                      defaultSelected={selectedAccount?.P1}
-                      onValueChange={(value) => {
-                        setChanges((prev) => ({
-                          ...prev,
-                          P1: value,
-                        }));
-                      }}
-                    />
-                  </div>
-
-                  <div className=" flex flex-row gap-2 justify-between max-w-[150px]">
-                    <label className=" font-medium text-gray-700">P2PS4</label>
-                    <Switch
-                      id="p2PS4"
-                      defaultSelected={selectedAccount?.P2PS4}
-                      onValueChange={(value) => {
-                        setChanges((prev) => ({
-                          ...prev,
-                          P2PS4: value,
-                        }));
-                      }}
-                    />
-                  </div>
-                  <div className=" flex flex-row gap-2 justify-between max-w-[150px]">
-                    <label className=" font-medium text-gray-700">P2PS5</label>
-                    <Switch
-                      id="p2PS5"
-                      defaultSelected={selectedAccount?.P2PS5}
-                      onValueChange={(value) => {
-                        setChanges((prev) => ({
-                          ...prev,
-                          P2PS5: value,
-                        }));
-                      }}
-                    />
-                  </div>
-                  <div className=" flex flex-row gap-2 justify-between max-w-[150px]">
-                    <label className=" font-medium text-gray-700">P3</label>
-                    <Switch
-                      id="p3"
-                      defaultSelected={selectedAccount?.P3}
-                      onValueChange={(value) => {
-                        setChanges((prev) => ({
-                          ...prev,
-                          P3: value,
-                        }));
-                      }}
-                    />
-                  </div>
-                  <div className=" flex flex-row gap-2 justify-between max-w-[150px]">
-                    <label className=" font-medium text-gray-700">P3A</label>
-                    <Switch
-                      id="p3"
-                      defaultSelected={selectedAccount?.P3A}
-                      onValueChange={(value) => {
-                        setChanges((prev) => ({
-                          ...prev,
-                          P3A: value,
-                        }));
-                      }}
-                    />
                   </div>
                 </div>
               </form>

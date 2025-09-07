@@ -1,3 +1,5 @@
+import { Role } from './role.entity';
+
 export interface User {
   id: number;
   name: string;
@@ -5,4 +7,5 @@ export interface User {
   password: string;
   createdAt: Date;
   age?: number;
+  role: Role;
 }

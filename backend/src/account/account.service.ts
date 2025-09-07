@@ -54,7 +54,7 @@ export class AccountService {
 
   async create(createAccountDto: CreateAccountDto): Promise<Account> {
     const account = this.accountRepository.create({
-      gameIds: createAccountDto.gamesIds,
+      gameIds: createAccountDto.gameIds,
       platformPS4: createAccountDto.platformPS4,
       platformPS5: createAccountDto.platformPS5,
       priceP1: createAccountDto.priceP1 || 0,
@@ -98,7 +98,8 @@ export class AccountService {
     id: number,
     updateData: UpdateAccountDto,
   ): Promise<Account | null> {
-    await this.accountRepository.update(id, updateData);
+    if (Object.keys(updateData).length > 0)
+      await this.accountRepository.update(id, updateData);
     return this.findOne(id);
   }
   async remove(id: number): Promise<Account> {

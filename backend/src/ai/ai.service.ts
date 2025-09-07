@@ -18,7 +18,7 @@ import { CreateOrderDto } from '../order/dto/create-order.dto';
 import { Order } from '../order/order.entity';
 import { AccountService } from '../account/account.service';
 import { plainToInstance } from 'class-transformer';
-
+import { RedisService } from 'src/shared/redis/redis.service';
 @Injectable()
 export class AiService implements IAiService {
   private readonly logger = new Logger(AiService.name);
@@ -29,7 +29,7 @@ export class AiService implements IAiService {
   Your mission is make order. by function i give you.
   you speak on language which user ask you.
  
-
+IMPORTANT: All prices are in USD (US Dollars). Always mention currency when talking about prices.
   TO AKE ORDER U NEED NEXT DATA:
   
   - purchaseType required
@@ -117,7 +117,7 @@ You receive JSON with context and user message:
     @InjectRepository(AiMessage)
     private messageRepository: Repository<AiMessage>,
     private configService: ConfigService,
-
+    private redisService: RedisService,
     @InjectRepository(Account)
     private accountRepository: Repository<Account>,
     @InjectRepository(Game)
@@ -206,14 +206,13 @@ You receive JSON with context and user message:
     }
 
     // Save user message
-    const userMessage = this.messageRepository.create({
-      sessionId: session.id,
+    await this.redisService.addMessageToCache(session.sessionId, {
       message: chatMessageDto.message,
       isFromUser: true,
       messageType: 'text',
+      timestamp: new Date(),
     });
-    await this.messageRepository.save(userMessage);
-    this.logger.log(`💾 Saved user message`);
+    this.logger.log(`�� Saved user message to Redis`);
 
     // Generate AI response
     const aiResponse = await this.generateResponse(
@@ -232,14 +231,13 @@ You receive JSON with context and user message:
     }
 
     // Save AI response
-    const aiMessage = this.messageRepository.create({
-      sessionId: session.id,
+    await this.redisService.addMessageToCache(session.sessionId, {
       message: aiResponse,
       isFromUser: false,
       messageType: 'text',
+      timestamp: new Date(),
     });
-    await this.messageRepository.save(aiMessage);
-    this.logger.log(`💾 Saved AI response`);
+    this.logger.log(`💾 Saved AI response to Redis`);
 
     return {
       message: aiResponse,

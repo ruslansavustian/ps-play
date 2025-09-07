@@ -3,6 +3,7 @@
 
 declare const messages: {
   "common": {
+    "id": "ID",
     "loading": "Loading...",
     "save": "Save",
     "cancel": "Cancel",
@@ -92,7 +93,8 @@ declare const messages: {
     "purchaseType3": "Online activation for PS5",
     "purchaseType4": "Without activation",
     "purchaseType5": "For rent",
-    "photoUploaded": "Photo uploaded successfully"
+    "photoUploaded": "Photo uploaded successfully",
+    "email": "Email"
   },
   "games": {
     "games": "Games",
@@ -163,6 +165,23 @@ declare const messages: {
     "send": "Send",
     "askAboutGamingAccounts": "Ask about gaming accounts...",
     "hello": "Hello! I'm your AI assistant."
+  },
+  "users": {
+    "userName": "User Name",
+    "userDetails": "User Details",
+    "userRole": "User Role",
+    "userEmail": "User Email",
+    "userCreatedAt": "User Created At",
+    "userUpdatedAt": "User Updated At",
+    "users": "Users",
+    "addUser": "Add User",
+    "editUser": "Edit User",
+    "deleteUser": "Delete User",
+    "deleteConfirm": "Are you sure you want to delete this user?",
+    "cancel": "Cancel",
+    "close": "Close",
+    "addUserTitle": "Add User",
+    "save": "Save"
   }
 };
 export default messages;

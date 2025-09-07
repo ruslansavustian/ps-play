@@ -38,11 +38,8 @@ export class AuthService {
       throw new ConflictException('User with this email already exists');
     }
 
-    const user = await this.userService.createWithSalt(
-      name,
-      email,
-      hashedPassword,
-    );
+    const user = await this.userService.create(name, email, hashedPassword);
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...result } = user;
 

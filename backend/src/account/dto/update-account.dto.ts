@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsBoolean, IsOptional, IsArray } from 'class-validator';
+import {
+  IsNumber,
+  IsBoolean,
+  IsOptional,
+  IsArray,
+  IsString,
+} from 'class-validator';
 
 export class UpdateAccountDto {
   @ApiProperty({
@@ -9,7 +15,7 @@ export class UpdateAccountDto {
   })
   @IsArray()
   @IsOptional()
-  gamesId?: number[];
+  gameIds?: number[];
 
   @ApiProperty({
     description: 'PS4',
@@ -133,4 +139,13 @@ export class UpdateAccountDto {
   @IsBoolean()
   @IsOptional()
   isDeleted?: boolean;
+
+  @ApiProperty({
+    description: 'account email',
+    example: 'test@test.com',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  email?: string;
 }
