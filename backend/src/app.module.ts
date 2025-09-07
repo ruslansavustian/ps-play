@@ -46,7 +46,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
           AiChatSession,
           AiMessage,
         ],
-        synchronize: false,
+        synchronize: true,
         ssl:
           process.env.NODE_ENV === 'production'
             ? { rejectUnauthorized: false }

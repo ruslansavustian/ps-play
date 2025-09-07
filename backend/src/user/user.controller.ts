@@ -15,6 +15,7 @@ import { UpdateUserDto, User } from './user.entity';
 import { Logger } from '@nestjs/common';
 import { Role } from './role.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Public } from '../auth/public.decorator';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -39,6 +40,7 @@ export class UserController {
     return this.userService.updateUser(id, user);
   }
 
+  @Public()
   @Post('roles/init')
   async initRoles(): Promise<{ message: string }> {
     await this.userService.createDefaultRoles();
