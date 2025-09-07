@@ -37,7 +37,6 @@ export const GameDetailModal = ({
   const { updateGame } = useApp();
   const [newPhotoUrl, setNewPhotoUrl] = useState("");
   const [existedPhotoUrl, setExistedPhotoUrl] = useState("");
-  console.log(existedPhotoUrl);
 
   useEffect(() => {
     if (game.photoUrl) {

@@ -14,15 +14,12 @@ export function useAiChat() {
 
   const createSession = useCallback(async () => {
     try {
+      const body = {
+        userName: "Anonymous",
+        language: "uk",
+      };
       const response = await request.post("/ai/session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userName: "Anonymous",
-          language: "uk",
-        }),
+        body: JSON.stringify(body),
       });
 
       if (response.status !== 201) {

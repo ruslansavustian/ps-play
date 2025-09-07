@@ -24,6 +24,7 @@ import { CreateSessionDto } from './dto/create-session.dto';
 import { AiChatSession } from './entities/ai-chat-session.entity';
 import { CreateOrderDto } from '../order/dto/create-order.dto';
 import { AiMessage } from './entities/ai-message.entity';
+import { Public } from 'src/auth/public.decorator';
 
 @ApiTags('AI Chat')
 @Controller('ai')
@@ -33,6 +34,7 @@ export class AiController {
   constructor(private readonly aiService: AiService) {}
 
   @Post('session')
+  @Public()
   @ApiOperation({ summary: 'Create new AI chat session' })
   @ApiResponse({ status: 201, description: 'Session created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -62,6 +64,7 @@ export class AiController {
   }
 
   @Get('session/:sessionId')
+  @Public()
   @ApiOperation({ summary: 'Get AI chat session by ID' })
   @ApiParam({ name: 'sessionId', description: 'Session ID' })
   @ApiResponse({ status: 200, description: 'Session retrieved successfully' })
@@ -87,6 +90,7 @@ export class AiController {
   }
 
   @Post('message')
+  @Public()
   @ApiOperation({ summary: 'Send message to AI and get response' })
   @ApiResponse({ status: 200, description: 'Message processed successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -108,6 +112,7 @@ export class AiController {
   }
 
   @Get('session/:sessionId/messages')
+  @Public()
   @ApiOperation({ summary: 'Get message history for session' })
   @ApiParam({ name: 'sessionId', description: 'Session ID' })
   @ApiQuery({
@@ -140,6 +145,7 @@ export class AiController {
   }
 
   @Post('session/:sessionId/context')
+  @Public()
   @ApiOperation({ summary: 'Update session context' })
   @ApiParam({ name: 'sessionId', description: 'Session ID' })
   @ApiResponse({ status: 200, description: 'Context updated successfully' })
@@ -166,6 +172,7 @@ export class AiController {
   }
 
   @Get('health')
+  @Public()
   @ApiOperation({ summary: 'Check AI service health' })
   @ApiResponse({ status: 200, description: 'Service is healthy' })
   healthCheck(): Promise<{ status: string; timestamp: Date }> {
@@ -176,6 +183,7 @@ export class AiController {
   }
 
   @Post('order')
+  @Public()
   @ApiOperation({ summary: 'Create order through AI' })
   @ApiResponse({ status: 201, description: 'Order created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })

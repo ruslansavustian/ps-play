@@ -12,6 +12,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { GameService } from './game.service';
 import { CreateGameDto } from './dto/create-game.dto';
 import { Game } from './game.entity';
+import { Public } from 'src/auth/public.decorator';
 
 @ApiTags('Games')
 @Controller('games')
@@ -27,6 +28,7 @@ export class GameController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Get all games' })
   @ApiResponse({ status: 200, description: 'Games retrieved successfully' })
   async findAll(): Promise<Game[]> {

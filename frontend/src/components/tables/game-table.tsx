@@ -59,7 +59,6 @@ export const GameTable = () => {
     },
     [deleteGame, onClose]
   );
-  console.log(editingGame);
 
   if (gamesLoading) {
     return (

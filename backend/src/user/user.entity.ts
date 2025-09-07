@@ -4,8 +4,14 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from './role.entity';
+import { DEFAULT_ROLE_ID } from 'src/constants/role.types';
+import { Exclude } from 'class-transformer';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 @Entity('users')
 export class User {
@@ -32,6 +38,7 @@ export class User {
     writeOnly: true,
     maxLength: 255,
   })
+  @Exclude()
   @Column({ length: 255 })
   password: string;
 
@@ -58,4 +65,30 @@ export class User {
   })
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ApiProperty({ description: 'User role', type: () => Role })
+  @ManyToOne(() => Role, (role) => role.users)
+  @JoinColumn({ name: 'roleId' })
+  role: Role;
+
+  @ApiProperty({ description: 'Role ID', type: Number })
+  @Column({ nullable: true, default: DEFAULT_ROLE_ID })
+  roleId: number;
+}
+
+export class UpdateUserDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  password?: string;
 }

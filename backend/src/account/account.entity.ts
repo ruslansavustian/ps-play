@@ -167,4 +167,11 @@ export class Account {
   })
   @Column({ type: 'boolean', default: false })
   isDeleted: boolean;
+  @ApiProperty({
+    description: 'account email',
+    type: String,
+    format: 'email',
+  })
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  email: string;
 }

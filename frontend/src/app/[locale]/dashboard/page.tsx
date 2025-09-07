@@ -14,6 +14,7 @@ import { AuditLogSection } from "@/components/dashboard/audit-log-section";
 
 import { paths } from "@/utils/paths";
 import { useTranslations } from "next-intl";
+import { UsersSection } from "@/components/dashboard/users-section";
 
 function DashboardPage() {
   const {
@@ -27,9 +28,14 @@ function DashboardPage() {
     auditLogs,
     fetchAuditLogs,
     fetchOrders,
+    users,
+    roles,
+    fetchRoles,
+    fetchUsers,
   } = useApp();
   const router = useRouter();
   const t = useTranslations("dashboard");
+  const tUsers = useTranslations("users");
   const tCommon = useTranslations("common");
   const tAuth = useTranslations("auth");
   // Загружаем данные только если их нет
@@ -56,6 +62,18 @@ function DashboardPage() {
       fetchGames();
     }
   }, [fetchGames, games]);
+
+  useEffect(() => {
+    if (!users) {
+      fetchUsers();
+    }
+  }, [fetchUsers, users]);
+
+  useEffect(() => {
+    if (!roles) {
+      fetchRoles();
+    }
+  }, [fetchRoles, roles]);
 
   if (!currentUser) {
     return <Loader />;
@@ -118,6 +136,13 @@ function DashboardPage() {
             <Card>
               <CardBody>
                 <AuditLogSection />
+              </CardBody>
+            </Card>
+          </Tab>
+          <Tab key="users" title={tUsers("users")}>
+            <Card>
+              <CardBody>
+                <UsersSection />
               </CardBody>
             </Card>
           </Tab>

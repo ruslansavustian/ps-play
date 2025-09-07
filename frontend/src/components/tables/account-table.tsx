@@ -21,6 +21,7 @@ import {
 } from "@heroui/react";
 import { useCallback, useEffect, useState } from "react";
 import { AccountDetailModal } from "../modals/account-detail-modal";
+import { useTranslations } from "next-intl";
 
 // Accounts List Component
 export const AccountTable = () => {
@@ -28,7 +29,7 @@ export const AccountTable = () => {
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [deleteModal, setDeleteModal] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const t = useTranslations();
   const handleRowClick = useCallback(
     (account: Account) => {
       setSelectedAccount(account);
@@ -72,8 +73,11 @@ export const AccountTable = () => {
           }}
         >
           <TableHeader>
-            <TableColumn key="id">ID</TableColumn>
-            <TableColumn key="platform">ИГРЫ</TableColumn>
+            <TableColumn key="id" allowsSorting>
+              ID
+            </TableColumn>
+            <TableColumn key="email">{t("accounts.email")}</TableColumn>
+            <TableColumn key="platform">{t("accounts.games")}</TableColumn>
 
             <TableColumn key="p1">P1</TableColumn>
             <TableColumn key="p2PS4">P2PS4</TableColumn>
@@ -107,9 +111,18 @@ export const AccountTable = () => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  {account.games?.map((game) => (
-                    <p key={game.id}>{game.name}</p>
-                  ))}
+                  <div className="max-w-xs">
+                    <div className="font-medium text-gray-900 truncate">
+                      {account?.email ? account.email : "-"}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flew-row">
+                    {account.games?.map((game) => (
+                      <p key={game.id}>{game.name}/</p>
+                    ))}
+                  </div>
                 </TableCell>
 
                 <TableCell>

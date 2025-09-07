@@ -19,6 +19,8 @@ import {
   CreateOrderDto,
   Order,
   AuditLog,
+  Role,
+  UpdateUser,
 } from "@/types";
 import { FormState } from "@/utils/form";
 import { generateSalt, hashPassword } from "@/utils/security";
@@ -28,6 +30,8 @@ import { extractErrorMessage } from "@/utils/error-helper";
 // ---------------- STATE ----------------
 
 type State = {
+  users?: User[];
+  roles?: Role[];
   currentUser: User | null;
   loading: boolean;
   auditLogs?: AuditLog[];
@@ -44,6 +48,8 @@ type State = {
 };
 
 const initialState: State = {
+  users: undefined,
+  roles: undefined,
   currentUser: null,
   loading: false,
   accountsLoading: false,
@@ -57,6 +63,9 @@ const initialState: State = {
 
 type Action =
   | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_USERS"; payload: User[] }
+  | { type: "SET_ROLES"; payload: Role[] }
+  | { type: "UPDATE_USER"; payload: User }
   | { type: "SET_USER"; payload: User | null }
   | { type: "SET_ACCOUNTS"; payload: Account[] }
   | { type: "ADD_ACCOUNT"; payload: Account }
@@ -83,6 +92,19 @@ function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "SET_LOADING":
       return { ...state, loading: action.payload };
+    case "SET_USERS":
+      return { ...state, users: action.payload };
+    case "SET_ROLES":
+      return { ...state, roles: action.payload };
+    case "UPDATE_USER":
+      console.log("Updating user:", action.payload);
+      return {
+        ...state,
+        users: state.users?.map((u) => {
+          console.log("Comparing:", u.id, "with", action.payload.id);
+          return u.id === action.payload.id ? action.payload : u;
+        }),
+      };
     case "SET_USER":
       return { ...state, currentUser: action.payload };
     case "SET_ACCOUNTS":
@@ -256,6 +278,76 @@ const useProvideApp = () => {
   }, [router]);
 
   // ---------------- DATA ----------------
+
+  const fetchUsers = useCallback(async () => {
+    dispatch({
+      type: "SET_LOADING_FLAG",
+      payload: { key: "loading", value: true },
+    });
+    try {
+      const result = await request.get("/users");
+      dispatch({ type: "SET_USERS", payload: result.data });
+    } catch (error: any) {
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
+    } finally {
+      dispatch({
+        type: "SET_LOADING_FLAG",
+        payload: { key: "loading", value: false },
+      });
+    }
+  }, []);
+
+  const updateUser = useCallback(async (id: number, data: UpdateUser) => {
+    try {
+      const result = await request.patch(`/users/${id}`, data);
+      dispatch({ type: "UPDATE_USER", payload: result.data });
+      return result.data;
+    } catch (error: any) {
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
+    }
+  }, []);
+
+  const fetchRoles = useCallback(async () => {
+    dispatch({
+      type: "SET_LOADING_FLAG",
+      payload: { key: "loading", value: true },
+    });
+    try {
+      const result = await request.get("/roles");
+      dispatch({ type: "SET_ROLES", payload: result.data });
+    } catch (error: any) {
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
+    } finally {
+      dispatch({
+        type: "SET_LOADING_FLAG",
+        payload: { key: "loading", value: false },
+      });
+    }
+  }, []);
+
+  const assignRole = useCallback(
+    async (userId: number, roleId: number) => {
+      try {
+        const result = await request.put(`/users/${userId}/role`, { roleId });
+        dispatch({ type: "UPDATE_USER", payload: result.data });
+      } catch (error: any) {
+        dispatch({
+          type: "SET_ERROR_MESSAGE",
+          payload: extractErrorMessage(error),
+        });
+      }
+    },
+    [state.roles]
+  );
 
   const fetchAccounts = useCallback(async () => {
     dispatch({
@@ -562,6 +654,10 @@ const useProvideApp = () => {
     fetchPublicAccounts,
     clearError,
     fetchGame,
+    fetchUsers,
+    updateUser,
+    fetchRoles,
+    assignRole,
   };
 };
 

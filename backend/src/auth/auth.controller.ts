@@ -18,6 +18,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { Public } from './public.decorator';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -27,6 +28,7 @@ export class AuthController implements OnModuleInit {
   onModuleInit() {}
 
   @Post('init-session')
+  @Public()
   @ApiOperation({ summary: 'Initialize authentication session' })
   @ApiResponse({
     status: 201,
@@ -50,6 +52,7 @@ export class AuthController implements OnModuleInit {
   }
 
   @Post('login')
+  @Public()
   @ApiOperation({ summary: 'User login with Basic Auth' })
   @ApiResponse({
     status: 201,
@@ -70,7 +73,6 @@ export class AuthController implements OnModuleInit {
   @ApiResponse({ status: 200, description: 'User profile retrieved' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getProfile(@Request() req: { user: { id: string } }) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.authService.getProfile(Number(req.user.id));
   }
 }
