@@ -109,16 +109,19 @@ export const SupportChat: React.FC = () => {
 
   if (socialIcons) {
     return (
-      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4  border-2 min-w-[150px]  ">
+      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-xl p-4   min-w-[150px]  ">
         <div className="flex flex-col ">
-          <X
-            className="cursor-pointer self-end mb-4 absolute top-2 right-2"
-            onClick={() => {
-              setSocialIcons(false);
-              setSmallScreen(true);
-            }}
-          />
-          <AiAssistantWidget />
+          <div className="flex flex-row justify-between mb-4">
+            <AiAssistantWidget />
+            <X
+              className="cursor-pointer"
+              onClick={() => {
+                setSocialIcons(false);
+                setSmallScreen(true);
+              }}
+            />
+          </div>
+
           <div className="flex flex-row gap-[15px]">
             <Image
               src="/social-media/viber-icon.svg"

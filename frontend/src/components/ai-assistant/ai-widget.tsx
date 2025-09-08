@@ -85,7 +85,7 @@ export default function AiAssistantWidget() {
     <>
       {/* Floating Button */}
       <motion.div
-        className="fixed bottom-6 right-20 z-20"
+        className=" z-20"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
