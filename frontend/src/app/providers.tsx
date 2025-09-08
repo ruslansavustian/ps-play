@@ -3,8 +3,6 @@
 import { HeroUIProvider } from "@heroui/react";
 import { AppProvider } from "@/contexts/AppProvider";
 import Header from "@/components/ui-components/header";
-import AiAssistantWidget from "@/components/ai-assistant/ai-widget";
-import { SupportChat } from "@/components/chat/support-chat";
 import { usePathname } from "next/navigation";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -31,9 +29,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
           {/* Widgets wrapper - constrains fixed positioned widgets to content area */}
           <div className="fixed inset-0 pointer-events-none lg:left-[15%] lg:right-[15%]">
-            <div className="relative w-full h-full pointer-events-auto">
-              {!isOnDashBoard && <SupportChat />}
-            </div>
+            <div className="relative w-full h-full pointer-events-auto"></div>
           </div>
         </div>
       </AppProvider>

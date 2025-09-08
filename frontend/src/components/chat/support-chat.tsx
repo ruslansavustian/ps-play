@@ -109,7 +109,7 @@ export const SupportChat: React.FC = () => {
 
   if (socialIcons) {
     return (
-      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-xl p-4   min-w-[150px]  ">
+      <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4   min-w-[150px]  ">
         <div className="flex flex-col ">
           <div className="flex flex-row justify-between mb-4">
             <AiAssistantWidget />

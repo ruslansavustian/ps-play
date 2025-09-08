@@ -15,6 +15,7 @@
     "@heroui/react": "^2.8.2",
     "@hookform/resolvers": "^5.2.1",
     "@react-stately/data": "^3.14.0",
+    "@reduxjs/toolkit": "^2.9.0",
     "axios": "^1.11.0",
     "crypto-js": "^4.2.0",
     "flag-icons": "^7.5.0",
@@ -26,6 +27,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.62.0",
+    "react-redux": "^9.2.0",
     "socket.io-client": "^4.8.1",
     "zod": "^4.0.17"
   },
