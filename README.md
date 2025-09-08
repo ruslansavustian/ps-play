@@ -317,29 +317,6 @@ psql -U your_user -d psplay_db -f init.sql/init.sql
 
 ## Gaming Account Features
 
-### Supported Game Types
-
-- PlayStation accounts (PS4/PS5)
-- Xbox accounts
-- Steam accounts
-- Epic Games accounts
-- And more...
-
-### Account Properties
-
-- Game platform (PlayStation, Xbox, Steam, etc.)
-- Game title and version
-- Account username/email
-- Account level/rank
-- Game library/achievements
-- Account status (available, sold, reserved)
-- Multiple pricing tiers:
-  - Offline activation
-  - Online activation (PS4/PS5)
-  - No activation required
-  - Rental options
-- Account verification status
-
 ### Security Features
 
 - Password hashing with bcrypt
@@ -357,8 +334,6 @@ psql -U your_user -d psplay_db -f init.sql/init.sql
 - Real-time notifications
 - Live order updates
 - Customer support integration
-
-## 🚀 Future Roadmap
 
 ### 🔄 **State Management Enhancement**
 
