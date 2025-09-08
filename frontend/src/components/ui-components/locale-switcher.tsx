@@ -8,8 +8,18 @@ export default function LocaleSwitcher() {
   const pathname = usePathname();
 
   return (
-    <Link href={pathname} locale={otherLocale}>
-      <Image src={`/flags/${locale}.svg`} alt={locale} width={30} height={30} />
+    <Link
+      href={pathname}
+      className="cursor-pointer flex-shrink-0"
+      locale={otherLocale}
+    >
+      <Image
+        src={`/flags/${locale}.svg`}
+        className="cursor-pointer "
+        alt={locale}
+        width={30}
+        height={30}
+      />
     </Link>
   );
 }
