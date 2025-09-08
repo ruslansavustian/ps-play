@@ -43,7 +43,7 @@ export default function Header() {
   return (
     <Navbar
       onMenuOpenChange={setIsMenuOpen}
-      className="bg-white shadow-sm border-b border-gray-200 rounded-xl mt-4"
+      className="bg-white shadow-sm border-b border-gray-200 rounded-xl mt-10 mb-10"
       maxWidth="xl"
     >
       <NavbarContent>
@@ -148,7 +148,7 @@ export default function Header() {
       </NavbarContent>
 
       <NavbarContent justify="end">
-        <NavbarItem>
+        <NavbarItem className="flex-shrink-0">
           <LocaleSwitcher />
         </NavbarItem>
         {!currentUser ? (

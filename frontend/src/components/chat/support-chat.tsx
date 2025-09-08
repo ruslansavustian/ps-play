@@ -6,6 +6,7 @@ import { ChatMessage } from "@/types";
 import { MessageCircle, ChartBar, Headset, X } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@heroui/react";
+import AiAssistantWidget from "../ai-assistant/ai-widget";
 
 export const SupportChat: React.FC = () => {
   const {
@@ -63,15 +64,26 @@ export const SupportChat: React.FC = () => {
 
   if (smallScreen) {
     return (
-      <div className="fixed bottom-10 right-10 transition-all duration-600  p-2">
+      <div className="fixed bottom-10 right-10 transition-all duration-600 p-2">
         <button
-          className="cursor-pointer hover:scale-110 transition-all duration-300"
+          className="cursor-pointer hover:scale-110 transition-all duration-300 relative"
           onClick={() => {
             setSocialIcons(true);
             setSmallScreen(false);
           }}
         >
-          <Headset height={60} width={60} />
+          {/* Pulsing ring animation */}
+          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-400 border-r-purple-400 animate-spin opacity-60"></div>
+          <div
+            className="absolute inset-1 rounded-full border-2 border-transparent border-b-blue-300 border-l-purple-300 animate-spin opacity-40"
+            style={{ animationDirection: "reverse", animationDuration: "2s" }}
+          ></div>
+
+          <Headset
+            height={60}
+            width={60}
+            className="relative z-10 m-4  lg:text-white text-purple-500"
+          />
         </button>
       </div>
     );
@@ -100,12 +112,13 @@ export const SupportChat: React.FC = () => {
       <div className="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4  border-2 min-w-[150px]  ">
         <div className="flex flex-col ">
           <X
-            className="cursor-pointer self-end mb-4"
+            className="cursor-pointer self-end mb-4 absolute top-2 right-2"
             onClick={() => {
               setSocialIcons(false);
               setSmallScreen(true);
             }}
           />
+          <AiAssistantWidget />
           <div className="flex flex-row gap-[15px]">
             <Image
               src="/social-media/viber-icon.svg"

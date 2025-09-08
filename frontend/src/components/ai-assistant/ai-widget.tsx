@@ -85,17 +85,27 @@ export default function AiAssistantWidget() {
     <>
       {/* Floating Button */}
       <motion.div
-        className="fixed bottom-[15%] right-12 z-20"
+        className="fixed bottom-6 right-20 z-20"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        transition={{ delay: 1, type: "spring", stiffness: 200 }}
+        transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
       >
         <Button
           isIconOnly
-          className="w-14 h-14 md:w-24 md:h-24 bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+          className="w-14 h-14 md:w-24 md:h-24 bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden"
           onPress={() => setIsOpen(true)}
         >
-          <h1 className="text-white text-2xl font-bold absolute">
+          {/* Pulsing ring animation */}
+          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-400 border-r-purple-400 animate-spin opacity-60"></div>
+          <div
+            className="absolute inset-1 rounded-full border-2 border-transparent border-b-blue-300 border-l-purple-300 animate-spin opacity-40"
+            style={{ animationDirection: "reverse", animationDuration: "2s" }}
+          ></div>
+
+          {/* Pulsing background effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse opacity-20"></div>
+
+          <h1 className="text-white text-2xl font-bold relative z-10">
             {t("logo")}
           </h1>
         </Button>

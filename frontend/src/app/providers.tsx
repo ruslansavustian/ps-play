@@ -9,13 +9,33 @@ import { usePathname } from "next/navigation";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const isOnDashBoard = usePathname().includes("/dashboard");
+
   return (
     <HeroUIProvider>
       <AppProvider>
-        {!isOnDashBoard && <AiAssistantWidget />}
-        {!isOnDashBoard && <SupportChat />}
-        <Header />
-        <div className="container mx-auto">{children}</div>
+        <div className="relative w-full h-full">
+          <div
+            className="fixed inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-75 ease-out"
+            style={{
+              backgroundImage: "url('/background-image.jpg')",
+            }}
+          />
+
+          <div className="relative z-10 w-full lg:max-w-[70%] mx-auto">
+            <Header />
+
+            <div className="relative">
+              <div className="flex flex-col gap-10">{children}</div>
+            </div>
+          </div>
+
+          {/* Widgets wrapper - constrains fixed positioned widgets to content area */}
+          <div className="fixed inset-0 pointer-events-none lg:left-[15%] lg:right-[15%]">
+            <div className="relative w-full h-full pointer-events-auto">
+              {!isOnDashBoard && <SupportChat />}
+            </div>
+          </div>
+        </div>
       </AppProvider>
     </HeroUIProvider>
   );
