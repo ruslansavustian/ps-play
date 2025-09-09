@@ -4,13 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useChat } from "../../hooks/use-chat";
 import { ChatMessage } from "@/types";
 
-interface SupportTicket {
-  id: string;
-  userName: string;
-  message: string;
-  status: "open" | "closed";
-}
-
 export function AdminSupportBoard() {
   const {
     messages,
@@ -21,17 +14,15 @@ export function AdminSupportBoard() {
     socket,
     joinAsAdmin,
     joinTicket,
-    sendMessage,
+
     sendAdminMessage,
-    clearMessages,
+
     connectSocket,
     setMessages,
   } = useChat();
   const [inputMessage, setInputMessage] = useState("");
   const [isAdminConnected, setIsAdminConnected] = useState(false);
-  const [disconnectedUsers, setDisconnectedUsers] = useState<Set<string>>(
-    new Set()
-  );
+
   const [disconnectedUserNames, setDisconnectedUserNames] = useState<
     Set<string>
   >(new Set());
@@ -52,7 +43,7 @@ export function AdminSupportBoard() {
       socket.on(
         "userDisconnected",
         (data: { ticketId: string; userName: string; userId: string }) => {
-          setDisconnectedUsers((prev) => new Set(prev).add(data.userId));
+          setDisconnectedUserNames((prev) => new Set(prev).add(data.userId));
           setDisconnectedUserNames((prev) => new Set(prev).add(data.userName));
 
           if (selectedTicket === data.ticketId) {
@@ -70,7 +61,7 @@ export function AdminSupportBoard() {
       socket.on(
         "userReconnected",
         (data: { ticketId: string; userName: string; userId: string }) => {
-          setDisconnectedUsers((prev) => {
+          setDisconnectedUserNames((prev) => {
             const newSet = new Set(prev);
             newSet.delete(data.userId);
             return newSet;
@@ -93,7 +84,7 @@ export function AdminSupportBoard() {
         }
       );
     }
-  }, [socket, selectedTicket]);
+  }, [socket, selectedTicket, setMessages]);
 
   const handleJoinTicket = (ticketId: string) => {
     joinTicket(ticketId);
@@ -104,10 +95,6 @@ export function AdminSupportBoard() {
       sendAdminMessage(inputMessage, selectedTicket);
       setInputMessage("");
     }
-  };
-
-  const handleCloseTicket = (ticketId: string) => {
-    // TODO: implement
   };
 
   return (
@@ -165,17 +152,6 @@ export function AdminSupportBoard() {
                       >
                         {ticket.status === "open" ? "Открыт" : "Закрыт"}
                       </span>
-                      {ticket.status === "open" && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCloseTicket(ticket.id);
-                          }}
-                          className="text-red-500 hover:text-red-700 text-xs"
-                        >
-                          ✕
-                        </button>
-                      )}
                     </div>
                   </div>
                 </div>

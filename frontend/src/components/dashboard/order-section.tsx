@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { OrderTable } from "../tables/order-table";
 import { MyButton } from "../ui-components/my-button";
-import { useApp } from "@/contexts/AppProvider";
 import { CreateOrderModal } from "../modals/create-order-modal";
 
 export const OrderSection = () => {

@@ -1,8 +1,14 @@
-import { User, Account, Game, Order, Role, AuditLog } from "@/types";
+import { User, Account, Game, Order, AuditLog } from "@/types";
 
 export interface AuthState {
-  user: User | null;
+  currentUser: User | null;
   isAuthenticated: boolean;
+  loading: boolean;
+  error: string | null;
+}
+
+export interface UsersState {
+  users: User[];
   loading: boolean;
   error: string | null;
 }
@@ -27,18 +33,17 @@ export interface OrdersState {
   error: string | null;
 }
 
-export interface AppState {
-  users: User[];
-  roles: Role[];
+export interface AuditLogsState {
   auditLogs: AuditLog[];
-  auditLogsLoading: boolean;
-  errorMessage: string | null;
+  loading: boolean;
+  error: string | null;
 }
 
 export interface RootState {
-  auth: AuthState;
   accounts: AccountsState;
   games: GamesState;
+  auditLogs: AuditLogsState;
   orders: OrdersState;
-  app: AppState;
+  users: UsersState;
+  auth: AuthState;
 }

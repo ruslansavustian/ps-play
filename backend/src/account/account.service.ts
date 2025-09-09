@@ -54,6 +54,7 @@ export class AccountService {
 
   async create(createAccountDto: CreateAccountDto): Promise<Account> {
     const account = this.accountRepository.create({
+      email: createAccountDto.email,
       gameIds: createAccountDto.gameIds,
       platformPS4: createAccountDto.platformPS4,
       platformPS5: createAccountDto.platformPS5,

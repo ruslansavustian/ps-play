@@ -21,7 +21,7 @@ import { usePathname } from "next/navigation";
 import LocaleSwitcher from "./locale-switcher";
 import { ChevronDown } from "lucide-react";
 import { paths } from "@/utils/paths";
-import { useApp } from "@/contexts/AppProvider";
+import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

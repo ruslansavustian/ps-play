@@ -21,7 +21,9 @@ declare const messages: {
     "selectFile": "Select File",
     "fileUploaded": "File uploaded successfully",
     "photo": "Photo",
-    "close": "Close"
+    "close": "Close",
+    "back": "Back",
+    "found": "Found"
   },
   "navigation": {
     "accounts": "Accounts",
@@ -98,10 +100,14 @@ declare const messages: {
   },
   "games": {
     "games": "Games",
+    "gameDetails": "Game Details",
+    "addGame": "Add Game",
     "createGameTitle": "Create New Game",
     "createGameDescription": "Add a new game to your collection",
     "gameName": "Game Name",
-    "gameNamePlaceholder": "Enter game name (e.g., FIFA 24, Call of Duty)"
+    "gameShortName": "Abbreviation",
+    "gameNamePlaceholder": "Enter game name (e.g., FIFA 24, Call of Duty)",
+    "noGames": "No games found"
   },
   "orders": {
     "createOrder": "Create Order",
@@ -139,7 +145,9 @@ declare const messages: {
     "time": "Time",
     "yes": "Yes",
     "no": "No",
-    "close": "Close"
+    "close": "Close",
+    "noLogs": "No logs found",
+    "logs": "Logs"
   },
   "home": {
     "title": "Gaming Accounts",

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
-import { useApp } from "@/contexts/AppProvider";
+import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
 import HomeGameCard from "@/components/ui-components/home-game-card";
 
 import { useTranslations } from "next-intl";

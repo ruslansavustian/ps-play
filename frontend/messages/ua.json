@@ -18,7 +18,9 @@
     "selectFile": "Вибрати файл",
     "fileUploaded": "Файл завантажено успішно",
     "photo": "Фотографія",
-    "close": "Закрити"
+    "close": "Закрити",
+    "back": "Назад",
+    "found": "Знайдено"
   },
   "navigation": {
     "accounts": "Акаунти",
@@ -95,10 +97,14 @@
   },
   "games": {
     "games": "Ігри",
+    "gameDetails": "Деталі гри",
+    "addGame": "Додати гру",
     "createGameTitle": "Створити нову гру",
     "createGameDescription": "Додати нову гру до вашої колекції",
     "gameName": "Назва гри",
-    "gameNamePlaceholder": "Введіть назву гри (наприклад, FIFA 24, Call of Duty)"
+    "gameShortName": "Абревіатура",
+    "gameNamePlaceholder": "Введіть назву гри (наприклад, FIFA 24, Call of Duty)",
+    "noGames": "Ігри не знайдені"
   },
   "orders": {
     "createOrder": "Створити замовлення",
@@ -136,7 +142,9 @@
     "yes": "Так",
     "no": "Ні",
     "close": "Закрити",
-    "property": "Властивість"
+    "property": "Властивість",
+    "noLogs": "Логи не знайдені",
+    "logs": "Логи"
   },
   "home": {
     "title": "Ігрові акаунти",

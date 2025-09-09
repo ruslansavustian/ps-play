@@ -3,7 +3,7 @@
 import { HomeAccountsTable } from "@/components/tables/home-tables/home-accounts-table";
 import React, { useEffect } from "react";
 
-import { useApp } from "@/contexts/AppProvider";
+import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
 import { useTranslations } from "next-intl";
 import { PSLoader } from "@/components/ui-components/ps-loader";
 import { SupportChat } from "@/components/chat/support-chat";
@@ -16,7 +16,7 @@ export default function AccountsPage() {
     if (!publicAccounts) {
       fetchPublicAccounts();
     }
-  }, [fetchPublicAccounts]);
+  }, [fetchPublicAccounts, publicAccounts]);
 
   if (!publicAccounts) {
     return <PSLoader />;

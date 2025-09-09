@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { GameTable } from "../tables/game-table";
 import { MyButton } from "../ui-components/my-button";
 import { CreateGameModal } from "../modals/create-game.modal";
+import { useTranslations } from "next-intl";
 
 export const GameSection = () => {
   const [isCreateGameModalOpen, setIsCreateGameModalOpen] = useState(false);
+  const t = useTranslations("games");
   return (
     <div>
       <CreateGameModal
@@ -13,7 +15,7 @@ export const GameSection = () => {
       />
       <div className="flex justify-end">
         <MyButton
-          title="+ Добавить игру"
+          title={t("addGame")}
           onClick={() => setIsCreateGameModalOpen(true)}
         />
       </div>

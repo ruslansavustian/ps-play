@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { useChat } from "@/hooks/use-chat";
 import { ChatMessage } from "@/types";
-import { MessageCircle, ChartBar, Headset, X } from "lucide-react";
+import { MessageCircle, Headset, X } from "lucide-react";
 import Image from "next/image";
-import { Button } from "@heroui/react";
 import AiAssistantWidget from "../ai-assistant/ai-widget";
 
 export const SupportChat: React.FC = () => {
@@ -13,14 +12,10 @@ export const SupportChat: React.FC = () => {
     messages,
     isConnected,
     userName,
-    tickets,
-    selectedTicket,
-    joinAsAdmin,
-    joinTicket,
+
     createSupportTicket,
     sendMessage,
-    clearMessages,
-    setUser,
+
     connectSocket,
   } = useChat();
 

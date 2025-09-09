@@ -29,9 +29,8 @@ export interface SessionResponse {
   expiresAt: string;
 }
 export interface LoginDto {
-  uuid: string;
   email: string;
-  hashedPassword: string;
+  password: string;
 }
 
 export interface RegisterDto {
@@ -45,7 +44,18 @@ export interface AuthResponse {
   user: User;
 }
 
-// Gaming Account types
+export interface CreateAccountDto extends Partial<Account> {
+  email: string;
+  gameIds: number[];
+  platformPS4: boolean;
+  platformPS5: boolean;
+  priceP1: number;
+  priceP2PS4: number;
+  priceP2PS5: number;
+  priceP3: number;
+  priceP3A: number;
+}
+
 export interface Account {
   id?: number;
   gameIds: number[];
@@ -70,6 +80,7 @@ export interface Account {
 export interface Game {
   id?: number;
   name: string;
+  abbreviation: string;
   created?: string;
   photoUrl?: string;
 }
@@ -84,16 +95,21 @@ export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
+  error: string | null;
 }
 
 export interface AccountsState {
   accounts: Account[];
-  accountsLoading: boolean;
+  publicAccounts: Account[];
+  loading: boolean;
+  error: string | null;
 }
 
 export interface GamesState {
   games: Game[];
-  gamesLoading: boolean;
+  currentGame: Game | null;
+  loading: boolean;
+  error: string | null;
 }
 
 export interface CreateOrderDto {
@@ -121,7 +137,8 @@ export interface Order {
 
 export interface OrdersState {
   orders: Order[];
-  ordersLoading: boolean;
+  loading: boolean;
+  error: string | null;
 }
 
 export interface AuditLog {

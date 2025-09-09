@@ -6,8 +6,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useApp } from "@/contexts/AppProvider";
-import { generateSalt, hashPassword } from "@/utils/security";
+import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -31,13 +30,12 @@ export default function RegisterPage() {
   });
 
   const onSubmit = async (data: RegisterFormData) => {
-    const hashedPassword = await hashPassword(data.password);
     try {
       setError("");
       await registerUser({
         name: data.name,
         email: data.email,
-        hashedPassword,
+        hashedPassword: data.password,
       });
       router.push("/dashboard");
     } catch (err: any) {

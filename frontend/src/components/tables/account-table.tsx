@@ -1,4 +1,3 @@
-import { useApp } from "@/contexts/AppProvider";
 import { Account } from "@/types";
 import {
   Table,
@@ -7,29 +6,32 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
   useDisclosure,
-  Chip,
-  Switch,
   Checkbox,
-  checkbox,
 } from "@heroui/react";
 import { useCallback, useEffect, useState } from "react";
 import { AccountDetailModal } from "../modals/account-detail-modal";
 import { useTranslations } from "next-intl";
+import { useAppDispatch, useAppSelector } from "@/stores(REDUX)";
+import {
+  selectAccounts,
+  selectAccountsLoading,
+} from "@/stores(REDUX)/slices/accounts-slice";
+import { fetchAccounts } from "@/stores(REDUX)/slices/accounts-slice";
+import { fetchGames, selectGames } from "@/stores(REDUX)/slices/games-slice";
+import { Loader } from "../ui-components/loader";
 
 // Accounts List Component
 export const AccountTable = () => {
-  const { accounts, accountsLoading, deleteAccount } = useApp();
+  const dispatch = useAppDispatch();
+  const games = useAppSelector(selectGames);
+  const accounts = useAppSelector(selectAccounts);
+  const accountsLoading = useAppSelector(selectAccountsLoading);
+
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-  const [deleteModal, setDeleteModal] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const t = useTranslations();
+
   const handleRowClick = useCallback(
     (account: Account) => {
       setSelectedAccount(account);
@@ -38,12 +40,25 @@ export const AccountTable = () => {
     [onOpen]
   );
 
-  if (accountsLoading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-      </div>
-    );
+  const handleCloseModal = useCallback(() => {
+    setSelectedAccount(null);
+    onClose();
+  }, [onClose]);
+
+  useEffect(() => {
+    if (accounts.length === 0) {
+      dispatch(fetchAccounts());
+    }
+  }, [dispatch, accounts.length]);
+
+  useEffect(() => {
+    if (games.length === 0) {
+      dispatch(fetchGames());
+    }
+  }, [dispatch, games.length]);
+
+  if (accountsLoading && accounts.length === 0) {
+    return <Loader />;
   }
 
   return (
@@ -59,7 +74,7 @@ export const AccountTable = () => {
         {selectedAccount?.id && (
           <AccountDetailModal
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={handleCloseModal}
             setSelectedAccount={setSelectedAccount}
             selectedAccount={selectedAccount!}
           />

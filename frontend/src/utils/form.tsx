@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import z from "zod";
 interface InputChangeEvent {
   target: {
@@ -65,27 +65,6 @@ export const useFormState = (initialData: FormState, schema: z.ZodSchema) => {
     }));
 
     validateField(name, value);
-  };
-
-  const validateForm = () => {
-    try {
-      schema.parse(formData);
-      setErrors({});
-      return { isValid: true, errors: {} };
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        console.log(error);
-        // const newErrors: Record<string, string> = {};
-        // error.errors.forEach((err: any) => {
-        //   const fieldName = err.path[0] as string;
-        //   newErrors[fieldName] = err.message;
-        //   setInputStatus((prev) => ({ ...prev, [fieldName]: "error" }));
-        // });
-        // setErrors(newErrors);
-        // return { isValid: false, errors: newErrors };
-      }
-      return { isValid: false, errors: {} };
-    }
   };
 
   const resetForm = () => {

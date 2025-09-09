@@ -22,6 +22,14 @@ export class Game {
   name: string;
 
   @ApiProperty({
+    description: 'abbreviation',
+    type: String,
+    example: 'FC26',
+  })
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  abbreviation: string;
+
+  @ApiProperty({
     description: 'Creation timestamp',
     type: String,
     format: 'date-time',

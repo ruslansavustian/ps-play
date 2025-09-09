@@ -6,12 +6,10 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  useDisclosure,
 } from "@heroui/react";
-import { GameTable } from "../tables/game-table";
 import { AccountDetailModal } from "./account-detail-modal";
 import { useMemo, useState } from "react";
-import { useApp } from "@/contexts/AppProvider";
+import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
 import moment from "moment";
 import { useTranslations } from "next-intl";
 

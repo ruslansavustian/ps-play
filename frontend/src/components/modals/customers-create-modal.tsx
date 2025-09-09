@@ -11,8 +11,8 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useApp } from "@/contexts/AppProvider";
-import { Account, Game } from "@/types";
+import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
+
 import { ErrorContainer } from "../ui-components/error-container";
 import { useTranslations } from "next-intl";
 
@@ -29,7 +29,6 @@ export const CustomersCreateModal = ({
 }: CustomersCreateModalProps) => {
   const { createOrder } = useApp();
   const t = useTranslations("orders");
-  const tCommon = useTranslations("common");
 
   const [formData, setFormData] = useState({
     customerName: "",
