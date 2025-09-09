@@ -10,7 +10,6 @@ interface PSLoaderProps {
 
 export const PSLoader: React.FC<PSLoaderProps> = ({
   size = "md",
-  text = "Загрузка...",
   showText = true,
 }) => {
   const sizeClasses = {

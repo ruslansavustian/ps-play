@@ -7,9 +7,11 @@ import {
   ModalFooter,
   Button,
   Input,
+  Image,
 } from "@heroui/react";
 import { Game } from "@/types";
-import { useApp } from "@/contexts/AppProvider";
+import { useAppDispatch } from "@/stores(REDUX)";
+import { createGame } from "@/stores(REDUX)/slices/games-slice";
 import { ErrorContainer } from "../ui-components/error-container";
 import { useTranslations } from "next-intl";
 import { FileUpload } from "../ui-components/file-uploader";
@@ -19,12 +21,12 @@ interface CreateGameModalProps {
   onClose?: () => void;
 }
 export const CreateGameModal = ({ isOpen, onClose }: CreateGameModalProps) => {
-  const { createGame } = useApp();
   const t = useTranslations("games");
   const tCommon = useTranslations("common");
-
+  const dispatch = useAppDispatch();
   const [formData, setFormData] = useState<Game>({
     name: "",
+    abbreviation: "",
     photoUrl: "",
   });
 
@@ -35,12 +37,14 @@ export const CreateGameModal = ({ isOpen, onClose }: CreateGameModalProps) => {
   };
 
   const handleSubmit = useCallback(async () => {
-    await createGame(formData);
+    await dispatch(createGame(formData));
     setFormData({
       name: "",
+      abbreviation: "",
+      photoUrl: "",
     });
     onClose?.();
-  }, [formData, createGame, onClose]);
+  }, [formData, dispatch, onClose]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -75,9 +79,11 @@ export const CreateGameModal = ({ isOpen, onClose }: CreateGameModalProps) => {
             <h1>{tCommon("selectPhoto")}</h1>
             {formData.photoUrl && (
               <div className="flex items-center space-x-2">
-                <img
+                <Image
                   src={formData.photoUrl}
                   alt="Game photo"
+                  width={80}
+                  height={80}
                   className="w-16 h-16 object-cover rounded"
                 />
                 <Button

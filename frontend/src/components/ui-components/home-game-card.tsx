@@ -25,7 +25,7 @@ export default function HomeGameCard({ game }: HomeGameCardProps) {
             height={300}
             width={300}
             priority={true}
-            className="object-cover transition-transform duration-300 group-hover:scale-110"
+            className=" transition-transform duration-300 group-hover:scale-110"
           />
         ) : (
           <div className="flex items-center justify-center h-full bg-gray-100">

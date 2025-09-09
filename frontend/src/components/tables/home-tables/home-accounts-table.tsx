@@ -7,16 +7,9 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  Listbox,
-  ListboxItem,
-  Checkbox,
   Spinner,
 } from "@heroui/react";
-import { useApp } from "@/contexts/AppProvider";
+import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
 import { Account } from "@/types";
 import { CustomersCreateModal } from "@/components/modals/customers-create-modal";
 import { useAsyncList } from "@react-stately/data";

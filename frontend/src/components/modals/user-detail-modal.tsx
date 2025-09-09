@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -7,17 +7,14 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  Checkbox,
-  Switch,
   Input,
   Select,
   SelectItem,
 } from "@heroui/react";
-import { Account, Role, UpdateUser, User } from "@/types";
-import { useApp } from "@/contexts/AppProvider";
+import { Role, UpdateUser, User } from "@/types";
+import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
 import { ErrorContainer } from "../ui-components/error-container";
 import { useTranslations } from "next-intl";
-import { Underline } from "lucide-react";
 
 interface UserDetailModalProps {
   isOpen: boolean;
@@ -30,7 +27,6 @@ export const UserDetailModal = ({
   isOpen,
   onClose,
   selectedUser,
-  setSelectedUser,
 }: UserDetailModalProps) => {
   const [changes, setChanges] = useState<UpdateUser | undefined>(undefined);
   const [newRoleId, setNewRoleId] = useState<number | undefined>(undefined);

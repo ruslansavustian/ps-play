@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@heroui/react";
-import { MessageCircle, X, Send, Bot, User } from "lucide-react";
+import { X, Send, Bot, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAiChat } from "@/hooks/use-ai-chat";

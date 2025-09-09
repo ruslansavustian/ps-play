@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { AccountsState, RootState } from "../types";
+import { AccountsState } from "../types";
 import { Account } from "@/types";
+import { RootState } from "../index";
 import request from "@/lib/request";
 
-// Async Thunks (асинхронные действия)
 export const fetchAccounts = createAsyncThunk(
   "accounts/fetchAccounts",
   async (_, { rejectWithValue }) => {
@@ -53,7 +53,7 @@ export const updateAccount = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await request.put<Account>(`/accounts/${id}`, data);
+      const response = await request.patch<Account>(`/accounts/${id}`, data);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -196,7 +196,6 @@ const accountsSlice = createSlice({
   },
 });
 
-// Экспорт действий
 export const {
   clearError,
   setAccounts,
@@ -205,7 +204,6 @@ export const {
   removeAccount,
 } = accountsSlice.actions;
 
-// Селекторы (для чтения состояния)
 export const selectAccounts = (state: RootState) => state.accounts.accounts;
 export const selectPublicAccounts = (state: RootState) =>
   state.accounts.publicAccounts;
@@ -213,5 +211,4 @@ export const selectAccountsLoading = (state: RootState) =>
   state.accounts.loading;
 export const selectAccountsError = (state: RootState) => state.accounts.error;
 
-// Экспорт редьюсера
 export default accountsSlice.reducer;

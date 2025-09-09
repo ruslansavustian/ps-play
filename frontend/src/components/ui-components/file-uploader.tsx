@@ -3,6 +3,7 @@ import { Button, Progress } from "@heroui/react";
 import { Upload, X, CheckCircle } from "lucide-react";
 import request from "@/lib/request";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 interface FileUploadProps {
   onFileUploaded: (fileUrl: string) => void;
@@ -157,10 +158,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <img
+          <Image
             src={uploadedFile}
             alt="Uploaded"
             className="mt-2 max-h-32 rounded object-cover"
+            width={100}
+            height={100}
           />
         </div>
       )}

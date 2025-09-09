@@ -4,7 +4,6 @@ import React, {
   createContext,
   ReactNode,
   useContext,
-  useEffect,
   useCallback,
   useMemo,
   useReducer,
@@ -23,7 +22,7 @@ import {
   UpdateUser,
 } from "@/types";
 import { FormState } from "@/utils/form";
-import { generateSalt, hashPassword } from "@/utils/security";
+
 import { paths } from "@/utils/paths";
 import { extractErrorMessage } from "@/utils/error-helper";
 
@@ -214,38 +213,41 @@ const useProvideApp = () => {
     }
   }, []);
 
-  const login = useCallback(async (formData: FormState) => {
-    dispatch({ type: "SET_LOADING", payload: true });
-    try {
-      const sessionResponse = await request.post("/auth/init-session");
-      const { uuid } = sessionResponse.data;
+  const login = useCallback(
+    async (formData: FormState) => {
+      dispatch({ type: "SET_LOADING", payload: true });
+      try {
+        const sessionResponse = await request.post("/auth/init-session");
+        const { uuid } = sessionResponse.data;
 
-      const credentials = btoa(`${formData.email}:${formData.password}`);
-      const response = await request.post(
-        "/auth/login",
-        { uuid },
-        {
-          headers: {
-            Authorization: `Basic ${credentials}`,
-          },
-        }
-      );
-      const { access_token, user } = response.data;
-      localStorage.setItem("token", access_token);
-      request.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${access_token}`;
-      dispatch({ type: "SET_USER", payload: user });
-      router.push(paths.dashboard);
-    } catch (error: any) {
-      dispatch({
-        type: "SET_ERROR_MESSAGE",
-        payload: extractErrorMessage(error),
-      });
-    } finally {
-      dispatch({ type: "SET_LOADING", payload: false });
-    }
-  }, []);
+        const credentials = btoa(`${formData.email}:${formData.password}`);
+        const response = await request.post(
+          "/auth/login",
+          { uuid },
+          {
+            headers: {
+              Authorization: `Basic ${credentials}`,
+            },
+          }
+        );
+        const { access_token, user } = response.data;
+        localStorage.setItem("token", access_token);
+        request.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${access_token}`;
+        dispatch({ type: "SET_USER", payload: user });
+        router.push(paths.dashboard);
+      } catch (error: any) {
+        dispatch({
+          type: "SET_ERROR_MESSAGE",
+          payload: extractErrorMessage(error),
+        });
+      } finally {
+        dispatch({ type: "SET_LOADING", payload: false });
+      }
+    },
+    [router]
+  );
 
   const register = useCallback(
     async (userData: RegisterDto) => {
@@ -334,20 +336,17 @@ const useProvideApp = () => {
     }
   }, []);
 
-  const assignRole = useCallback(
-    async (userId: number, roleId: number) => {
-      try {
-        const result = await request.put(`/users/${userId}/role`, { roleId });
-        dispatch({ type: "UPDATE_USER", payload: result.data });
-      } catch (error: any) {
-        dispatch({
-          type: "SET_ERROR_MESSAGE",
-          payload: extractErrorMessage(error),
-        });
-      }
-    },
-    [state.roles]
-  );
+  const assignRole = useCallback(async (userId: number, roleId: number) => {
+    try {
+      const result = await request.put(`/users/${userId}/role`, { roleId });
+      dispatch({ type: "UPDATE_USER", payload: result.data });
+    } catch (error: any) {
+      dispatch({
+        type: "SET_ERROR_MESSAGE",
+        payload: extractErrorMessage(error),
+      });
+    }
+  }, []);
 
   const fetchAccounts = useCallback(async () => {
     dispatch({
@@ -622,14 +621,14 @@ const useProvideApp = () => {
 
   // ---------------- INIT ----------------
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token && !state.currentUser) {
-      fetchCurrentUser();
-    } else if (!token) {
-      dispatch({ type: "SET_LOADING", payload: false });
-    }
-  }, [fetchCurrentUser, state.currentUser]);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (token && !state.currentUser) {
+  //     fetchCurrentUser();
+  //   } else if (!token) {
+  //     dispatch({ type: "SET_LOADING", payload: false });
+  //   }
+  // }, [fetchCurrentUser, state.currentUser]);
 
   return {
     ...state,

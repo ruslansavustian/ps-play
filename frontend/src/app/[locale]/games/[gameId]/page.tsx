@@ -1,16 +1,14 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useApp } from "@/contexts/AppProvider";
+import React, { useCallback, useEffect, useState } from "react";
+import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
 import { Loader } from "@/components/ui-components/loader";
 import { HomeAccountsTable } from "@/components/tables/home-tables/home-accounts-table";
 import { Account } from "@/types";
 import { useTranslations } from "next-intl";
-import { ArrowLeftIcon } from "lucide-react";
 
-import { paths } from "@/utils/paths";
-import { Link } from "@heroui/react";
+import { BackButton } from "@/components/ui-components/back-button";
 
 const GamePage = () => {
   const {
@@ -65,6 +63,7 @@ const GamePage = () => {
   if (filteredAccounts && filteredAccounts.length === 0) {
     return (
       <div className="text-2xl font-bold text-gray-900 mt-[50px]   flex flex-col text-center gap-2">
+        <BackButton />
         {t("gamePage.noAccounts")}
       </div>
     );
@@ -73,13 +72,7 @@ const GamePage = () => {
   return (
     <div className="h-full min-h-screen flex flex-col gap-4">
       <div className="text-2xl font-bold text-gray-900 mt-[50px]   flex flex-col  gap-2">
-        <Link
-          href={paths.games}
-          className="flex flex-row items-center gap-2 cursor-pointer text-black"
-        >
-          <ArrowLeftIcon />
-          <h1 className="text-2xl font-bold text-gray-900">назад</h1>
-        </Link>
+        <BackButton />
 
         <div className="text-2xl font-bold text-gray-900 text-center">
           {t("gamePage.title")} {currentGame?.name}:

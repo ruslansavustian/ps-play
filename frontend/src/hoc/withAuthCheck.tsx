@@ -1,44 +1,45 @@
 "use client";
 
-import { useApp } from "@/contexts/AppProvider";
 import { paths } from "@/utils/paths";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-interface WithAuthCheckProps {
-  children: React.ReactNode;
-}
+import { useAppDispatch, useAppSelector } from "@/stores(REDUX)";
+import {
+  fetchCurrentUser,
+  selectCurrentUser,
+  selectLoading,
+} from "@/stores(REDUX)/slices/auth-slice";
 
 export const withAuthCheck = <P extends object>(
   WrappedComponent: React.ComponentType<P>
 ) => {
   const WithAuthCheckComponent = (props: P) => {
-    const { currentUser, loading, fetchCurrentUser } = useApp();
+    const dispatch = useAppDispatch();
+    const currentUser = useAppSelector(selectCurrentUser);
+    const loading = useAppSelector(selectLoading);
     const router = useRouter();
     const [isChecking, setIsChecking] = useState(true);
 
     useEffect(() => {
-      const checkAuth = async () => {
-        setIsChecking(true);
-
-        if (!currentUser) {
-          router.push(paths.login);
-        }
-        if (currentUser) {
-          router.push(paths.dashboard);
-          setIsChecking(false);
-        }
-      };
-
-      checkAuth();
-    }, [currentUser, router]);
-
-    useEffect(() => {
       const token = localStorage.getItem("token");
       if (token && !currentUser && !loading) {
-        setIsChecking(true);
+        dispatch(fetchCurrentUser());
+      } else if (!token) {
+        setIsChecking(false);
+        router.push(paths.login);
       }
-    }, [currentUser, loading]);
+    }, [dispatch, currentUser, loading, router]);
+
+    useEffect(() => {
+      if (currentUser) {
+        setIsChecking(false);
+      } else if (!loading && !currentUser) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          router.push(paths.login);
+        }
+      }
+    }, [currentUser, loading, router]);
 
     if (loading || isChecking) {
       return (

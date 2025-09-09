@@ -1,23 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
-import { FormState, loginSchema, useFormState } from "@/utils/form";
+import { loginSchema, useFormState } from "@/utils/form";
 
-import { useApp } from "@/contexts/AppProvider";
 import { MyButton } from "../../../components/ui-components/my-button";
 import { ErrorContainer } from "../../../components/ui-components/error-container";
-import request from "@/lib/request";
-import { generateSalt, hashPassword } from "@/utils/security";
+
 import { Input } from "@heroui/react";
-import z from "zod";
 import { paths } from "@/utils/paths";
+import { useAppDispatch, useAppSelector } from "@/stores(REDUX)";
+import { login, selectCurrentUser } from "@/stores(REDUX)/slices/auth-slice";
+import { LoginDto } from "@/types";
 
 export default function LoginPage() {
-  const [error, setError] = useState("");
-  const { login, currentUser } = useApp();
+  const dispatch = useAppDispatch();
+  const currentUser = useAppSelector(selectCurrentUser);
   const router = useRouter();
 
   const { formData, handleChange, errors, isFormValid } = useFormState(
@@ -28,10 +27,16 @@ export default function LoginPage() {
     loginSchema
   );
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    await login(formData);
-  };
+  const onSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const result = await dispatch(login(formData as LoginDto)).unwrap();
+      if (result) {
+        router.push(paths.dashboard);
+      }
+    },
+    [dispatch, formData, router]
+  );
 
   useEffect(() => {
     if (currentUser) {

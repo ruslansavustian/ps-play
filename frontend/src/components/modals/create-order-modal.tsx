@@ -11,8 +11,8 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useApp } from "@/contexts/AppProvider";
-import { Account, CreateOrderDto, Game, Order } from "@/types";
+import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
+import { Account, CreateOrderDto } from "@/types";
 import { ErrorContainer } from "../ui-components/error-container";
 import { useTranslations } from "next-intl";
 

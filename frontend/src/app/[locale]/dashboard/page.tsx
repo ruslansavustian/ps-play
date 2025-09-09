@@ -1,12 +1,9 @@
 "use client";
 
-import { useApp } from "@/contexts/AppProvider";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { CreateGameModal } from "../../../components/modals/create-game.modal";
+import { useCallback } from "react";
 import { AccountSection } from "@/components/dashboard/account-section";
 import { GameSection } from "@/components/dashboard/game-section";
-import { Button, Card, CardBody, Link, Tab, Tabs } from "@heroui/react";
+import { Card, CardBody, Link, Tab, Tabs } from "@heroui/react";
 import { withAuthCheck } from "@/hoc/withAuthCheck";
 import { Loader } from "@/components/ui-components/loader";
 import { OrderSection } from "@/components/dashboard/order-section";
@@ -15,65 +12,21 @@ import { AuditLogSection } from "@/components/dashboard/audit-log-section";
 import { paths } from "@/utils/paths";
 import { useTranslations } from "next-intl";
 import { UsersSection } from "@/components/dashboard/users-section";
+import { useAppDispatch, useAppSelector } from "@/stores(REDUX)";
+import { logout, selectCurrentUser } from "@/stores(REDUX)/slices/auth-slice";
 
 function DashboardPage() {
-  const {
-    currentUser,
-    logout,
-    accounts,
-    fetchAccounts,
-    games,
-    fetchGames,
-    orders,
-    auditLogs,
-    fetchAuditLogs,
-    fetchOrders,
-    users,
-    roles,
-    fetchRoles,
-    fetchUsers,
-  } = useApp();
-  const router = useRouter();
   const t = useTranslations("dashboard");
+  const dispatch = useAppDispatch();
   const tUsers = useTranslations("users");
   const tCommon = useTranslations("common");
   const tAuth = useTranslations("auth");
-  // Загружаем данные только если их нет
-  useEffect(() => {
-    if (!accounts) {
-      fetchAccounts();
-    }
-  }, [fetchAccounts, accounts]);
+  const currentUser = useAppSelector(selectCurrentUser);
 
-  useEffect(() => {
-    if (!auditLogs) {
-      fetchAuditLogs();
-    }
-  }, [fetchAuditLogs, auditLogs]);
-
-  useEffect(() => {
-    if (!orders) {
-      fetchOrders();
-    }
-  }, [fetchOrders, orders]);
-
-  useEffect(() => {
-    if (!games) {
-      fetchGames();
-    }
-  }, [fetchGames, games]);
-
-  useEffect(() => {
-    if (!users) {
-      fetchUsers();
-    }
-  }, [fetchUsers, users]);
-
-  useEffect(() => {
-    if (!roles) {
-      fetchRoles();
-    }
-  }, [fetchRoles, roles]);
+  const handleLogout = useCallback(async () => {
+    console.log("handleLogout");
+    dispatch(logout());
+  }, [dispatch]);
 
   if (!currentUser) {
     return <Loader />;
@@ -92,8 +45,8 @@ function DashboardPage() {
                 {tCommon("welcome")} {currentUser.name}!
               </span>
               <button
-                onClick={logout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                onClick={handleLogout}
+                className="bg-red-600 cursor-pointer hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
               >
                 {tAuth("logout")}
               </button>
