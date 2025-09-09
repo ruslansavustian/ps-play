@@ -16,7 +16,9 @@ const axiosInstance: AxiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (request: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem("token");
-    if (token) {
+    // Only add Bearer token if no Authorization header is already set
+    // This allows Basic Auth for login requests
+    if (token && !request.headers.Authorization) {
       request.headers.Authorization = `Bearer ${token}`;
     }
 
