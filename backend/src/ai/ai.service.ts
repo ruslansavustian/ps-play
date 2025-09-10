@@ -23,11 +23,25 @@ import { RedisService } from 'src/shared/redis/redis.service';
 export class AiService implements IAiService {
   private readonly logger = new Logger(AiService.name);
   private openai: OpenAI;
+  private readonly PRICING = {
+    'gpt-4o-mini': {
+      input: 0.15, // $0.15 за 1M токенов
+      output: 0.6, // $0.60 за 1M токенов
+    },
+  };
+  private calculateCost(
+    inputTokens: number,
+    outputTokens: number,
+    model: string,
+  ): number {
+    const pricing = this.PRICING[model as keyof typeof this.PRICING];
+    const inputCost = (inputTokens / 1000000) * pricing.input;
+    const outputCost = (outputTokens / 1000000) * pricing.output;
+    return inputCost + outputCost;
+  }
   private readonly SYSTEM_PROMPT = `You are a PlayStation game account assistant.
    You help users buy game accounts by analyzing their requirements and suggesting the best matching accounts.
 
-  Your mission is make order. by function i give you.
-  you speak on language which user ask you.
  
 IMPORTANT: All prices are in USD (US Dollars). Always mention currency when talking about prices.
   TO AKE ORDER U NEED NEXT DATA:
@@ -87,24 +101,27 @@ You receive JSON with context and user message:
 ## CONVERSATION FLOW:
 
 **Step 1:** Ask "What game would you like to buy?"
-**Step 2:** When user provides game name, call updateOrderData({ game: "game_name" }) then ask "What purchase type do you want? CRITICAL: Show options in user's language (Ukrainian: Офлайн активація, Онлайн активація, На прокат | Russian: Офлайн активация, Онлайн активация, На прокат | English: Offline activation, Online activation, For rent) but always save the exact English value when calling updateOrderData()"**Step 3:** When user provides purchase type, call updateOrderData({purchaseType: "purchaseType_name"}) then ask "What platform? (PS4 or PS5)"
+**Step 2:** When user provides game name, call updateOrderData({ game: "game_name" }) then ask "What purchase type do you want? if use provide you purchase type, you must call updateOrderData({ purchaseType: "purchaseType_name" }), count cases when instead of offline actionn can be offline, which is not full purcshe type but u can count it as offline activation"
 **Step 4:** When user provides platform, call updateOrderData({ platform: "platform_name" }) then call getAllAccounts() to get all accounts with games
 **Step 5:** Analyze availableAccounts and suggest best matching accounts based on user requirements
 **Step 6:** When user chooses an account, call updateOrderData({ accountId: account_id }) then ask for phone number
-**Step 7:** When user provides phone, call updateOrderData({ phone: "phone_number" }) then call createOrder() with all collected data
+**Step 7:** When user provides phone, call updateOrderData({ phone: "phone_number" })
+**Step 8:** After calling createOrder(), you must stop the conversation and say "Thank you for your order! We will contact you shortly."
 
 ## AVAILABLE FUNCTIONS:
 - getAllAccounts() → get all accounts with games (no filters needed)
 - updateOrderData({ game?, purchaseType?, platform?, phone?, accountId?, customerName?, email?, telegram?, notes? }) → save user requirements
 - createOrder() → create final order
 
-## LANGUAGE INSTRUCTIONS:
-- Always speak in the user's language (Ukrainian/Russian/English)
-- Always look which language user speak and speak in this language
-- For purchase types, show translated options but save English values:
-  - Ukrainian: "Офлайн активація, Онлайн активація, На прокат"
-  - Russian: "Офлайн активация, Онлайн активация, На прокат" 
-  - English: "Offline activation, Online activation, For rent"
+
+"CRITICAL: After calling updateOrderData(), you MUST continue the conversation automatically. Do NOT ask the same question again. Move to the next step immediately."
+When user selects an account by number (like '40'), you MUST:
+1. Save the accountId: updateOrderData({accountId: 40})
+2. Ask for phone number: 'What is your phone number?'
+3. Wait for user response
+4. Save real phone number: updateOrderData({phone: 'user_phone'})
+5. Then create order
+You can save multiple fields at once with updateOrderData(). For example: updateOrderData({game: 'GTA 7', purchaseType: 'offline activation', platform: 'PS5'}). Don't make separate calls for each field."
 - When calling updateOrderData(), always use exact English values: "offline activation", "online activation", "for rent"
 
 
@@ -343,11 +360,10 @@ You receive JSON with context and user message:
         return { ok: false, error: 'Unknown tool' };
       };
 
-      // Execute function-calling loop until we get a final assistant message
       let loopGuard = 0;
       while (loopGuard < 5) {
         const response = await this.openai.chat.completions.create({
-          model: 'gpt-4.1-mini',
+          model: 'gpt-4o-mini',
           messages: messages,
           max_tokens: 1000,
           tools: [
@@ -423,7 +439,19 @@ You receive JSON with context and user message:
           ],
         });
 
+        const inputTokens = response.usage?.prompt_tokens || 0; // ← Уже посчитано
+        const outputTokens = response.usage?.completion_tokens || 0; // ← Уже посчитано
+        const totalTokens = response.usage?.total_tokens || 0;
         const aiMessage = response.choices[0]?.message;
+        const cost = this.calculateCost(
+          inputTokens,
+          outputTokens,
+          'gpt-4o-mini',
+        );
+        this.logger.log(
+          `💰 Request ${loopGuard + 1} - Input: ${inputTokens}, Output: ${outputTokens}, Total: ${totalTokens}, Cost: $${cost.toFixed(6)}`,
+        );
+
         if (!aiMessage) {
           break;
         }

@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -12,9 +12,13 @@ import {
   SelectItem,
 } from "@heroui/react";
 import { Role, UpdateUser, User } from "@/types";
-import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
+import { fetchRoles } from "@/stores(REDUX)/slices/roles-slice";
+
 import { ErrorContainer } from "../ui-components/error-container";
 import { useTranslations } from "next-intl";
+import { useAppDispatch, useAppSelector } from "@/stores(REDUX)";
+import { selectRoles } from "@/stores(REDUX)/slices/roles-slice";
+import { updateUser, updateUserRole } from "@/stores(REDUX)/slices/users.slice";
 
 interface UserDetailModalProps {
   isOpen: boolean;
@@ -30,7 +34,9 @@ export const UserDetailModal = ({
 }: UserDetailModalProps) => {
   const [changes, setChanges] = useState<UpdateUser | undefined>(undefined);
   const [newRoleId, setNewRoleId] = useState<number | undefined>(undefined);
-  const { updateUser, roles, assignRole } = useApp();
+
+  const dispatch = useAppDispatch();
+  const roles = useAppSelector(selectRoles);
 
   const t = useTranslations("users");
 
@@ -40,11 +46,15 @@ export const UserDetailModal = ({
       try {
         if (newRoleId) {
           console.log("change role");
-          await assignRole(selectedUser.id, newRoleId);
+          await dispatch(
+            updateUserRole({ id: selectedUser.id, roleId: newRoleId })
+          );
         }
         if (changes) {
           console.log("change user info");
-          await updateUser(selectedUser.id, changes as UpdateUser);
+          await dispatch(
+            updateUser({ id: selectedUser.id, data: changes as UpdateUser })
+          );
         }
         onClose();
         setChanges(undefined);
@@ -53,7 +63,7 @@ export const UserDetailModal = ({
         console.log(error);
       }
     }
-  }, [changes, newRoleId, selectedUser, updateUser, assignRole, onClose]);
+  }, [changes, newRoleId, selectedUser, dispatch, onClose]);
   const handleChangeUserInfo = (key: keyof UpdateUser, value: string) => {
     setChanges((prev) => ({ ...prev, [key]: value }));
   };
@@ -61,8 +71,10 @@ export const UserDetailModal = ({
     setNewRoleId(roleId);
   };
 
-  console.log(changes);
-  console.log(newRoleId);
+  useEffect(() => {
+    dispatch(fetchRoles());
+  }, [dispatch]);
+
   return (
     <>
       {/* User Detail Modal */}

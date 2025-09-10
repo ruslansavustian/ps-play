@@ -1,19 +1,27 @@
 "use client";
 import React, { useEffect } from "react";
-import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
+
 import HomeGameCard from "@/components/ui-components/home-game-card";
 
 import { useTranslations } from "next-intl";
 import { PSLoader } from "@/components/ui-components/ps-loader";
+import { useAppDispatch, useAppSelector } from "@/stores(REDUX)";
+import {
+  fetchGames,
+  selectGames,
+  selectGamesLoading,
+} from "@/stores(REDUX)/slices/games-slice";
 
 export const HomeGamesTable = () => {
-  const { games, gamesLoading, fetchGames } = useApp();
+  const games = useAppSelector(selectGames);
+  const gamesLoading = useAppSelector(selectGamesLoading);
+  const dispatch = useAppDispatch();
   const t = useTranslations("games");
   useEffect(() => {
-    if (!games) {
-      fetchGames();
+    if (games.length === 0) {
+      dispatch(fetchGames());
     }
-  }, [fetchGames, games]);
+  }, [dispatch, games]);
 
   if (gamesLoading) {
     return <PSLoader />;

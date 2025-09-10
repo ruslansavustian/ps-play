@@ -3,7 +3,7 @@ import { Provider } from "react-redux";
 import { HeroUIProvider } from "@heroui/react";
 import { AppProvider } from "@/contexts(NOT USED ANYMORE)/AppProvider";
 import Header from "@/components/ui-components/header";
-import store from "@/stores(REDUX)";
+import { store } from "@/stores(REDUX)";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (

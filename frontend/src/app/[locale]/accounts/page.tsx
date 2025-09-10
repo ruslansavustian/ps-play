@@ -1,27 +1,24 @@
 "use client";
-
 import { HomeAccountsTable } from "@/components/tables/home-tables/home-accounts-table";
 import React, { useEffect } from "react";
 
-import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
-import { useTranslations } from "next-intl";
-import { PSLoader } from "@/components/ui-components/ps-loader";
 import { SupportChat } from "@/components/chat/support-chat";
+import { useTranslations } from "next-intl";
+import { useAppDispatch, useAppSelector } from "@/stores(REDUX)";
+import {
+  fetchPublicAccounts,
+  selectPublicAccounts,
+} from "@/stores(REDUX)/slices/accounts-slice";
 
 export default function AccountsPage() {
-  const { publicAccounts, fetchPublicAccounts } = useApp();
   const t = useTranslations();
-
+  const publicAccounts = useAppSelector(selectPublicAccounts);
+  const dispatch = useAppDispatch();
   useEffect(() => {
-    if (!publicAccounts) {
-      fetchPublicAccounts();
+    if (publicAccounts.length === 0) {
+      dispatch(fetchPublicAccounts());
     }
-  }, [fetchPublicAccounts, publicAccounts]);
-
-  if (!publicAccounts) {
-    return <PSLoader />;
-  }
-
+  }, [dispatch, publicAccounts]);
   return (
     <div className="min -h-screen ">
       <main>
@@ -35,7 +32,9 @@ export default function AccountsPage() {
             </div>
           </div>
         </div>
-        {publicAccounts && <HomeAccountsTable accounts={publicAccounts} />}
+        {publicAccounts && publicAccounts.length > 0 && (
+          <HomeAccountsTable accounts={publicAccounts} />
+        )}
         <SupportChat />
       </main>
     </div>
