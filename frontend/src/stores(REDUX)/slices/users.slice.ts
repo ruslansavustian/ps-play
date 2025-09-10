@@ -2,7 +2,7 @@ import request from "@/lib/request";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UsersState } from "../types";
 import { RootState } from "../index";
-import { User } from "@/types";
+import { UpdateUser, User } from "@/types";
 
 export const fetchUsers = createAsyncThunk(
   "users/fetchUsers",
@@ -14,6 +14,41 @@ export const fetchUsers = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch users"
+      );
+    }
+  }
+);
+
+export const updateUser = createAsyncThunk(
+  "users/updateUser",
+
+  async (
+    { id, data }: { id: number; data: UpdateUser },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await request.patch(`/users/${id}`, data);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update user"
+      );
+    }
+  }
+);
+
+export const updateUserRole = createAsyncThunk(
+  "users/updateUserRole",
+  async (
+    { id, roleId }: { id: number; roleId: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await request.put(`/users/${id}/role`, { roleId });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update user role"
       );
     }
   }
@@ -48,6 +83,34 @@ const usersSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(updateUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.users = state.users.map((user: User) =>
+          user.id === action.payload.id ? action.payload : user
+        );
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(updateUserRole.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserRole.fulfilled, (state, action) => {
+        state.loading = false;
+        state.users = state.users.map((user: User) =>
+          user.id === action.payload.id ? action.payload : user
+        );
+      })
+      .addCase(updateUserRole.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

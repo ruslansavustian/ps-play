@@ -9,20 +9,20 @@ import {
   TableCell,
   Spinner,
 } from "@heroui/react";
-import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
 import { Account } from "@/types";
 import { CustomersCreateModal } from "@/components/modals/customers-create-modal";
 import { useAsyncList } from "@react-stately/data";
 import { useTranslations } from "next-intl";
+import { selectPublicAccountsLoading } from "@/stores(REDUX)/slices/accounts-slice";
+import { useAppSelector } from "@/stores(REDUX)";
+import { PSLoader } from "@/components/ui-components/ps-loader";
 
-interface HomeAccountsTableProps {
-  accounts: Account[];
-}
+export const HomeAccountsTable = ({ accounts }: { accounts: Account[] }) => {
+  const loading = useAppSelector(selectPublicAccountsLoading);
 
-export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
-  const { loading } = useApp();
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [customersCreateModal, setCustomersCreateModal] = useState(false);
+
   const handleRowClick = (account: Account) => {
     setSelectedAccount(account);
 
@@ -33,7 +33,7 @@ export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
   const list = useAsyncList({
     async load() {
       return {
-        items: accounts || [],
+        items: accounts,
       };
     },
     async sort({ items, sortDescriptor }) {
@@ -97,7 +97,11 @@ export const HomeAccountsTable = ({ accounts }: HomeAccountsTableProps) => {
       };
     },
   });
-  if (!accounts) return null;
+
+  if (loading && accounts.length === 0) {
+    return <PSLoader />;
+  }
+
   return (
     <>
       {selectedAccount && selectedAccount.id && (

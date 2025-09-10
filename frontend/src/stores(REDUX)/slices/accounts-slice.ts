@@ -82,7 +82,9 @@ const initialState: AccountsState = {
   accounts: [],
   publicAccounts: [],
   loading: false,
+  publicAccountsLoading: false,
   error: null,
+  publicAccountsError: null,
 };
 
 // Slice (модуль состояния)
@@ -96,6 +98,9 @@ const accountsSlice = createSlice({
     },
     setAccounts: (state, action: PayloadAction<Account[]>) => {
       state.accounts = action.payload;
+    },
+    setPublicAccounts: (state, action: PayloadAction<Account[]>) => {
+      state.publicAccounts = action.payload;
     },
     addAccount: (state, action: PayloadAction<Account>) => {
       state.accounts.push(action.payload);
@@ -132,17 +137,18 @@ const accountsSlice = createSlice({
       })
       // Fetch Public Accounts
       .addCase(fetchPublicAccounts.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.publicAccountsLoading = true;
+        state.publicAccountsError = null;
       })
       .addCase(fetchPublicAccounts.fulfilled, (state, action) => {
-        state.loading = false;
+        state.publicAccountsLoading = false;
         state.publicAccounts = action.payload;
-        state.error = null;
+        state.publicAccountsError = null;
       })
       .addCase(fetchPublicAccounts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
+        state.publicAccountsLoading = false;
+
+        state.publicAccountsError = action.payload as string;
       })
       // Create Account
       .addCase(createAccount.pending, (state) => {
@@ -202,13 +208,19 @@ export const {
   addAccount,
   updateAccountInState,
   removeAccount,
+  setPublicAccounts,
 } = accountsSlice.actions;
 
 export const selectAccounts = (state: RootState) => state.accounts.accounts;
+export const selectPublicAccountsLoading = (state: RootState) =>
+  state.accounts.publicAccountsLoading;
+
 export const selectPublicAccounts = (state: RootState) =>
   state.accounts.publicAccounts;
 export const selectAccountsLoading = (state: RootState) =>
   state.accounts.loading;
 export const selectAccountsError = (state: RootState) => state.accounts.error;
+export const selectPublicAccountsError = (state: RootState) =>
+  state.accounts.publicAccountsError;
 
 export default accountsSlice.reducer;

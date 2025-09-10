@@ -8,6 +8,7 @@ import auditLogsSlice from "./slices/audit-log.slice";
 import ordersReducer from "./slices/orders-slice";
 import usersReducer from "./slices/users.slice";
 import authReducer from "./slices/auth-slice";
+import rolesReducer from "./slices/roles-slice";
 export const store = configureStore({
   reducer: {
     accounts: accountsReducer,
@@ -16,6 +17,7 @@ export const store = configureStore({
     orders: ordersReducer,
     users: usersReducer,
     auth: authReducer,
+    roles: rolesReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -45,6 +47,3 @@ export type AppDispatch = typeof store.dispatch;
 // Типизированные хуки
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
-
-// Экспорт store для использования в приложении
-export default store;

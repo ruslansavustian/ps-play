@@ -1,4 +1,4 @@
-import { User, Account, Game, Order, AuditLog } from "@/types";
+import { User, Account, Game, Order, AuditLog, Role } from "@/types";
 
 export interface AuthState {
   currentUser: User | null;
@@ -17,7 +17,9 @@ export interface AccountsState {
   accounts: Account[];
   publicAccounts: Account[];
   loading: boolean;
+  publicAccountsLoading: boolean;
   error: string | null;
+  publicAccountsError: string | null;
 }
 
 export interface GamesState {
@@ -39,6 +41,12 @@ export interface AuditLogsState {
   error: string | null;
 }
 
+export interface RolesState {
+  roles: Role[];
+  loading: boolean;
+  error: string | null;
+}
+
 export interface RootState {
   accounts: AccountsState;
   games: GamesState;
@@ -46,4 +54,5 @@ export interface RootState {
   orders: OrdersState;
   users: UsersState;
   auth: AuthState;
+  roles: RolesState;
 }
