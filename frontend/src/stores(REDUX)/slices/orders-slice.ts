@@ -1,5 +1,5 @@
 import request from "@/lib/request";
-import { Order, OrdersState } from "@/types";
+import { CreateOrderDto, Order, OrdersState } from "@/types";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "..";
 
@@ -12,6 +12,20 @@ export const fetchOrders = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch games"
+      );
+    }
+  }
+);
+
+export const createOrder = createAsyncThunk(
+  "orders/createOrder",
+  async (order: CreateOrderDto, { rejectWithValue }) => {
+    try {
+      const response = await request.post<Order>("/orders", order);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to create order"
       );
     }
   }
@@ -33,6 +47,9 @@ export const ordersSlice = createSlice({
     setOrders: (state, action: PayloadAction<Order[]>) => {
       state.orders = action.payload;
     },
+    addOrder: (state, action: PayloadAction<Order>) => {
+      state.orders.push(action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -48,11 +65,24 @@ export const ordersSlice = createSlice({
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(createOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders.push(action.payload);
+        state.error = null;
+      })
+      .addCase(createOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { clearError, setOrders } = ordersSlice.actions;
+export const { clearError, setOrders, addOrder } = ordersSlice.actions;
 
 export const selectOrders = (state: RootState) => state.orders.orders;
 export const selectOrdersLoading = (state: RootState) => state.orders.loading;
