@@ -11,10 +11,12 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useApp } from "@/contexts(NOT USED ANYMORE)/AppProvider";
 import { Account, CreateOrderDto } from "@/types";
 import { ErrorContainer } from "../ui-components/error-container";
 import { useTranslations } from "next-intl";
+import { useAppDispatch, useAppSelector } from "@/stores(REDUX)";
+import { selectAccounts } from "@/stores(REDUX)/slices/accounts-slice";
+import { createOrder } from "@/stores(REDUX)/slices/orders-slice";
 
 interface CreateOrderModalProps {
   isOpen: boolean;
@@ -25,7 +27,8 @@ export const CreateOrderModal = ({
   isOpen,
   onClose,
 }: CreateOrderModalProps) => {
-  const { createOrder, accounts, clearError, errorMessage } = useApp();
+  const dispatch = useAppDispatch();
+  const accounts = useAppSelector(selectAccounts);
   const t = useTranslations("orders");
 
   const [formData, setFormData] = useState<CreateOrderDto>({
@@ -40,35 +43,40 @@ export const CreateOrderModal = ({
     purchaseType: "",
   });
   const handleSubmit = async () => {
-    createOrder({
-      customerName: formData?.customerName,
-      phone: formData?.phone ?? "",
-      gameName: formData?.gameName,
-      platform: formData?.platform,
-      notes: formData?.notes,
-      email: formData?.email,
-      telegram: formData?.telegram,
-      accountId: Number(formData?.accountId),
-      purchaseType: formData?.purchaseType,
-    });
-    setFormData({
-      customerName: "",
-      phone: "",
-      gameName: "",
-      platform: "",
-      notes: "",
-      email: "",
-      telegram: "",
-      accountId: 0,
-      purchaseType: "",
-    });
-    onClose?.();
+    try {
+      const result = await dispatch(
+        createOrder({
+          customerName: formData?.customerName,
+          phone: formData?.phone ?? "",
+          gameName: formData?.gameName,
+          platform: formData?.platform,
+          notes: formData?.notes,
+          email: formData?.email,
+          telegram: formData?.telegram,
+          accountId: Number(formData?.accountId),
+          purchaseType: formData?.purchaseType,
+        })
+      ).unwrap();
+      if (result) {
+        setFormData({
+          customerName: "",
+          phone: "",
+          gameName: "",
+          platform: "",
+          notes: "",
+          email: "",
+          telegram: "",
+          accountId: 0,
+          purchaseType: "",
+        });
+        onClose?.();
+      }
+    } catch (error) {
+      console.error("Failed to create order:", error);
+    }
   };
 
   const handleInputChange = (e: any) => {
-    if (errorMessage) {
-      clearError();
-    }
     const { name, value } = e.target;
 
     setFormData({ ...formData, [name]: value });

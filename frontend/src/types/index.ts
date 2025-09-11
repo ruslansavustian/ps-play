@@ -130,6 +130,10 @@ export interface Order {
   customerName?: string;
   phone?: string;
   gameName?: string;
+  email?: string;
+  telegram?: string;
+  accountId?: number;
+  purchaseType?: string;
   platform?: string;
   notes?: string;
   status?: string;
